@@ -23,6 +23,11 @@ function formatValue(value, decimals) {
     return value.toFixed(decimals);
 }
 
+// Validate hex color string (#RGB or #RRGGBB)
+function isValidHexColor(str) {
+    return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(str);
+}
+
 // Helper to remove internal LiteGraph properties from Properties Panel
 function cleanProperties(node) {
     if (node.properties) {
@@ -50,9 +55,12 @@ app.registerExtension({
                 max: 100.0,
                 step: 0.5,
                 snap: true,
-                padding: "0.000"
+                padding: "0.000",
+                fillColor: "#d99a4a",
+                borderColor: "#666666",
+                textColor: "#ffffff"
             };
-            
+
             // Sync with node.properties for Properties Panel
             this.properties = this.properties || {};
             this.properties.current = this.sliderProps.current;
@@ -61,6 +69,9 @@ app.registerExtension({
             this.properties.step = this.sliderProps.step;
             this.properties.snap = this.sliderProps.snap;
             this.properties.padding = this.sliderProps.padding;
+            this.properties.fillColor = this.sliderProps.fillColor;
+            this.properties.borderColor = this.sliderProps.borderColor;
+            this.properties.textColor = this.sliderProps.textColor;
             
             // Remove internal LiteGraph properties
             cleanProperties(this);
@@ -181,6 +192,21 @@ app.registerExtension({
                     this.sliderProps.padding = "0." + "0".repeat(decimals);
                     this.properties.padding = this.sliderProps.padding;
                 }
+            } else if (name === "fillColor") {
+                if (isValidHexColor(value)) {
+                    this.sliderProps.fillColor = value;
+                    this.properties.fillColor = value;
+                }
+            } else if (name === "borderColor") {
+                if (isValidHexColor(value)) {
+                    this.sliderProps.borderColor = value;
+                    this.properties.borderColor = value;
+                }
+            } else if (name === "textColor") {
+                if (isValidHexColor(value)) {
+                    this.sliderProps.textColor = value;
+                    this.properties.textColor = value;
+                }
             }
             this.setDirtyCanvas(true, true);
         };
@@ -195,7 +221,10 @@ app.registerExtension({
                 if (this.sliderProps.step <= 0) this.sliderProps.step = 0.001;
                 this.sliderProps.snap = info.properties.snap ?? true;
                 this.sliderProps.padding = info.properties.padding ?? "0.000";
-                
+                this.sliderProps.fillColor = isValidHexColor(info.properties.fillColor) ? info.properties.fillColor : "#d99a4a";
+                this.sliderProps.borderColor = isValidHexColor(info.properties.borderColor) ? info.properties.borderColor : "#666666";
+                this.sliderProps.textColor = isValidHexColor(info.properties.textColor) ? info.properties.textColor : "#ffffff";
+
                 // Sync to properties
                 this.properties.current = this.sliderProps.current;
                 this.properties.min = this.sliderProps.min;
@@ -203,6 +232,9 @@ app.registerExtension({
                 this.properties.step = this.sliderProps.step;
                 this.properties.snap = this.sliderProps.snap;
                 this.properties.padding = this.sliderProps.padding;
+                this.properties.fillColor = this.sliderProps.fillColor;
+                this.properties.borderColor = this.sliderProps.borderColor;
+                this.properties.textColor = this.sliderProps.textColor;
                 
                 // Remove internal properties
                 cleanProperties(this);
@@ -241,24 +273,24 @@ app.registerExtension({
             ctx.roundRect(padding, sliderY, width - padding * 2, sliderHeight, 4);
             ctx.fill();
             
-            // Draw slider fill (orange for float)
+            // Draw slider fill
             const fillWidth = (width - padding * 2) * ratio;
             if (fillWidth > 0) {
-                ctx.fillStyle = "#d99a4a";
+                ctx.fillStyle = this.sliderProps.fillColor;
                 ctx.beginPath();
                 ctx.roundRect(padding, sliderY, fillWidth, sliderHeight, 4);
                 ctx.fill();
             }
             
             // Draw slider border
-            ctx.strokeStyle = "#666";
+            ctx.strokeStyle = this.sliderProps.borderColor;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.roundRect(padding, sliderY, width - padding * 2, sliderHeight, 4);
             ctx.stroke();
             
             // Draw value text centered on slider (with proper decimals)
-            ctx.fillStyle = "#fff";
+            ctx.fillStyle = this.sliderProps.textColor;
             ctx.font = "bold 12px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -380,7 +412,10 @@ app.registerExtension({
                 max: this.sliderProps.max,
                 step: this.sliderProps.step,
                 snap: this.sliderProps.snap,
-                padding: this.sliderProps.padding
+                padding: this.sliderProps.padding,
+                fillColor: this.sliderProps.fillColor,
+                borderColor: this.sliderProps.borderColor,
+                textColor: this.sliderProps.textColor
             };
         };
         
@@ -402,13 +437,19 @@ app.registerExtension({
                     this.sliderProps.step = 0.5;
                     this.sliderProps.snap = true;
                     this.sliderProps.padding = "0.000";
-                    
+                    this.sliderProps.fillColor = "#d99a4a";
+                    this.sliderProps.borderColor = "#666666";
+                    this.sliderProps.textColor = "#ffffff";
+
                     this.properties.current = 1.0;
                     this.properties.min = 0.0;
                     this.properties.max = 100.0;
                     this.properties.step = 0.5;
                     this.properties.snap = true;
                     this.properties.padding = "0.000";
+                    this.properties.fillColor = "#d99a4a";
+                    this.properties.borderColor = "#666666";
+                    this.properties.textColor = "#ffffff";
                     
                     cleanProperties(this);
                     
