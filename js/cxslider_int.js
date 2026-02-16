@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.1";
+const CX_VERSION = "1.2.2";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -29,6 +29,15 @@ function openColorPicker(currentColor, callback) {
     if (input.parentNode) document.body.removeChild(input);
   });
   input.showPicker();
+}
+
+// Get contrasting text color based on background luminance
+function getContrastColor(hexColor) {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
 
 // Helper to remove internal LiteGraph properties from Properties Panel
@@ -80,7 +89,7 @@ app.registerExtension({
         snap: true,
         fillColor: "#4a90d9",
         borderColor: "#666666",
-        textColor: "#ffffff",
+        textColor: "auto",
       };
 
       // Sync with node.properties for Properties Panel
@@ -115,12 +124,10 @@ app.registerExtension({
       // Find the widget
       this._setupWidget();
 
-      // Hide value_override input label
-      if (this.inputs) {
-        for (const inp of this.inputs) {
-          if (inp.name === "value_override") {
-            inp.label = " ";
-          }
+      // Set output labels to lowercase
+      if (this.outputs) {
+        for (const out of this.outputs) {
+          out.label = out.name.toLowerCase();
         }
       }
     };
@@ -205,60 +212,19 @@ app.registerExtension({
         if (isValidHexColor(value)) {
           this.sliderProps.fillColor = value;
           this.properties.fillColor = value;
-        } else if (
-          value === this.sliderProps.fillColor ||
-          !isValidHexColor(value)
-        ) {
-          const self = this;
-          openColorPicker(this.sliderProps.fillColor, (c) => {
-            self.sliderProps.fillColor = c;
-            self.properties.fillColor = c;
-            self.setDirtyCanvas(true, true);
-          });
         }
       } else if (name === "borderColor") {
         if (isValidHexColor(value)) {
           this.sliderProps.borderColor = value;
           this.properties.borderColor = value;
-        } else if (
-          value === this.sliderProps.borderColor ||
-          !isValidHexColor(value)
-        ) {
-          const self = this;
-          openColorPicker(this.sliderProps.borderColor, (c) => {
-            self.sliderProps.borderColor = c;
-            self.properties.borderColor = c;
-            self.setDirtyCanvas(true, true);
-          });
         }
       } else if (name === "textColor") {
-        if (isValidHexColor(value)) {
+        if (isValidHexColor(value) || value === "auto") {
           this.sliderProps.textColor = value;
           this.properties.textColor = value;
-        } else if (
-          value === this.sliderProps.textColor ||
-          !isValidHexColor(value)
-        ) {
-          const self = this;
-          openColorPicker(this.sliderProps.textColor, (c) => {
-            self.sliderProps.textColor = c;
-            self.properties.textColor = c;
-            self.setDirtyCanvas(true, true);
-          });
         }
       }
       this.setDirtyCanvas(true, true);
-    };
-
-    // Property info hints for Properties Panel
-    nodeType.prototype.getPropertyInfo = function (name) {
-      if (["current", "min", "max", "step"].includes(name)) {
-        return { type: "number", step: 1 };
-      }
-      if (["fillColor", "borderColor", "textColor"].includes(name)) {
-        return { type: "color" };
-      }
-      return null;
     };
 
     // Configure handler for loading saved values
@@ -280,9 +246,9 @@ app.registerExtension({
         )
           ? info.properties.borderColor
           : "#666666";
-        this.sliderProps.textColor = isValidHexColor(info.properties.textColor)
-          ? info.properties.textColor
-          : "#ffffff";
+        const tc = info.properties.textColor;
+        this.sliderProps.textColor =
+          isValidHexColor(tc) || tc === "auto" ? tc : "auto";
 
         // Sync to properties
         this.properties.current = this.sliderProps.current;
@@ -307,12 +273,10 @@ app.registerExtension({
           }
         }
 
-        // Hide value_override input label
-        if (this.inputs) {
-          for (const inp of this.inputs) {
-            if (inp.name === "value_override") {
-              inp.label = " ";
-            }
+        // Set output labels to lowercase
+        if (this.outputs) {
+          for (const out of this.outputs) {
+            out.label = out.name.toLowerCase();
           }
         }
       }
@@ -359,7 +323,11 @@ app.registerExtension({
       ctx.stroke();
 
       // Draw value text centered on slider
-      ctx.fillStyle = this.sliderProps.textColor;
+      const textColor =
+        this.sliderProps.textColor === "auto"
+          ? getContrastColor(this.sliderProps.fillColor)
+          : this.sliderProps.textColor;
+      ctx.fillStyle = textColor;
       ctx.font = "bold 12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -511,6 +479,42 @@ app.registerExtension({
 
     // Get extra menu options
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
+      options.push(null); // separator
+      options.push({
+        content: "Pick Fill Color...",
+        callback: () => {
+          openColorPicker(this.sliderProps.fillColor, (c) => {
+            this.sliderProps.fillColor = c;
+            this.properties.fillColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Border Color...",
+        callback: () => {
+          openColorPicker(this.sliderProps.borderColor, (c) => {
+            this.sliderProps.borderColor = c;
+            this.properties.borderColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Text Color...",
+        callback: () => {
+          openColorPicker(
+            this.sliderProps.textColor === "auto"
+              ? getContrastColor(this.sliderProps.fillColor)
+              : this.sliderProps.textColor,
+            (c) => {
+              this.sliderProps.textColor = c;
+              this.properties.textColor = c;
+              this.setDirtyCanvas(true, true);
+            },
+          );
+        },
+      });
       options.push(null);
       options.push({
         content: "Reset to Defaults",
@@ -522,7 +526,7 @@ app.registerExtension({
           this.sliderProps.snap = true;
           this.sliderProps.fillColor = "#4a90d9";
           this.sliderProps.borderColor = "#666666";
-          this.sliderProps.textColor = "#ffffff";
+          this.sliderProps.textColor = "auto";
 
           this.properties.current = 1;
           this.properties.min = 0;
@@ -531,7 +535,7 @@ app.registerExtension({
           this.properties.snap = true;
           this.properties.fillColor = "#4a90d9";
           this.properties.borderColor = "#666666";
-          this.properties.textColor = "#ffffff";
+          this.properties.textColor = "auto";
 
           cleanProperties(this);
 

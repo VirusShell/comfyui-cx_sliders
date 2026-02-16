@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.1";
+const CX_VERSION = "1.2.2";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -28,6 +28,30 @@ function formatValue(value, decimals) {
 // Validate hex color string (#RGB or #RRGGBB)
 function isValidHexColor(str) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(str);
+}
+
+// Open native color picker dialog
+function openColorPicker(currentColor, callback) {
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = currentColor;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.addEventListener("input", (e) => callback(e.target.value));
+  input.addEventListener("change", () => {
+    if (input.parentNode) document.body.removeChild(input);
+  });
+  input.showPicker();
+}
+
+// Get contrasting text color based on background luminance
+function getContrastColor(hexColor) {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
 
 // Helper to remove internal LiteGraph properties from Properties Panel
@@ -83,7 +107,7 @@ app.registerExtension({
         values: [0, 0, 0, 0, 0, 0, 0, 0],
         fillColor: "#d99a4a",
         borderColor: "#666666",
-        textColor: "#ffffff",
+        textColor: "auto",
       };
 
       // Sync with node.properties
@@ -109,6 +133,13 @@ app.registerExtension({
 
       // Remove extra outputs to match default count
       this._reconcileOutputs();
+
+      // Set output labels to lowercase
+      if (this.outputs) {
+        for (const out of this.outputs) {
+          out.label = out.name.toLowerCase();
+        }
+      }
 
       // Set initial size
       this._updateSize();
@@ -299,7 +330,7 @@ app.registerExtension({
           this.properties.borderColor = value;
         }
       } else if (name === "textColor") {
-        if (isValidHexColor(value)) {
+        if (isValidHexColor(value) || value === "auto") {
           this.bankProps.textColor = value;
           this.properties.textColor = value;
         }
@@ -337,9 +368,9 @@ app.registerExtension({
         )
           ? info.properties.borderColor
           : "#666666";
-        this.bankProps.textColor = isValidHexColor(info.properties.textColor)
-          ? info.properties.textColor
-          : "#ffffff";
+        const tc = info.properties.textColor;
+        this.bankProps.textColor =
+          isValidHexColor(tc) || tc === "auto" ? tc : "auto";
 
         for (let i = 0; i < MAX_SLIDERS; i++) {
           const val = info.properties["value_" + (i + 1)];
@@ -351,6 +382,14 @@ app.registerExtension({
 
         this._setupWidgets();
         this._reconcileOutputs();
+
+        // Set output labels to lowercase
+        if (this.outputs) {
+          for (const out of this.outputs) {
+            out.label = out.name.toLowerCase();
+          }
+        }
+
         this._updateSize();
       }
     };
@@ -479,7 +518,11 @@ app.registerExtension({
         ctx.stroke();
 
         // Value text
-        ctx.fillStyle = this.bankProps.textColor;
+        const textColor =
+          this.bankProps.textColor === "auto"
+            ? getContrastColor(this.bankProps.fillColor)
+            : this.bankProps.textColor;
+        ctx.fillStyle = textColor;
         ctx.font = "bold 10px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -515,6 +558,10 @@ app.registerExtension({
           this.bankProps.sliderCount++;
           this.properties.sliderCount = this.bankProps.sliderCount;
           this.addOutput("OUT_" + this.bankProps.sliderCount, "FLOAT");
+          if (this.outputs[this.outputs.length - 1]) {
+            this.outputs[this.outputs.length - 1].label =
+              this.outputs[this.outputs.length - 1].name.toLowerCase();
+          }
           this._updateSize();
           this.setDirtyCanvas(true, true);
         }
@@ -672,6 +719,42 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null);
       options.push({
+        content: "Pick Fill Color...",
+        callback: () => {
+          openColorPicker(this.bankProps.fillColor, (c) => {
+            this.bankProps.fillColor = c;
+            this.properties.fillColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Border Color...",
+        callback: () => {
+          openColorPicker(this.bankProps.borderColor, (c) => {
+            this.bankProps.borderColor = c;
+            this.properties.borderColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Text Color...",
+        callback: () => {
+          openColorPicker(
+            this.bankProps.textColor === "auto"
+              ? getContrastColor(this.bankProps.fillColor)
+              : this.bankProps.textColor,
+            (c) => {
+              this.bankProps.textColor = c;
+              this.properties.textColor = c;
+              this.setDirtyCanvas(true, true);
+            },
+          );
+        },
+      });
+      options.push(null);
+      options.push({
         content: "Reset to Defaults",
         callback: () => {
           this.bankProps.sliderCount = DEFAULT_COUNT;
@@ -685,7 +768,7 @@ app.registerExtension({
           this.bankProps.values = [0, 0, 0, 0, 0, 0, 0, 0];
           this.bankProps.fillColor = "#d99a4a";
           this.bankProps.borderColor = "#666666";
-          this.bankProps.textColor = "#ffffff";
+          this.bankProps.textColor = "auto";
 
           this._syncPropsToProperties();
           cleanProperties(this);

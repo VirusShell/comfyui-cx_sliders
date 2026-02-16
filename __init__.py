@@ -1,7 +1,7 @@
 # ComfyUI - cxSlider Custom Nodes
 # Package initialization - supports both V1 and V3 schema
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 
 from .cxsliders import NODE_CLASS_MAPPINGS as SLIDER_MAPPINGS
 from .cxsliders import NODE_DISPLAY_NAME_MAPPINGS as SLIDER_DISPLAY_MAPPINGS

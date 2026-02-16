@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.1";
+const CX_VERSION = "1.2.2";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -14,6 +14,30 @@ function clamp(value, min, max) {
 // Validate hex color string (#RGB or #RRGGBB)
 function isValidHexColor(str) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(str);
+}
+
+// Open native color picker dialog
+function openColorPicker(currentColor, callback) {
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = currentColor;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.addEventListener("input", (e) => callback(e.target.value));
+  input.addEventListener("change", () => {
+    if (input.parentNode) document.body.removeChild(input);
+  });
+  input.showPicker();
+}
+
+// Get contrasting text color based on background luminance
+function getContrastColor(hexColor) {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
 
 // Helper to remove internal LiteGraph properties from Properties Panel
@@ -69,7 +93,7 @@ app.registerExtension({
         snap: true,
         fillColor: "#4a90d9",
         borderColor: "#666666",
-        textColor: "#ffffff",
+        textColor: "auto",
       };
 
       // Sync with node.properties for Properties Panel
@@ -96,12 +120,10 @@ app.registerExtension({
       // Find the widget
       this._setupWidget();
 
-      // Hide value_override input label
-      if (this.inputs) {
-        for (const inp of this.inputs) {
-          if (inp.name === "value_override") {
-            inp.label = " ";
-          }
+      // Set output labels to lowercase
+      if (this.outputs) {
+        for (const out of this.outputs) {
+          out.label = out.name.toLowerCase();
         }
       }
     };
@@ -199,7 +221,7 @@ app.registerExtension({
           this.properties.borderColor = value;
         }
       } else if (name === "textColor") {
-        if (isValidHexColor(value)) {
+        if (isValidHexColor(value) || value === "auto") {
           this.dialProps.textColor = value;
           this.properties.textColor = value;
         }
@@ -226,9 +248,9 @@ app.registerExtension({
         )
           ? info.properties.borderColor
           : "#666666";
-        this.dialProps.textColor = isValidHexColor(info.properties.textColor)
-          ? info.properties.textColor
-          : "#ffffff";
+        const tc = info.properties.textColor;
+        this.dialProps.textColor =
+          isValidHexColor(tc) || tc === "auto" ? tc : "auto";
 
         this.properties.current = this.dialProps.current;
         this.properties.min = this.dialProps.min;
@@ -248,12 +270,10 @@ app.registerExtension({
           if (widget.options) widget.options.hidden = true;
         }
 
-        // Hide value_override input label
-        if (this.inputs) {
-          for (const inp of this.inputs) {
-            if (inp.name === "value_override") {
-              inp.label = " ";
-            }
+        // Set output labels to lowercase
+        if (this.outputs) {
+          for (const out of this.outputs) {
+            out.label = out.name.toLowerCase();
           }
         }
       }
@@ -270,6 +290,10 @@ app.registerExtension({
       const range = max - min;
       const ratio = range > 0 ? clamp((current - min) / range, 0, 1) : 0;
       const currentAngle = START_ANGLE + SWEEP * ratio;
+      const textColor =
+        this.dialProps.textColor === "auto"
+          ? getContrastColor(this.dialProps.fillColor)
+          : this.dialProps.textColor;
 
       // 1. Background arc (track)
       ctx.beginPath();
@@ -296,7 +320,7 @@ app.registerExtension({
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.lineTo(indX, indY);
-      ctx.strokeStyle = this.dialProps.textColor;
+      ctx.strokeStyle = textColor;
       ctx.lineWidth = 2;
       ctx.lineCap = "round";
       ctx.stroke();
@@ -308,7 +332,7 @@ app.registerExtension({
       ctx.fill();
 
       // 5. Value text below dial
-      ctx.fillStyle = this.dialProps.textColor;
+      ctx.fillStyle = textColor;
       ctx.font = "bold 12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
@@ -470,6 +494,42 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null);
       options.push({
+        content: "Pick Fill Color...",
+        callback: () => {
+          openColorPicker(this.dialProps.fillColor, (c) => {
+            this.dialProps.fillColor = c;
+            this.properties.fillColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Border Color...",
+        callback: () => {
+          openColorPicker(this.dialProps.borderColor, (c) => {
+            this.dialProps.borderColor = c;
+            this.properties.borderColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Text Color...",
+        callback: () => {
+          openColorPicker(
+            this.dialProps.textColor === "auto"
+              ? getContrastColor(this.dialProps.fillColor)
+              : this.dialProps.textColor,
+            (c) => {
+              this.dialProps.textColor = c;
+              this.properties.textColor = c;
+              this.setDirtyCanvas(true, true);
+            },
+          );
+        },
+      });
+      options.push(null);
+      options.push({
         content: "Reset to Defaults",
         callback: () => {
           this.dialProps.current = 1;
@@ -479,7 +539,7 @@ app.registerExtension({
           this.dialProps.snap = true;
           this.dialProps.fillColor = "#4a90d9";
           this.dialProps.borderColor = "#666666";
-          this.dialProps.textColor = "#ffffff";
+          this.dialProps.textColor = "auto";
 
           this.properties.current = 1;
           this.properties.min = 0;
@@ -488,7 +548,7 @@ app.registerExtension({
           this.properties.snap = true;
           this.properties.fillColor = "#4a90d9";
           this.properties.borderColor = "#666666";
-          this.properties.textColor = "#ffffff";
+          this.properties.textColor = "auto";
 
           cleanProperties(this);
 

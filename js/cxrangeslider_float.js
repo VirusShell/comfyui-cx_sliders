@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.1";
+const CX_VERSION = "1.2.2";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -28,6 +28,30 @@ function formatValue(value, decimals) {
 // Validate hex color string (#RGB or #RRGGBB)
 function isValidHexColor(str) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(str);
+}
+
+// Open native color picker dialog
+function openColorPicker(currentColor, callback) {
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = currentColor;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.addEventListener("input", (e) => callback(e.target.value));
+  input.addEventListener("change", () => {
+    if (input.parentNode) document.body.removeChild(input);
+  });
+  input.showPicker();
+}
+
+// Get contrasting text color based on background luminance
+function getContrastColor(hexColor) {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
 
 // Helper to remove internal LiteGraph properties from Properties Panel
@@ -78,7 +102,7 @@ app.registerExtension({
         padding: "0.000",
         fillColor: "#d99a4a",
         borderColor: "#666666",
-        textColor: "#ffffff",
+        textColor: "auto",
       };
 
       // Sync with node.properties for Properties Panel
@@ -105,13 +129,20 @@ app.registerExtension({
       this.sliderHeight = 24;
       this.sliderPadding = 10;
       const contentY = getContentStartY(this);
-      this.sliderY = contentY + 4;
+      this.sliderY = contentY + 8;
 
       // Set initial node size
       this.size = [220, this.sliderY + this.sliderHeight + 6];
 
       // Find widgets
       this._setupWidgets();
+
+      // Set output labels to lowercase
+      if (this.outputs) {
+        for (const out of this.outputs) {
+          out.label = out.name.toLowerCase();
+        }
+      }
     };
 
     // Setup widget references and hide them
@@ -252,7 +283,7 @@ app.registerExtension({
           this.properties.borderColor = value;
         }
       } else if (name === "textColor") {
-        if (isValidHexColor(value)) {
+        if (isValidHexColor(value) || value === "auto") {
           this.rangeProps.textColor = value;
           this.properties.textColor = value;
         }
@@ -279,9 +310,9 @@ app.registerExtension({
         )
           ? info.properties.borderColor
           : "#666666";
-        this.rangeProps.textColor = isValidHexColor(info.properties.textColor)
-          ? info.properties.textColor
-          : "#ffffff";
+        const tc = info.properties.textColor;
+        this.rangeProps.textColor =
+          isValidHexColor(tc) || tc === "auto" ? tc : "auto";
 
         this.properties.low = this.rangeProps.low;
         this.properties.high = this.rangeProps.high;
@@ -308,6 +339,13 @@ app.registerExtension({
           highW.hidden = true;
           if (highW.options) highW.options.hidden = true;
         }
+
+        // Set output labels to lowercase
+        if (this.outputs) {
+          for (const out of this.outputs) {
+            out.label = out.name.toLowerCase();
+          }
+        }
       }
     };
 
@@ -318,7 +356,7 @@ app.registerExtension({
       const width = this.size[0];
       const padding = this.sliderPadding;
       const sliderHeight = this.sliderHeight;
-      const sliderY = getContentStartY(this) + 4;
+      const sliderY = getContentStartY(this) + 8;
       this.sliderY = sliderY;
       const sliderWidth = width - padding * 2;
 
@@ -369,7 +407,11 @@ app.registerExtension({
       ctx.stroke();
 
       // Draw value text centered
-      ctx.fillStyle = this.rangeProps.textColor;
+      const textColor =
+        this.rangeProps.textColor === "auto"
+          ? getContrastColor(this.rangeProps.fillColor)
+          : this.rangeProps.textColor;
+      ctx.fillStyle = textColor;
       ctx.font = "bold 12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -550,7 +592,7 @@ app.registerExtension({
     // Compute minimum size
     nodeType.prototype.computeSize = function () {
       const contentY = getContentStartY(this);
-      return [120, contentY + 4 + this.sliderHeight + 6];
+      return [120, contentY + 8 + this.sliderHeight + 6];
     };
 
     // Resize handler - enforce minimum dimensions
@@ -564,6 +606,42 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null);
       options.push({
+        content: "Pick Fill Color...",
+        callback: () => {
+          openColorPicker(this.rangeProps.fillColor, (c) => {
+            this.rangeProps.fillColor = c;
+            this.properties.fillColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Border Color...",
+        callback: () => {
+          openColorPicker(this.rangeProps.borderColor, (c) => {
+            this.rangeProps.borderColor = c;
+            this.properties.borderColor = c;
+            this.setDirtyCanvas(true, true);
+          });
+        },
+      });
+      options.push({
+        content: "Pick Text Color...",
+        callback: () => {
+          openColorPicker(
+            this.rangeProps.textColor === "auto"
+              ? getContrastColor(this.rangeProps.fillColor)
+              : this.rangeProps.textColor,
+            (c) => {
+              this.rangeProps.textColor = c;
+              this.properties.textColor = c;
+              this.setDirtyCanvas(true, true);
+            },
+          );
+        },
+      });
+      options.push(null);
+      options.push({
         content: "Reset to Defaults",
         callback: () => {
           this.rangeProps.low = 25.0;
@@ -575,7 +653,7 @@ app.registerExtension({
           this.rangeProps.padding = "0.000";
           this.rangeProps.fillColor = "#d99a4a";
           this.rangeProps.borderColor = "#666666";
-          this.rangeProps.textColor = "#ffffff";
+          this.rangeProps.textColor = "auto";
 
           this.properties.low = 25.0;
           this.properties.high = 75.0;
@@ -586,7 +664,7 @@ app.registerExtension({
           this.properties.padding = "0.000";
           this.properties.fillColor = "#d99a4a";
           this.properties.borderColor = "#666666";
-          this.properties.textColor = "#ffffff";
+          this.properties.textColor = "auto";
 
           cleanProperties(this);
 

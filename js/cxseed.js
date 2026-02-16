@@ -5,7 +5,7 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
-const CX_VERSION = "1.2.1";
+const CX_VERSION = "1.2.2";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -95,11 +95,19 @@ app.registerExtension({
       const self = this;
       requestAnimationFrame(() => {
         self._setupWidgets();
-        self._setupExecutionListener();
+        // Set output labels to lowercase
+        if (self.outputs) {
+          for (const out of self.outputs) {
+            out.label = out.name.toLowerCase();
+          }
+        }
         const computed = self.computeSize();
         self.size = [Math.max(200, computed[0]), computed[1]];
         self.setDirtyCanvas(true, true);
       });
+
+      // Setup execution listener immediately (don't defer - needs to register early)
+      this._setupExecutionListener();
     };
 
     // Setup widget references
@@ -239,17 +247,13 @@ app.registerExtension({
 
       // Listen for execution complete
       const onExecuted = function (event) {
-        if (!event.detail || !event.detail.output) return;
-
-        // Check if this node was part of the execution
+        if (!event.detail) return;
+        const detail = event.detail;
         const nodeId = String(self.id);
-        if (
-          String(event.detail.node) !== nodeId &&
-          String(event.detail.display_node) !== nodeId
-        )
-          return;
-
-        // Push to seed history
+        // Handle various event structures
+        const match =
+          String(detail.node ?? detail.display_node ?? "") === nodeId;
+        if (!match) return;
         self._pushHistory(self._getSeed());
         self.setDirtyCanvas(true, true);
       };
@@ -362,13 +366,24 @@ app.registerExtension({
         Math.max(this.size[0], computed[0]),
         Math.max(this.size[1], computed[1]),
       ];
+
+      // Remove seed history array from Properties Panel
+      delete this.properties.seedHistory;
+
+      // Set output labels to lowercase
+      if (this.outputs) {
+        for (const out of this.outputs) {
+          out.label = out.name.toLowerCase();
+        }
+      }
     };
 
     // Get button bounds — buttons sit on the output slot row (left-aligned)
     nodeType.prototype._getButtonBounds = function () {
       const buttonSize = 20;
       const gap = 6;
-      const startX = this.buttonPadding;
+      const totalWidth = buttonSize * 2 + gap;
+      const startX = (this.size[0] - totalWidth) / 2;
       // Slot row is at y=0 in the content area
       const slotRowY = 1;
 
@@ -515,11 +530,11 @@ app.registerExtension({
             : "Randomize";
         ctx.font = "11px Arial";
         const textWidth = ctx.measureText(tooltipText).width;
-        const tooltipX =
-          hoveredBounds.x + hoveredBounds.width / 2 - textWidth / 2 - 4;
-        const tooltipY = hoveredBounds.y + hoveredBounds.height + 4;
         const tooltipWidth = textWidth + 8;
         const tooltipHeight = 16;
+        const tooltipX =
+          hoveredBounds.x + hoveredBounds.width / 2 - textWidth / 2 - 4;
+        const tooltipY = Math.max(0, hoveredBounds.y - tooltipHeight - 4);
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         ctx.beginPath();
