@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.2";
+const CX_VERSION = "1.2.3";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -126,6 +126,8 @@ app.registerExtension({
         if (this._valueWidget.options) {
           this._valueWidget.options.hidden = true;
         }
+        this._valueWidget.computeSize = () => [0, -4];
+        this._valueWidget.type = "converted-widget";
       }
     };
 
@@ -271,6 +273,8 @@ app.registerExtension({
           if (widget.options) {
             widget.options.hidden = true;
           }
+          widget.computeSize = () => [0, -4];
+          widget.type = "converted-widget";
         }
 
         // Set output labels to lowercase
@@ -412,7 +416,7 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null);
       options.push({
-        content: "Pick Fill Color...",
+        content: "Button Fill Color...",
         callback: () => {
           openColorPicker(this.toggleProps.fillColor, (c) => {
             this.toggleProps.fillColor = c;
@@ -422,7 +426,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Border Color...",
+        content: "Button Border Color...",
         callback: () => {
           openColorPicker(this.toggleProps.borderColor, (c) => {
             this.toggleProps.borderColor = c;
@@ -432,7 +436,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Text Color...",
+        content: "Button Text Color...",
         callback: () => {
           openColorPicker(
             this.toggleProps.textColor === "auto"

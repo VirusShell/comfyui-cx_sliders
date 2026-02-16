@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.2";
+const CX_VERSION = "1.2.3";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -138,6 +138,8 @@ app.registerExtension({
         if (this._valueWidget.options) {
           this._valueWidget.options.hidden = true;
         }
+        this._valueWidget.computeSize = () => [0, -4];
+        this._valueWidget.type = "converted-widget";
       }
     };
 
@@ -268,6 +270,8 @@ app.registerExtension({
           widget.value = this.dialProps.current;
           widget.hidden = true;
           if (widget.options) widget.options.hidden = true;
+          widget.computeSize = () => [0, -4];
+          widget.type = "converted-widget";
         }
 
         // Set output labels to lowercase
@@ -494,7 +498,7 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null);
       options.push({
-        content: "Pick Fill Color...",
+        content: "Dial Fill Color...",
         callback: () => {
           openColorPicker(this.dialProps.fillColor, (c) => {
             this.dialProps.fillColor = c;
@@ -504,7 +508,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Border Color...",
+        content: "Dial Border Color...",
         callback: () => {
           openColorPicker(this.dialProps.borderColor, (c) => {
             this.dialProps.borderColor = c;
@@ -514,7 +518,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Text Color...",
+        content: "Dial Text Color...",
         callback: () => {
           openColorPicker(
             this.dialProps.textColor === "auto"

@@ -3,9 +3,8 @@
 // Part of the cxSlider package
 
 import { app } from "../../scripts/app.js";
-import { api } from "../../scripts/api.js";
 
-const CX_VERSION = "1.2.2";
+const CX_VERSION = "1.2.3";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -68,9 +67,7 @@ app.registerExtension({
         min: 0,
         max: 0xffffffffffffffff,
         max_digits: 0, // 0 means no digit limit
-        seedHistory: [],
-        maxHistory: 5,
-        autoFixOnRecall: true,
+        lastSeed: null, // single-level undo for Recall button
       };
 
       // Sync with node.properties for Properties Panel
@@ -78,8 +75,6 @@ app.registerExtension({
       this.properties.min = this.seedProps.min;
       this.properties.max = this.seedProps.max;
       this.properties.max_digits = this.seedProps.max_digits;
-      this.properties.maxHistory = this.seedProps.maxHistory;
-      this.properties.autoFixOnRecall = this.seedProps.autoFixOnRecall;
 
       // Remove internal LiteGraph properties
       cleanProperties(this);
@@ -89,7 +84,6 @@ app.registerExtension({
 
       // Hover state
       this.hoveredButton = null;
-      this.hoveredPrev = false;
 
       // Defer widget setup to next frame (Node 2.0 links widgets async)
       const self = this;
@@ -105,9 +99,6 @@ app.registerExtension({
         self.size = [Math.max(200, computed[0]), computed[1]];
         self.setDirtyCanvas(true, true);
       });
-
-      // Setup execution listener immediately (don't defer - needs to register early)
-      this._setupExecutionListener();
     };
 
     // Setup widget references
@@ -216,54 +207,6 @@ app.registerExtension({
       }
     };
 
-    // Push seed to history (deduplicates consecutive, trims to maxHistory)
-    nodeType.prototype._pushHistory = function (seed) {
-      if (
-        this.seedProps.seedHistory.length > 0 &&
-        this.seedProps.seedHistory[0] === seed
-      ) {
-        return; // Skip duplicate of most recent
-      }
-      this.seedProps.seedHistory.unshift(seed);
-      if (this.seedProps.seedHistory.length > this.seedProps.maxHistory) {
-        this.seedProps.seedHistory.length = this.seedProps.maxHistory;
-      }
-    };
-
-    // Recall a seed from history by index
-    nodeType.prototype._recallSeed = function (index) {
-      if (index < 0 || index >= this.seedProps.seedHistory.length) return;
-      const seed = this.seedProps.seedHistory[index];
-      this._setSeed(seed);
-      if (this.seedProps.autoFixOnRecall) {
-        this._setControlMode("fixed");
-      }
-      this.setDirtyCanvas(true, true);
-    };
-
-    // Setup execution listener to track last seed
-    nodeType.prototype._setupExecutionListener = function () {
-      const self = this;
-
-      // Listen for execution complete
-      const onExecuted = function (event) {
-        if (!event.detail) return;
-        const detail = event.detail;
-        const nodeId = String(self.id);
-        // Handle various event structures
-        const match =
-          String(detail.node ?? detail.display_node ?? "") === nodeId;
-        if (!match) return;
-        self._pushHistory(self._getSeed());
-        self.setDirtyCanvas(true, true);
-      };
-
-      api.addEventListener("executed", onExecuted);
-
-      // Store reference for cleanup
-      this._executedHandler = onExecuted;
-    };
-
     // Property change handler (for Properties Panel)
     nodeType.prototype.onPropertyChanged = function (name, value) {
       // Remove internal properties if they appear
@@ -298,16 +241,6 @@ app.registerExtension({
         if (currentSeed > effectiveMax) {
           this._setSeed(effectiveMax);
         }
-      } else if (name === "maxHistory") {
-        this.seedProps.maxHistory = clamp(Math.floor(value), 1, 20);
-        this.properties.maxHistory = this.seedProps.maxHistory;
-        // Trim history if reduced
-        if (this.seedProps.seedHistory.length > this.seedProps.maxHistory) {
-          this.seedProps.seedHistory.length = this.seedProps.maxHistory;
-        }
-      } else if (name === "autoFixOnRecall") {
-        this.seedProps.autoFixOnRecall = Boolean(value);
-        this.properties.autoFixOnRecall = this.seedProps.autoFixOnRecall;
       }
       this.setDirtyCanvas(true, true);
     };
@@ -319,39 +252,10 @@ app.registerExtension({
         this.seedProps.max = info.properties.max ?? 0xffffffffffffffff;
         this.seedProps.max_digits = info.properties.max_digits ?? 0;
 
-        // Backward-compatible migration from lastSeed to seedHistory
-        if (
-          info.properties.lastSeed !== undefined &&
-          !info.properties.seedHistory
-        ) {
-          this.seedProps.seedHistory =
-            info.properties.lastSeed !== null ? [info.properties.lastSeed] : [];
-        } else {
-          this.seedProps.seedHistory = Array.isArray(
-            info.properties.seedHistory,
-          )
-            ? info.properties.seedHistory.slice()
-            : [];
-        }
-        this.seedProps.maxHistory = clamp(
-          Math.floor(info.properties.maxHistory ?? 5),
-          1,
-          20,
-        );
-        this.seedProps.autoFixOnRecall =
-          info.properties.autoFixOnRecall ?? true;
-
-        // Trim history if it exceeds maxHistory
-        if (this.seedProps.seedHistory.length > this.seedProps.maxHistory) {
-          this.seedProps.seedHistory.length = this.seedProps.maxHistory;
-        }
-
         // Sync to properties
         this.properties.min = this.seedProps.min;
         this.properties.max = this.seedProps.max;
         this.properties.max_digits = this.seedProps.max_digits;
-        this.properties.maxHistory = this.seedProps.maxHistory;
-        this.properties.autoFixOnRecall = this.seedProps.autoFixOnRecall;
       }
 
       // Remove internal properties
@@ -366,9 +270,6 @@ app.registerExtension({
         Math.max(this.size[0], computed[0]),
         Math.max(this.size[1], computed[1]),
       ];
-
-      // Remove seed history array from Properties Panel
-      delete this.properties.seedHistory;
 
       // Set output labels to lowercase
       if (this.outputs) {
@@ -403,21 +304,6 @@ app.registerExtension({
       };
     };
 
-    // Get prev-seed text bounds
-    nodeType.prototype._getPrevSeedBounds = function () {
-      const padding = this.buttonPadding;
-      // Prev seed sits below the widgets
-      const widgetAreaEnd = this.widgets ? 26 + this.widgets.length * 26 : 52;
-      const slotAreaEnd = getContentStartY(this);
-      const y = Math.max(widgetAreaEnd, slotAreaEnd) + 4;
-      return {
-        x: padding,
-        y: y,
-        width: this.size[0] - padding * 2,
-        height: 16,
-      };
-    };
-
     // Draw the custom UI elements
     nodeType.prototype.onDrawForeground = function (ctx) {
       if (this.flags.collapsed) return;
@@ -427,18 +313,16 @@ app.registerExtension({
         this._setupWidgets();
       }
 
-      const width = this.size[0];
       const bounds = this._getButtonBounds();
-      const history = this.seedProps.seedHistory;
+      const hasLastSeed = this.seedProps.lastSeed !== null;
 
       // Draw "Recall" button (recycle emoji) on slot row
       const useBtn = bounds.useLastSeed;
-      const useBtnEnabled = history.length > 0;
       const useBtnHovered = this.hoveredButton === "useLastSeed";
 
       ctx.fillStyle = useBtnHovered
         ? "#5a7a9a"
-        : useBtnEnabled
+        : hasLastSeed
           ? "#4a6a8a"
           : "#3a3a3a";
       ctx.beginPath();
@@ -447,7 +331,7 @@ app.registerExtension({
 
       ctx.strokeStyle = useBtnHovered
         ? "#7a9aba"
-        : useBtnEnabled
+        : hasLastSeed
           ? "#6a8aaa"
           : "#4a4a4a";
       ctx.lineWidth = 1;
@@ -455,7 +339,7 @@ app.registerExtension({
       ctx.roundRect(useBtn.x, useBtn.y, useBtn.width, useBtn.height, 3);
       ctx.stroke();
 
-      ctx.fillStyle = useBtnEnabled ? "#fff" : "#666";
+      ctx.fillStyle = hasLastSeed ? "#fff" : "#666";
       ctx.font = "12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -490,44 +374,11 @@ app.registerExtension({
         randBtn.y + randBtn.height / 2,
       );
 
-      // Draw prev-seed line below widgets
-      const prevBounds = this._getPrevSeedBounds();
-      const prevSeed = history.length > 0 ? String(history[0]) : "\u2014";
-      const prevText = "Prev: " + prevSeed;
-      const prevHovered = this.hoveredPrev;
-
-      ctx.fillStyle = prevHovered ? "#aaa" : "#777";
-      ctx.font = "11px Arial";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-
-      // Truncate if too wide
-      let displayText = prevText;
-      const maxTextWidth = prevBounds.width;
-      if (ctx.measureText(displayText).width > maxTextWidth) {
-        while (
-          displayText.length > 8 &&
-          ctx.measureText(displayText + "...").width > maxTextWidth
-        ) {
-          displayText = displayText.slice(0, -1);
-        }
-        displayText += "...";
-      }
-      ctx.fillText(
-        displayText,
-        prevBounds.x,
-        prevBounds.y + prevBounds.height / 2,
-      );
-
       // Draw tooltip if hovering a button
       if (this.hoveredButton) {
         const hoveredBounds = bounds[this.hoveredButton];
         const tooltipText =
-          this.hoveredButton === "useLastSeed"
-            ? this.seedProps.autoFixOnRecall
-              ? "Recall Last \u2192 Fixed"
-              : "Recall Last"
-            : "Randomize";
+          this.hoveredButton === "useLastSeed" ? "Recall" : "Randomize";
         ctx.font = "11px Arial";
         const textWidth = ctx.measureText(tooltipText).width;
         const tooltipWidth = textWidth + 8;
@@ -569,7 +420,6 @@ app.registerExtension({
       const localX = pos[0];
       const localY = pos[1];
       const bounds = this._getButtonBounds();
-      let dirty = false;
 
       // Check button hover
       let newHovered = null;
@@ -580,32 +430,14 @@ app.registerExtension({
       }
       if (newHovered !== this.hoveredButton) {
         this.hoveredButton = newHovered;
-        dirty = true;
-      }
-
-      // Check prev-seed hover
-      const prevBounds = this._getPrevSeedBounds();
-      const newPrevHover =
-        localX >= prevBounds.x &&
-        localX <= prevBounds.x + prevBounds.width &&
-        localY >= prevBounds.y &&
-        localY <= prevBounds.y + prevBounds.height &&
-        this.seedProps.seedHistory.length > 0;
-      if (newPrevHover !== this.hoveredPrev) {
-        this.hoveredPrev = newPrevHover;
-        dirty = true;
-      }
-
-      if (dirty) {
         this.setDirtyCanvas(true, false);
       }
     };
 
     // Mouse leave handler
     nodeType.prototype.onMouseLeave = function (e) {
-      if (this.hoveredButton || this.hoveredPrev) {
+      if (this.hoveredButton) {
         this.hoveredButton = null;
-        this.hoveredPrev = false;
         this.setDirtyCanvas(true, false);
       }
     };
@@ -616,40 +448,27 @@ app.registerExtension({
 
       // Clear hover state when clicking
       this.hoveredButton = null;
-      this.hoveredPrev = false;
 
       const localX = pos[0];
       const localY = pos[1];
       const bounds = this._getButtonBounds();
 
-      // Check "Recall Last" button
+      // Check "Recall" button — restore lastSeed and switch to fixed
       if (this._isInButton(localX, localY, bounds.useLastSeed)) {
-        if (this.seedProps.seedHistory.length > 0) {
-          this._recallSeed(0);
+        if (this.seedProps.lastSeed !== null) {
+          this._setSeed(this.seedProps.lastSeed);
+          this._setControlMode("fixed");
+          this.setDirtyCanvas(true, true);
         }
         return true;
       }
 
-      // Check "Randomize" button
+      // Check "Randomize" button — save current, then randomize
       if (this._isInButton(localX, localY, bounds.resetRandom)) {
-        this._pushHistory(this._getSeed()); // save current before randomizing
+        this.seedProps.lastSeed = this._getSeed();
         this._setControlMode("randomize");
         this._setSeed(randomSeed(this.seedProps.min, this._getEffectiveMax()));
         this.setDirtyCanvas(true, true);
-        return true;
-      }
-
-      // Check prev-seed text click
-      const prevBounds = this._getPrevSeedBounds();
-      if (
-        localX >= prevBounds.x &&
-        localX <= prevBounds.x + prevBounds.width &&
-        localY >= prevBounds.y &&
-        localY <= prevBounds.y + prevBounds.height
-      ) {
-        if (this.seedProps.seedHistory.length > 0) {
-          this._recallSeed(0);
-        }
         return true;
       }
 
@@ -662,19 +481,15 @@ app.registerExtension({
         min: this.seedProps.min,
         max: this.seedProps.max,
         max_digits: this.seedProps.max_digits,
-        seedHistory: this.seedProps.seedHistory.slice(),
-        maxHistory: this.seedProps.maxHistory,
-        autoFixOnRecall: this.seedProps.autoFixOnRecall,
       };
     };
 
-    // Compute minimum size — widgets + prev-seed line + padding
+    // Compute minimum size — widgets + padding
     nodeType.prototype.computeSize = function () {
       const widgetHeight = this.widgets ? 26 + this.widgets.length * 26 : 52;
       const slotAreaEnd = getContentStartY(this);
       const contentEnd = Math.max(widgetHeight, slotAreaEnd);
-      // Add prev-seed line (16px) + padding
-      return [150, contentEnd + 4 + 16 + 6];
+      return [150, contentEnd + 6];
     };
 
     // Resize handler
@@ -692,7 +507,7 @@ app.registerExtension({
       options.push({
         content: "Randomize Seed Now",
         callback: () => {
-          self._pushHistory(self._getSeed());
+          self.seedProps.lastSeed = self._getSeed();
           self._setSeed(
             randomSeed(self.seedProps.min, self._getEffectiveMax()),
           );
@@ -700,53 +515,17 @@ app.registerExtension({
         },
       });
 
-      // Seed History submenu
-      if (self.seedProps.seedHistory.length > 0) {
-        const historyEntries = self.seedProps.seedHistory.map((seed, i) => ({
-          content: String(seed),
-          callback: () => {
-            self._recallSeed(i);
-          },
-        }));
-        historyEntries.push(null);
-        historyEntries.push({
-          content: "Clear History",
-          callback: () => {
-            self.seedProps.seedHistory = [];
-            self.setDirtyCanvas(true, true);
-          },
-        });
-        options.push({
-          content: "Seed History",
-          submenu: {
-            options: historyEntries,
-          },
-        });
-      } else {
-        options.push({
-          content: "Clear History",
-          callback: () => {
-            self.seedProps.seedHistory = [];
-            self.setDirtyCanvas(true, true);
-          },
-        });
-      }
-
       options.push({
         content: "Reset to Defaults",
         callback: () => {
           self.seedProps.min = 0;
           self.seedProps.max = 0xffffffffffffffff;
           self.seedProps.max_digits = 0;
-          self.seedProps.seedHistory = [];
-          self.seedProps.maxHistory = 5;
-          self.seedProps.autoFixOnRecall = true;
+          self.seedProps.lastSeed = null;
 
           self.properties.min = 0;
           self.properties.max = 0xffffffffffffffff;
           self.properties.max_digits = 0;
-          self.properties.maxHistory = 5;
-          self.properties.autoFixOnRecall = true;
 
           cleanProperties(self);
 
@@ -755,13 +534,6 @@ app.registerExtension({
           self.setDirtyCanvas(true, true);
         },
       });
-    };
-
-    // Cleanup on removal
-    nodeType.prototype.onRemoved = function () {
-      if (this._executedHandler) {
-        api.removeEventListener("executed", this._executedHandler);
-      }
     };
   },
 });

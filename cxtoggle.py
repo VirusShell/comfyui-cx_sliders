@@ -5,6 +5,7 @@
 # Try V3 schema first, fall back to V1
 try:
     from comfy_api.latest import io, ComfyExtension
+
     V3_AVAILABLE = True
 except ImportError:
     V3_AVAILABLE = False
@@ -30,8 +31,8 @@ if V3_AVAILABLE:
                     io.Int.Input(
                         "toggle",
                         default=0,
-                        min=-2147483648,
-                        max=2147483647,
+                        min=0,
+                        max=100,
                     ),
                 ],
                 outputs=[
@@ -44,13 +45,11 @@ if V3_AVAILABLE:
             value = kwargs.get("toggle", 0)
             return io.NodeOutput(int(value))
 
-
     class cxToggleExtension(ComfyExtension):
         """Extension class for cxToggle node."""
 
         async def get_node_list(self) -> list[type[io.ComfyNode]]:
             return [cxToggle]
-
 
     async def comfy_entrypoint() -> cxToggleExtension:
         """ComfyUI calls this to load the extension and its nodes."""
@@ -78,11 +77,14 @@ else:
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "toggle": ("INT", {
-                        "default": 0,
-                        "min": -2147483648,
-                        "max": 2147483647,
-                    }),
+                    "toggle": (
+                        "INT",
+                        {
+                            "default": 0,
+                            "min": 0,
+                            "max": 100,
+                        },
+                    ),
                 },
             }
 
@@ -94,7 +96,6 @@ else:
         def execute(self, **kwargs):
             value = kwargs.get("toggle", 0)
             return (int(value),)
-
 
     # V1 Node mappings
     NODE_CLASS_MAPPINGS = {

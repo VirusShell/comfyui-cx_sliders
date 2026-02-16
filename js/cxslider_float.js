@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.2";
+const CX_VERSION = "1.2.3";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -156,6 +156,8 @@ app.registerExtension({
         if (this._valueWidget.options) {
           this._valueWidget.options.hidden = true;
         }
+        this._valueWidget.computeSize = () => [0, -4];
+        this._valueWidget.type = "converted-widget";
       }
     };
 
@@ -308,6 +310,8 @@ app.registerExtension({
           if (widget.options) {
             widget.options.hidden = true;
           }
+          widget.computeSize = () => [0, -4];
+          widget.type = "converted-widget";
         }
 
         // Set output labels to lowercase
@@ -525,7 +529,7 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null); // separator
       options.push({
-        content: "Pick Fill Color...",
+        content: "Slider Fill Color...",
         callback: () => {
           openColorPicker(this.sliderProps.fillColor, (c) => {
             this.sliderProps.fillColor = c;
@@ -535,7 +539,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Border Color...",
+        content: "Slider Border Color...",
         callback: () => {
           openColorPicker(this.sliderProps.borderColor, (c) => {
             this.sliderProps.borderColor = c;
@@ -545,7 +549,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Text Color...",
+        content: "Slider Text Color...",
         callback: () => {
           openColorPicker(
             this.sliderProps.textColor === "auto"

@@ -4,7 +4,7 @@
 
 import { app } from "../../scripts/app.js";
 
-const CX_VERSION = "1.2.2";
+const CX_VERSION = "1.2.3";
 
 // Utility function to clamp values
 function clamp(value, min, max) {
@@ -157,6 +157,8 @@ app.registerExtension({
           w.value = this.bankProps.values[i - 1];
           w.hidden = true;
           if (w.options) w.options.hidden = true;
+          w.computeSize = () => [0, -4];
+          w.type = "converted-widget";
         }
         this._sliderWidgets.push(w || null);
       }
@@ -684,7 +686,7 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
       options.push(null);
       options.push({
-        content: "Pick Fill Color...",
+        content: "Slider Fill Color...",
         callback: () => {
           openColorPicker(this.bankProps.fillColor, (c) => {
             this.bankProps.fillColor = c;
@@ -694,7 +696,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Border Color...",
+        content: "Slider Border Color...",
         callback: () => {
           openColorPicker(this.bankProps.borderColor, (c) => {
             this.bankProps.borderColor = c;
@@ -704,7 +706,7 @@ app.registerExtension({
         },
       });
       options.push({
-        content: "Pick Text Color...",
+        content: "Slider Text Color...",
         callback: () => {
           openColorPicker(
             this.bankProps.textColor === "auto"
