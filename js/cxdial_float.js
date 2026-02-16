@@ -4,6 +4,8 @@
 
 import { app } from "../../scripts/app.js";
 
+const CX_VERSION = "1.2.1";
+
 // Utility function to clamp values
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -32,6 +34,7 @@ function isValidHexColor(str) {
 function cleanProperties(node) {
   if (node.properties) {
     delete node.properties.aux_id;
+    node.properties.ver = CX_VERSION;
   }
 }
 
@@ -106,6 +109,15 @@ app.registerExtension({
 
       // Find the widget
       this._setupWidget();
+
+      // Hide value_override input label
+      if (this.inputs) {
+        for (const inp of this.inputs) {
+          if (inp.name === "value_override") {
+            inp.label = " ";
+          }
+        }
+      }
     };
 
     // Setup widget reference and hide it
@@ -270,6 +282,15 @@ app.registerExtension({
           widget.value = this.dialProps.current;
           widget.hidden = true;
           if (widget.options) widget.options.hidden = true;
+        }
+
+        // Hide value_override input label
+        if (this.inputs) {
+          for (const inp of this.inputs) {
+            if (inp.name === "value_override") {
+              inp.label = " ";
+            }
+          }
         }
       }
     };
@@ -464,6 +485,13 @@ app.registerExtension({
     nodeType.prototype.computeSize = function () {
       const contentY = getContentStartY(this);
       return [80, contentY + 80];
+    };
+
+    // Resize handler - enforce minimum dimensions
+    nodeType.prototype.onResize = function (size) {
+      const computed = this.computeSize();
+      size[0] = Math.max(size[0], computed[0]);
+      size[1] = Math.max(size[1], computed[1]);
     };
 
     // Extra menu options

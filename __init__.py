@@ -1,7 +1,7 @@
 # ComfyUI - cxSlider Custom Nodes
 # Package initialization - supports both V1 and V3 schema
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 from .cxsliders import NODE_CLASS_MAPPINGS as SLIDER_MAPPINGS
 from .cxsliders import NODE_DISPLAY_NAME_MAPPINGS as SLIDER_DISPLAY_MAPPINGS
@@ -44,8 +44,14 @@ try:
     from .cxsliderbank import comfy_entrypoint as bank_entrypoint
 
     # Check if V3 is available (all entrypoints must be non-None)
-    _entrypoints = [slider_entrypoint, seed_entrypoint, toggle_entrypoint,
-                    range_entrypoint, dial_entrypoint, bank_entrypoint]
+    _entrypoints = [
+        slider_entrypoint,
+        seed_entrypoint,
+        toggle_entrypoint,
+        range_entrypoint,
+        dial_entrypoint,
+        bank_entrypoint,
+    ]
     if all(ep is not None for ep in _entrypoints):
         from comfy_api.latest import io, ComfyExtension
 
@@ -62,16 +68,22 @@ try:
 
             async def get_node_list(self) -> list[type[io.ComfyNode]]:
                 return [
-                    cxSliderInt, cxSliderFloat, cxSeed,
+                    cxSliderInt,
+                    cxSliderFloat,
+                    cxSeed,
                     cxToggle,
-                    cxRangeSliderInt, cxRangeSliderFloat,
-                    cxDialInt, cxDialFloat,
-                    cxSliderBankInt, cxSliderBankFloat,
+                    cxRangeSliderInt,
+                    cxRangeSliderFloat,
+                    cxDialInt,
+                    cxDialFloat,
+                    cxSliderBankInt,
+                    cxSliderBankFloat,
                 ]
 
         async def comfy_entrypoint() -> cxSliderExtensionCombined:
             """ComfyUI calls this to load the extension and its nodes."""
             return cxSliderExtensionCombined()
+
     else:
         comfy_entrypoint = None
 
@@ -81,8 +93,8 @@ except ImportError:
 # Web directory for JavaScript extensions
 WEB_DIRECTORY = "./js"
 
-__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
 
 # Add comfy_entrypoint to exports if available
 if comfy_entrypoint is not None:
-    __all__.append('comfy_entrypoint')
+    __all__.append("comfy_entrypoint")

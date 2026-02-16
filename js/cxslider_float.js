@@ -4,6 +4,8 @@
 
 import { app } from "../../scripts/app.js";
 
+const CX_VERSION = "1.2.1";
+
 // Utility function to clamp values
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -28,10 +30,26 @@ function isValidHexColor(str) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(str);
 }
 
+// Open native color picker dialog
+function openColorPicker(currentColor, callback) {
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = currentColor;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.addEventListener("input", (e) => callback(e.target.value));
+  input.addEventListener("change", () => {
+    if (input.parentNode) document.body.removeChild(input);
+  });
+  input.showPicker();
+}
+
 // Helper to remove internal LiteGraph properties from Properties Panel
 function cleanProperties(node) {
   if (node.properties) {
     delete node.properties.aux_id;
+    node.properties.ver = CX_VERSION;
   }
 }
 
@@ -102,13 +120,22 @@ app.registerExtension({
 
       // Position slider below input/output slot area to avoid overlap
       const contentY = getContentStartY(this);
-      this.sliderY = contentY + 4;
+      this.sliderY = contentY + 8;
 
       // Set initial node size
       this.size = [200, this.sliderY + this.sliderHeight + 6];
 
       // Find the widget
       this._setupWidget();
+
+      // Hide value_override input label
+      if (this.inputs) {
+        for (const inp of this.inputs) {
+          if (inp.name === "value_override") {
+            inp.label = " ";
+          }
+        }
+      }
     };
 
     // Setup widget reference and hide it
@@ -215,19 +242,48 @@ app.registerExtension({
         if (isValidHexColor(value)) {
           this.sliderProps.fillColor = value;
           this.properties.fillColor = value;
+        } else {
+          const self = this;
+          openColorPicker(this.sliderProps.fillColor, (c) => {
+            self.sliderProps.fillColor = c;
+            self.properties.fillColor = c;
+            self.setDirtyCanvas(true, true);
+          });
         }
       } else if (name === "borderColor") {
         if (isValidHexColor(value)) {
           this.sliderProps.borderColor = value;
           this.properties.borderColor = value;
+        } else {
+          const self = this;
+          openColorPicker(this.sliderProps.borderColor, (c) => {
+            self.sliderProps.borderColor = c;
+            self.properties.borderColor = c;
+            self.setDirtyCanvas(true, true);
+          });
         }
       } else if (name === "textColor") {
         if (isValidHexColor(value)) {
           this.sliderProps.textColor = value;
           this.properties.textColor = value;
+        } else {
+          const self = this;
+          openColorPicker(this.sliderProps.textColor, (c) => {
+            self.sliderProps.textColor = c;
+            self.properties.textColor = c;
+            self.setDirtyCanvas(true, true);
+          });
         }
       }
       this.setDirtyCanvas(true, true);
+    };
+
+    // Property info hints for Properties Panel
+    nodeType.prototype.getPropertyInfo = function (name) {
+      if (["fillColor", "borderColor", "textColor"].includes(name)) {
+        return { type: "color" };
+      }
+      return null;
     };
 
     // Configure handler for loading saved values
@@ -275,6 +331,15 @@ app.registerExtension({
             widget.options.hidden = true;
           }
         }
+
+        // Hide value_override input label
+        if (this.inputs) {
+          for (const inp of this.inputs) {
+            if (inp.name === "value_override") {
+              inp.label = " ";
+            }
+          }
+        }
       }
     };
 
@@ -286,7 +351,7 @@ app.registerExtension({
       const padding = this.sliderPadding;
       const sliderHeight = this.sliderHeight;
       // Recalculate Y position in case slots changed
-      const sliderY = getContentStartY(this) + 4;
+      const sliderY = getContentStartY(this) + 8;
       this.sliderY = sliderY;
 
       // Get values
@@ -466,7 +531,14 @@ app.registerExtension({
     // Compute minimum size - accounts for slot area + slider
     nodeType.prototype.computeSize = function () {
       const contentY = getContentStartY(this);
-      return [100, contentY + 4 + this.sliderHeight + 6];
+      return [150, contentY + 8 + this.sliderHeight + 6];
+    };
+
+    // Resize handler - enforce minimum dimensions
+    nodeType.prototype.onResize = function (size) {
+      const computed = this.computeSize();
+      size[0] = Math.max(size[0], computed[0]);
+      size[1] = Math.max(size[1], computed[1]);
     };
 
     // Get extra menu options

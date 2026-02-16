@@ -5,6 +5,8 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
+const CX_VERSION = "1.2.1";
+
 // Utility function to clamp values
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -28,6 +30,7 @@ function maxFromDigits(digits) {
 function cleanProperties(node) {
   if (node.properties) {
     delete node.properties.aux_id;
+    node.properties.ver = CX_VERSION;
   }
 }
 
@@ -82,25 +85,21 @@ app.registerExtension({
       cleanProperties(this);
 
       // Layout constants
-      this.buttonAreaY = 0; // Will be calculated
-      this.buttonHeight = 22;
       this.buttonPadding = 5;
-      this.historyEntryHeight = 18;
-      this.historyPadding = 4;
 
-      // Hover state for tooltips and history
+      // Hover state
       this.hoveredButton = null;
-      this.hoveredHistoryIndex = null;
+      this.hoveredPrev = false;
 
-      // Find widgets
-      this._setupWidgets();
-
-      // Set up execution listener
-      this._setupExecutionListener();
-
-      // Explicitly set node size to ensure custom content is visible
-      const computed = this.computeSize();
-      this.size = [Math.max(200, computed[0]), computed[1]];
+      // Defer widget setup to next frame (Node 2.0 links widgets async)
+      const self = this;
+      requestAnimationFrame(() => {
+        self._setupWidgets();
+        self._setupExecutionListener();
+        const computed = self.computeSize();
+        self.size = [Math.max(200, computed[0]), computed[1]];
+        self.setDirtyCanvas(true, true);
+      });
     };
 
     // Setup widget references
@@ -127,13 +126,6 @@ app.registerExtension({
                 w.options.values &&
                 controlValues.every((v) => w.options.values.includes(v))),
           ) || null;
-      }
-
-      // Calculate button area position (below widgets)
-      if (this.widgets.length > 0) {
-        const widgetAreaEnd = 26 + this.widgets.length * 26;
-        const slotAreaEnd = getContentStartY(this);
-        this.buttonAreaY = Math.max(widgetAreaEnd, slotAreaEnd) + 5;
       }
     };
 
@@ -241,19 +233,6 @@ app.registerExtension({
       this.setDirtyCanvas(true, true);
     };
 
-    // Get bounds for a history entry at the given index
-    nodeType.prototype._getHistoryEntryBounds = function (index) {
-      const width = this.size[0];
-      const padding = this.buttonPadding;
-      const historyStartY = this.buttonAreaY + 16; // Below "History:" label
-      return {
-        x: padding,
-        y: historyStartY + index * this.historyEntryHeight,
-        width: width - padding * 2,
-        height: this.historyEntryHeight,
-      };
-    };
-
     // Setup execution listener to track last seed
     nodeType.prototype._setupExecutionListener = function () {
       const self = this;
@@ -264,7 +243,11 @@ app.registerExtension({
 
         // Check if this node was part of the execution
         const nodeId = String(self.id);
-        if (event.detail.node !== nodeId) return;
+        if (
+          String(event.detail.node) !== nodeId &&
+          String(event.detail.display_node) !== nodeId
+        )
+          return;
 
         // Push to seed history
         self._pushHistory(self._getSeed());
@@ -381,44 +364,42 @@ app.registerExtension({
       ];
     };
 
-    // Calculate button positions (below history list)
+    // Get button bounds — buttons sit on the output slot row (left-aligned)
     nodeType.prototype._getButtonBounds = function () {
-      const width = this.size[0];
-      const y = this.buttonAreaY;
-      const height = this.buttonHeight;
-      const buttonWidth = 24; // Small square buttons for emoji
-      const gap = 8; // Gap between buttons
-      const totalButtonsWidth = buttonWidth * 2 + gap;
-      const startX = (width - totalButtonsWidth) / 2; // Center
-
-      // History area: label (16px) + entries + padding
-      const historyCount = this.seedProps.seedHistory.length;
-      const historyHeight =
-        16 +
-        Math.max(historyCount, 1) * this.historyEntryHeight +
-        this.historyPadding;
-
-      const buttonsY = y + historyHeight;
-
-      const recallTooltip = this.seedProps.autoFixOnRecall
-        ? "Recall Last \u2192 Fixed"
-        : "Recall Last";
+      const buttonSize = 20;
+      const gap = 6;
+      const startX = this.buttonPadding;
+      // Slot row is at y=0 in the content area
+      const slotRowY = 1;
 
       return {
         useLastSeed: {
           x: startX,
-          y: buttonsY,
-          width: buttonWidth,
-          height: height,
-          tooltip: recallTooltip,
+          y: slotRowY,
+          width: buttonSize,
+          height: buttonSize,
         },
         resetRandom: {
-          x: startX + buttonWidth + gap,
-          y: buttonsY,
-          width: buttonWidth,
-          height: height,
-          tooltip: "Randomize",
+          x: startX + buttonSize + gap,
+          y: slotRowY,
+          width: buttonSize,
+          height: buttonSize,
         },
+      };
+    };
+
+    // Get prev-seed text bounds
+    nodeType.prototype._getPrevSeedBounds = function () {
+      const padding = this.buttonPadding;
+      // Prev seed sits below the widgets
+      const widgetAreaEnd = this.widgets ? 26 + this.widgets.length * 26 : 52;
+      const slotAreaEnd = getContentStartY(this);
+      const y = Math.max(widgetAreaEnd, slotAreaEnd) + 4;
+      return {
+        x: padding,
+        y: y,
+        width: this.size[0] - padding * 2,
+        height: 16,
       };
     };
 
@@ -426,77 +407,16 @@ app.registerExtension({
     nodeType.prototype.onDrawForeground = function (ctx) {
       if (this.flags.collapsed) return;
 
+      // Safety check — deferred setup may not have run yet
+      if (!this._seedWidget) {
+        this._setupWidgets();
+      }
+
       const width = this.size[0];
-      const padding = this.buttonPadding;
-
-      // Recalculate button area position
-      if (this.widgets && this.widgets.length > 0) {
-        const widgetAreaEnd = 26 + this.widgets.length * 26;
-        const slotAreaEnd = getContentStartY(this);
-        this.buttonAreaY = Math.max(widgetAreaEnd, slotAreaEnd) + 5;
-      }
-
-      const y = this.buttonAreaY;
       const bounds = this._getButtonBounds();
-
-      // Draw "History:" label (centered)
-      ctx.fillStyle = "#aaa";
-      ctx.font = "11px Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText("History:", width / 2, y);
-
-      // Draw history entries
       const history = this.seedProps.seedHistory;
-      if (history.length === 0) {
-        ctx.fillStyle = "#666";
-        ctx.font = "11px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText("(empty)", width / 2, y + 16);
-      } else {
-        for (let i = 0; i < history.length; i++) {
-          const entryBounds = this._getHistoryEntryBounds(i);
-          const isHovered = this.hoveredHistoryIndex === i;
 
-          // Entry background
-          ctx.fillStyle = isHovered ? "#3a4a5a" : "#2a2a2a";
-          ctx.beginPath();
-          ctx.roundRect(
-            entryBounds.x,
-            entryBounds.y,
-            entryBounds.width,
-            entryBounds.height,
-            2,
-          );
-          ctx.fill();
-
-          // Entry text
-          ctx.fillStyle = isHovered ? "#fff" : "#ccc";
-          ctx.font = "11px Arial";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          let seedText = String(history[i]);
-          // Truncate if too wide
-          const maxTextWidth = entryBounds.width - 8;
-          if (ctx.measureText(seedText).width > maxTextWidth) {
-            while (
-              seedText.length > 3 &&
-              ctx.measureText(seedText + "...").width > maxTextWidth
-            ) {
-              seedText = seedText.slice(0, -1);
-            }
-            seedText += "...";
-          }
-          ctx.fillText(
-            seedText,
-            entryBounds.x + entryBounds.width / 2,
-            entryBounds.y + entryBounds.height / 2,
-          );
-        }
-      }
-
-      // Draw "Recall Last" button (recycle emoji)
+      // Draw "Recall" button (recycle emoji) on slot row
       const useBtn = bounds.useLastSeed;
       const useBtnEnabled = history.length > 0;
       const useBtnHovered = this.hoveredButton === "useLastSeed";
@@ -521,7 +441,7 @@ app.registerExtension({
       ctx.stroke();
 
       ctx.fillStyle = useBtnEnabled ? "#fff" : "#666";
-      ctx.font = "14px Arial";
+      ctx.font = "12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(
@@ -530,7 +450,7 @@ app.registerExtension({
         useBtn.y + useBtn.height / 2,
       );
 
-      // Draw "Randomize" button (dice emoji)
+      // Draw "Randomize" button (dice emoji) on slot row
       const randBtn = bounds.resetRandom;
       const randBtnHovered = this.hoveredButton === "resetRandom";
 
@@ -546,7 +466,7 @@ app.registerExtension({
       ctx.stroke();
 
       ctx.fillStyle = "#fff";
-      ctx.font = "14px Arial";
+      ctx.font = "12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(
@@ -555,41 +475,65 @@ app.registerExtension({
         randBtn.y + randBtn.height / 2,
       );
 
+      // Draw prev-seed line below widgets
+      const prevBounds = this._getPrevSeedBounds();
+      const prevSeed = history.length > 0 ? String(history[0]) : "\u2014";
+      const prevText = "Prev: " + prevSeed;
+      const prevHovered = this.hoveredPrev;
+
+      ctx.fillStyle = prevHovered ? "#aaa" : "#777";
+      ctx.font = "11px Arial";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+
+      // Truncate if too wide
+      let displayText = prevText;
+      const maxTextWidth = prevBounds.width;
+      if (ctx.measureText(displayText).width > maxTextWidth) {
+        while (
+          displayText.length > 8 &&
+          ctx.measureText(displayText + "...").width > maxTextWidth
+        ) {
+          displayText = displayText.slice(0, -1);
+        }
+        displayText += "...";
+      }
+      ctx.fillText(
+        displayText,
+        prevBounds.x,
+        prevBounds.y + prevBounds.height / 2,
+      );
+
       // Draw tooltip if hovering a button
       if (this.hoveredButton) {
         const hoveredBounds = bounds[this.hoveredButton];
-        if (hoveredBounds && hoveredBounds.tooltip) {
-          ctx.font = "11px Arial";
-          const tooltipText = hoveredBounds.tooltip;
-          const textWidth = ctx.measureText(tooltipText).width;
-          const tooltipX =
-            hoveredBounds.x + hoveredBounds.width / 2 - textWidth / 2 - 4;
-          const tooltipY = hoveredBounds.y - 20;
-          const tooltipWidth = textWidth + 8;
-          const tooltipHeight = 16;
+        const tooltipText =
+          this.hoveredButton === "useLastSeed"
+            ? this.seedProps.autoFixOnRecall
+              ? "Recall Last \u2192 Fixed"
+              : "Recall Last"
+            : "Randomize";
+        ctx.font = "11px Arial";
+        const textWidth = ctx.measureText(tooltipText).width;
+        const tooltipX =
+          hoveredBounds.x + hoveredBounds.width / 2 - textWidth / 2 - 4;
+        const tooltipY = hoveredBounds.y + hoveredBounds.height + 4;
+        const tooltipWidth = textWidth + 8;
+        const tooltipHeight = 16;
 
-          ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
-          ctx.beginPath();
-          ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 3);
-          ctx.fill();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+        ctx.beginPath();
+        ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 3);
+        ctx.fill();
 
-          ctx.fillStyle = "#fff";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(
-            tooltipText,
-            hoveredBounds.x + hoveredBounds.width / 2,
-            tooltipY + tooltipHeight / 2,
-          );
-        }
-      }
-
-      // Ensure node is tall enough for all content
-      const bounds2 = this._getButtonBounds();
-      const neededHeight =
-        bounds2.resetRandom.y + bounds2.resetRandom.height + 8;
-      if (this.size[1] < neededHeight) {
-        this.size[1] = neededHeight;
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          tooltipText,
+          hoveredBounds.x + hoveredBounds.width / 2,
+          tooltipY + tooltipHeight / 2,
+        );
       }
     };
 
@@ -603,7 +547,7 @@ app.registerExtension({
       );
     };
 
-    // Mouse move handler for hover tooltips and history
+    // Mouse move handler for hover
     nodeType.prototype.onMouseMove = function (e, pos, canvas) {
       if (this.flags.collapsed) return;
 
@@ -624,22 +568,16 @@ app.registerExtension({
         dirty = true;
       }
 
-      // Check history entry hover
-      let newHistoryHover = null;
-      for (let i = 0; i < this.seedProps.seedHistory.length; i++) {
-        const eb = this._getHistoryEntryBounds(i);
-        if (
-          localX >= eb.x &&
-          localX <= eb.x + eb.width &&
-          localY >= eb.y &&
-          localY <= eb.y + eb.height
-        ) {
-          newHistoryHover = i;
-          break;
-        }
-      }
-      if (newHistoryHover !== this.hoveredHistoryIndex) {
-        this.hoveredHistoryIndex = newHistoryHover;
+      // Check prev-seed hover
+      const prevBounds = this._getPrevSeedBounds();
+      const newPrevHover =
+        localX >= prevBounds.x &&
+        localX <= prevBounds.x + prevBounds.width &&
+        localY >= prevBounds.y &&
+        localY <= prevBounds.y + prevBounds.height &&
+        this.seedProps.seedHistory.length > 0;
+      if (newPrevHover !== this.hoveredPrev) {
+        this.hoveredPrev = newPrevHover;
         dirty = true;
       }
 
@@ -650,9 +588,9 @@ app.registerExtension({
 
     // Mouse leave handler
     nodeType.prototype.onMouseLeave = function (e) {
-      if (this.hoveredButton || this.hoveredHistoryIndex !== null) {
+      if (this.hoveredButton || this.hoveredPrev) {
         this.hoveredButton = null;
-        this.hoveredHistoryIndex = null;
+        this.hoveredPrev = false;
         this.setDirtyCanvas(true, false);
       }
     };
@@ -663,25 +601,11 @@ app.registerExtension({
 
       // Clear hover state when clicking
       this.hoveredButton = null;
-      this.hoveredHistoryIndex = null;
+      this.hoveredPrev = false;
 
       const localX = pos[0];
       const localY = pos[1];
       const bounds = this._getButtonBounds();
-
-      // Check history entry clicks
-      for (let i = 0; i < this.seedProps.seedHistory.length; i++) {
-        const eb = this._getHistoryEntryBounds(i);
-        if (
-          localX >= eb.x &&
-          localX <= eb.x + eb.width &&
-          localY >= eb.y &&
-          localY <= eb.y + eb.height
-        ) {
-          this._recallSeed(i);
-          return true;
-        }
-      }
 
       // Check "Recall Last" button
       if (this._isInButton(localX, localY, bounds.useLastSeed)) {
@@ -693,9 +617,24 @@ app.registerExtension({
 
       // Check "Randomize" button
       if (this._isInButton(localX, localY, bounds.resetRandom)) {
+        this._pushHistory(this._getSeed()); // save current before randomizing
         this._setControlMode("randomize");
         this._setSeed(randomSeed(this.seedProps.min, this._getEffectiveMax()));
         this.setDirtyCanvas(true, true);
+        return true;
+      }
+
+      // Check prev-seed text click
+      const prevBounds = this._getPrevSeedBounds();
+      if (
+        localX >= prevBounds.x &&
+        localX <= prevBounds.x + prevBounds.width &&
+        localY >= prevBounds.y &&
+        localY <= prevBounds.y + prevBounds.height
+      ) {
+        if (this.seedProps.seedHistory.length > 0) {
+          this._recallSeed(0);
+        }
         return true;
       }
 
@@ -714,17 +653,20 @@ app.registerExtension({
       };
     };
 
-    // Compute minimum size - return small values to allow free resizing
+    // Compute minimum size — widgets + prev-seed line + padding
     nodeType.prototype.computeSize = function () {
-      // Height based on widget count + history list + button area
       const widgetHeight = this.widgets ? 26 + this.widgets.length * 26 : 52;
-      const historyCount = this.seedProps
-        ? Math.max(this.seedProps.seedHistory.length, 1)
-        : 1;
-      const historyAreaHeight =
-        16 + historyCount * this.historyEntryHeight + this.historyPadding;
-      const buttonAreaHeight = this.buttonHeight + 8;
-      return [100, widgetHeight + 5 + historyAreaHeight + buttonAreaHeight];
+      const slotAreaEnd = getContentStartY(this);
+      const contentEnd = Math.max(widgetHeight, slotAreaEnd);
+      // Add prev-seed line (16px) + padding
+      return [150, contentEnd + 4 + 16 + 6];
+    };
+
+    // Resize handler
+    nodeType.prototype.onResize = function (size) {
+      const computed = this.computeSize();
+      size[0] = Math.max(size[0], computed[0]);
+      size[1] = Math.max(size[1], computed[1]);
     };
 
     // Get extra menu options
@@ -735,19 +677,46 @@ app.registerExtension({
       options.push({
         content: "Randomize Seed Now",
         callback: () => {
+          self._pushHistory(self._getSeed());
           self._setSeed(
             randomSeed(self.seedProps.min, self._getEffectiveMax()),
           );
           self.setDirtyCanvas(true, true);
         },
       });
-      options.push({
-        content: "Clear History",
-        callback: () => {
-          self.seedProps.seedHistory = [];
-          self.setDirtyCanvas(true, true);
-        },
-      });
+
+      // Seed History submenu
+      if (self.seedProps.seedHistory.length > 0) {
+        const historyEntries = self.seedProps.seedHistory.map((seed, i) => ({
+          content: String(seed),
+          callback: () => {
+            self._recallSeed(i);
+          },
+        }));
+        historyEntries.push(null);
+        historyEntries.push({
+          content: "Clear History",
+          callback: () => {
+            self.seedProps.seedHistory = [];
+            self.setDirtyCanvas(true, true);
+          },
+        });
+        options.push({
+          content: "Seed History",
+          submenu: {
+            options: historyEntries,
+          },
+        });
+      } else {
+        options.push({
+          content: "Clear History",
+          callback: () => {
+            self.seedProps.seedHistory = [];
+            self.setDirtyCanvas(true, true);
+          },
+        });
+      }
+
       options.push({
         content: "Reset to Defaults",
         callback: () => {

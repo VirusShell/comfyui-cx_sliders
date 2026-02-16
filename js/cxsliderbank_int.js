@@ -4,6 +4,8 @@
 
 import { app } from "../../scripts/app.js";
 
+const CX_VERSION = "1.2.1";
+
 // Utility function to clamp values
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -18,6 +20,7 @@ function isValidHexColor(str) {
 function cleanProperties(node) {
   if (node.properties) {
     delete node.properties.aux_id;
+    node.properties.ver = CX_VERSION;
   }
 }
 
@@ -621,6 +624,13 @@ app.registerExtension({
         Math.max(0, count - 1) * this.miniSliderGap +
         10;
       return [160, h];
+    };
+
+    // Resize handler - enforce minimum dimensions
+    nodeType.prototype.onResize = function (size) {
+      const computed = this.computeSize();
+      size[0] = Math.max(size[0], computed[0]);
+      size[1] = Math.max(size[1], computed[1]);
     };
 
     // Extra menu options
