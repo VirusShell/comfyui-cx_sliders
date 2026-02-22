@@ -30,7 +30,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-1, FR-16, AC-1.1, AC-12.1, AC-12.4_
   - _Design: cx_utils.js — Color utilities, Logging implementation_
 
-- [ ] 1.3 Create cx_base_widget.js with CxBaseWidget class
+- [x] 1.3 Create cx_base_widget.js with CxBaseWidget class
   - **Do**:
     1. Create `js/cx_base_widget.js` importing from `./cx_utils.js`
     2. Implement `CxBaseWidget` class with: constructor(name, defaultValue, options), `type = "custom"`, framework methods `draw()`, `mouse()`, `computeSize()`, `serializeValue()`
