@@ -55,13 +55,13 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-2, AC-2.3_
   - _Design: CxBaseWidget — _dispatchMouse, _inBounds_
 
-- [ ] 1.5 [VERIFY] Quality checkpoint: syntax validation
+- [x] 1.5 [VERIFY] Quality checkpoint: syntax validation
   - **Do**: Validate both new shared modules parse without errors
   - **Verify**: `node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cx_utils.js && node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cx_base_widget.js`
   - **Done when**: Both files pass syntax check with exit code 0
   - **Commit**: `chore(shared): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.6 Rewrite cxtoggle.js with CxToggleWidget class
+- [x] 1.6 Rewrite cxtoggle.js with CxToggleWidget class
   - **Do**:
     1. Rewrite `js/cxtoggle.js` from scratch using design.md `cxtoggle.js` section
     2. Implement `CxToggleWidget extends CxBaseWidget` with `_draw()`, `_getLabels()`, `_getCurrentLabel()`, `computeSize()` returning `[width, 28]`
