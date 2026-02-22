@@ -18,7 +18,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-1, FR-14, AC-1.1, AC-1.4, AC-14.1, AC-14.2_
   - _Design: cx_utils.js component_
 
-- [ ] 1.2 Add color utilities and logging to cx_utils.js
+- [x] 1.2 Add color utilities and logging to cx_utils.js
   - **Do**:
     1. Add `openColorPicker(currentColor, callback)` function
     2. Add `getContrastColor(hexColor)` function using luminance formula

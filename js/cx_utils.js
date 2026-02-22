@@ -88,3 +88,51 @@ export function isValidHexColor(str) {
   if (typeof str !== "string") return false;
   return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(str);
 }
+
+// --- Color utilities ---
+
+/**
+ * Open a simple prompt for hex color entry.
+ * Validates input with isValidHexColor before calling callback.
+ * @param {string} currentColor - Current hex color to show as default
+ * @param {function} callback - Called with the new valid hex color
+ */
+export function openColorPicker(currentColor, callback) {
+  const color = prompt("Enter hex color:", currentColor);
+  if (color && isValidHexColor(color)) callback(color);
+}
+
+/**
+ * Return black or white hex color for best contrast against the given background.
+ * Uses relative luminance formula (ITU-R BT.709).
+ * Handles both #RGB and #RRGGBB formats.
+ * @param {string} hexColor - Background hex color
+ * @returns {string} "#000000" or "#ffffff"
+ */
+export function getContrastColor(hexColor) {
+  let hex = hexColor.replace("#", "");
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.5 ? "#000000" : "#ffffff";
+}
+
+// --- Logging ---
+
+/**
+ * Structured logging with [cx_sliders] prefix and debug gate.
+ * Debug messages are suppressed unless window.CX_SLIDERS_DEBUG is truthy.
+ * @param {"debug"|"warn"|"error"|"info"} level - Log level
+ * @param {...any} args - Values to log
+ */
+export function cxLog(level, ...args) {
+  if (level === "debug" && !window.CX_SLIDERS_DEBUG) return;
+  const prefix = "[cx_sliders]";
+  if (level === "error") console.error(prefix, ...args);
+  else if (level === "warn") console.warn(prefix, ...args);
+  else console.log(prefix, ...args);
+}
