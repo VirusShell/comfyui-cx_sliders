@@ -57,8 +57,28 @@ Maintained throughout the spec lifecycle. Captures decisions, surprises, and ins
 - `addCustomWidget()` appends to end of `widgets` array, which can shift `widgets_values` serialization indices. Fix: use `widgets.splice(idx, 0, widget)` to insert at the same position as the replaced widget.
 - **Lesson**: ComfyUI serializes widgets by array position. Any operation that changes widget order must account for serialization impact.
 
+## Tasks Phase
+
+### Decision: Per-file task granularity
+- **Choice**: Each JS file = 1 task + 1 commit. Not per-feature (too many tasks) or per-phase (too coarse).
+- **Rationale**: Balanced — each commit produces a complete working file, easy to test and debug independently.
+
+### Decision: Pause after POC for manual testing
+- **Choice**: Explicit pause at task 1.11 for user to restart ComfyUI and manually test cxToggle.
+- **Rationale**: The POC validates the foundational pattern (splice-then-insert, framework layout, mouse events). If it's wrong, everything built on it is wrong. Worth the pause.
+
+### Decision: Delete old files as you go
+- **Choice**: Delete old JS files in the same commit as their replacements.
+- **Rationale**: Keeps workspace clean, on a feature branch so git history is the fallback.
+
+### Review Finding: Traceability gaps catch requirement coverage holes
+- Reviewer found 8 acceptance criteria (AC-2.5, AC-10.4, AC-11.4, AC-13.4, AC-14.1-14.4) with no task coverage. All were real gaps.
+- **Lesson**: "Obvious" requirements (like "no other Python changes needed" = AC-13.4) still need explicit task traceability. Negative requirements are easy to miss.
+
 ## Process Observations
 
-- Spec-reviewer caught 5 real architectural issues on first pass — the review loop is worth the time
+- Spec-reviewer caught 5 real architectural issues on first pass (design) — the review loop is worth the time
 - All 5 issues were fixable without restructuring the design (targeted revisions, not rewrites)
 - Second review passed cleanly — revision quality was high
+- Tasks review caught 6 traceability issues — mostly annotation gaps, not structural problems
+- Phase 2 "Refactoring" was a misnomer for what was really "Error Handling & Hardening" — naming matters for clarity
