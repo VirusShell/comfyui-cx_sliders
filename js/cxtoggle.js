@@ -2,7 +2,7 @@
 // Button-style toggle with configurable states and custom labels
 
 import { app } from "../../scripts/app.js";
-import { clamp, MARGIN, COLORS } from "./cx_utils.js";
+import { clamp, MARGIN, COLORS, cxLog } from "./cx_utils.js";
 import { CxBaseWidget } from "./cx_base_widget.js";
 
 export class CxToggleWidget extends CxBaseWidget {
@@ -76,8 +76,46 @@ app.registerExtension({
   async beforeRegisterNodeDef(nodeType, nodeData) {
     if (nodeData.name !== "cxToggle") return;
 
-    // Task 1.7 will add onNodeCreated with splice-then-insert
-    // Task 1.8 will add onDblClick, getExtraMenuOptions, onPropertyChanged
-    // Task 1.9 will add onConfigure with migration
+    const onNodeCreated = nodeType.prototype.onNodeCreated;
+
+    nodeType.prototype.onNodeCreated = function() {
+      onNodeCreated?.apply(this, arguments);
+      try {
+        // Remove framework-created "toggle" widget, replace with custom at same index
+        const idx = this.widgets?.findIndex(w => w.name === "toggle") ?? -1;
+        if (idx >= 0) this.widgets.splice(idx, 1);
+
+        // Set default properties (config-only state, NOT in widget.value)
+        this.properties = this.properties || {};
+        Object.assign(this.properties, {
+          min: 0,
+          max: 1,
+          labels: "Off,On",
+          fillColor: COLORS.toggle.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+
+        const widget = new CxToggleWidget("toggle", 0);
+
+        // Insert at same index (preserves widgets_values serialization order)
+        if (idx >= 0) {
+          this.widgets.splice(idx, 0, widget);
+        } else {
+          this.addCustomWidget(widget);
+        }
+
+        this.setSize(this.computeSize());
+
+        // Lowercase output labels
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+
+        cxLog("debug", "cxToggle widget created");
+      } catch (err) {
+        cxLog("error", "cxToggle onNodeCreated:", err);
+      }
+    };
+
+    // Tasks 1.8 and 1.9 will add onDblClick, getExtraMenuOptions, onPropertyChanged, onConfigure
   }
 });

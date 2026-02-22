@@ -74,7 +74,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-8, AC-6.1, AC-6.2, AC-6.3, AC-6.6_
   - _Design: cxtoggle.js — CxToggleWidget, Registration Hook_
 
-- [ ] 1.7 Add widget splice-then-insert registration to cxtoggle.js
+- [x] 1.7 Add widget splice-then-insert registration to cxtoggle.js
   - **Do**:
     1. In `onNodeCreated`: find auto-created `"toggle"` widget index with `widgets.findIndex()`, splice it out, create `CxToggleWidget`, insert at same index via `widgets.splice(idx, 0, widget)`
     2. Set default `node.properties`: min, max, labels, fillColor, borderColor, textColor
