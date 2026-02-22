@@ -43,7 +43,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-2, FR-14, FR-15, AC-2.1, AC-2.2, AC-2.3, AC-2.4, AC-2.6, AC-14.3, AC-14.4, AC-14.5_
   - _Design: CxBaseWidget section_
 
-- [ ] 1.4 Add hit area dispatch and mouse tracking to CxBaseWidget
+- [x] 1.4 Add hit area dispatch and mouse tracking to CxBaseWidget
   - **Do**:
     1. Add `_hitAreas` object, `_isDragging`, `_activeDragArea`, `_dragStartPos`, `_lastHeight` state properties to constructor
     2. Implement `_dispatchMouse(event, pos, node)` with pointerdown/pointermove/pointerup handling and `_activeDragArea` tracking

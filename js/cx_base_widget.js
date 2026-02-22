@@ -102,14 +102,58 @@ export class CxBaseWidget {
     ctx.stroke();
   }
 
-  // --- Hit area dispatch (stub for task 1.4) ---
-  // _dispatchMouse, _inBounds will be fully implemented in task 1.4
-  // For now, _dispatchMouse just calls _mouse:
+  // --- Hit area dispatch ---
+
   _dispatchMouse(event, pos, node) {
-    return this._mouse(event, pos, node);
+    const type = event.type;
+
+    if (type === "pointerdown") {
+      // Check hit areas
+      for (const [name, area] of Object.entries(this._hitAreas)) {
+        if (this._inBounds(pos, area.bounds)) {
+          if (area.onDown?.(event, pos, node) !== false) {
+            this._isDragging = true;
+            this._activeDragArea = name;
+            this._dragStartPos = [...pos];
+            return true;
+          }
+        }
+      }
+      return this._mouse(event, pos, node);
+    }
+
+    if (type === "pointermove") {
+      if (this._isDragging && this._activeDragArea) {
+        const area = this._hitAreas[this._activeDragArea];
+        area?.onMove?.(event, pos, node);
+        return true;
+      }
+      return this._mouse(event, pos, node);
+    }
+
+    if (type === "pointerup") {
+      if (this._isDragging && this._activeDragArea) {
+        const area = this._hitAreas[this._activeDragArea];
+        area?.onUp?.(event, pos, node);
+        this._isDragging = false;
+        this._activeDragArea = null;
+        return true;
+      }
+      return this._mouse(event, pos, node);
+    }
+
+    return false;
   }
 
   _inBounds(pos, bounds) {
-    return false;
+    if (!bounds) return false;
+    if (bounds.length === 2) {
+      // [x, width] -- Y bounds come from widget row (this.last_y + cached height)
+      return pos[0] >= bounds[0] && pos[0] <= bounds[0] + bounds[1]
+          && pos[1] >= this.last_y && pos[1] <= this.last_y + this._lastHeight;
+    }
+    // [x, y, width, height] -- fully specified
+    return pos[0] >= bounds[0] && pos[0] <= bounds[0] + bounds[2]
+        && pos[1] >= bounds[1] && pos[1] <= bounds[1] + bounds[3];
   }
 }
