@@ -71,7 +71,10 @@ function getContentStartY(node) {
   if (node.inputs) {
     for (const inp of node.inputs) {
       const hasWidget =
-        node.widgets && node.widgets.find((w) => w.name === inp.name);
+        node.widgets &&
+        node.widgets.find(
+          (w) => w.name === inp.name && w.type !== "converted-widget",
+        );
       if (!hasWidget) numInputSlots++;
     }
   }
@@ -153,7 +156,6 @@ app.registerExtension({
           this._valueWidget.options.hidden = true;
         }
         this._valueWidget.computeSize = () => [0, -4];
-        this._valueWidget.type = "converted-widget";
       }
     };
 
@@ -307,7 +309,6 @@ app.registerExtension({
           widget.hidden = true;
           if (widget.options) widget.options.hidden = true;
           widget.computeSize = () => [0, -4];
-          widget.type = "converted-widget";
         }
 
         // Set output labels to lowercase

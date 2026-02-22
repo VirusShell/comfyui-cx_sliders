@@ -57,7 +57,10 @@ function getContentStartY(node) {
   if (node.inputs) {
     for (const inp of node.inputs) {
       const hasWidget =
-        node.widgets && node.widgets.find((w) => w.name === inp.name);
+        node.widgets &&
+        node.widgets.find(
+          (w) => w.name === inp.name && w.type !== "converted-widget",
+        );
       if (!hasWidget) numInputSlots++;
     }
   }
