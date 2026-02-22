@@ -6,7 +6,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1a: POC Foundation (cx_utils + CxBaseWidget + cxToggle)
 
-- [ ] 1.1 Create cx_utils.js with value utilities and constants
+- [x] 1.1 Create cx_utils.js with value utilities and constants
   - **Do**:
     1. Create `js/cx_utils.js` with exports: `clamp`, `getDecimalPlaces`, `formatValue`, `isValidHexColor`, `CX_VERSION`, `MARGIN`, `COLORS` constant object (full palette from design.md)
     2. Do NOT include `getContentStartY` or `cleanProperties` (anti-patterns per AC-1.4)
