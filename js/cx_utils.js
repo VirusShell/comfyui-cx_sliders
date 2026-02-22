@@ -125,12 +125,12 @@ export function getContrastColor(hexColor) {
 
 /**
  * Structured logging with [cx_sliders] prefix and debug gate.
- * Debug messages are suppressed unless window.CX_SLIDERS_DEBUG is truthy.
+ * Debug messages are enabled by default; set window.CX_SLIDERS_DEBUG = false to suppress.
  * @param {"debug"|"warn"|"error"|"info"} level - Log level
  * @param {...any} args - Values to log
  */
 export function cxLog(level, ...args) {
-  if (level === "debug" && !window.CX_SLIDERS_DEBUG) return;
+  if (level === "debug" && window.CX_SLIDERS_DEBUG === false) return;
   const prefix = "[cx_sliders]";
   if (level === "error") console.error(prefix, ...args);
   else if (level === "warn") console.warn(prefix, ...args);

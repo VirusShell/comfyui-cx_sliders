@@ -19,7 +19,7 @@ export class CxBaseWidget {
   _isDragging = false;
   _dragStartPos = null;
   _activeDragArea = null; // Name of hit area that initiated current drag
-  _lastHeight = 20;       // Cached from last draw() call (LiteGraph.NODE_WIDGET_HEIGHT default)
+  _lastHeight = 20;       // NODE_WIDGET_HEIGHT default; updated from draw() via this._lastHeight = height
 
   constructor(name, defaultValue, options = {}) {
     this.name = name;
