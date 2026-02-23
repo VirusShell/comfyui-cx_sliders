@@ -164,7 +164,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-5, AC-3.2, AC-3.3, AC-4.3, AC-5.4_
   - _Design: CxNumericWidget — numeric helpers_
 
-- [ ] 1.14 Add shared color menu builder to CxNumericWidget
+- [x] 1.14 Add shared color menu builder to CxNumericWidget
   - **Do**:
     1. Add `_buildColorMenu(options, labelPrefix)` method that appends fill/border/text color picker menu items to the `options` array
     2. Each picker calls `openColorPicker` and updates `node.properties` on selection

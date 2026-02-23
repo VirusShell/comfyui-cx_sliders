@@ -2,7 +2,7 @@
 // Framework contract: draw(), mouse(), computeSize(), serializeValue()
 // Subclasses override _draw() and _mouse(), NOT the framework methods.
 
-import { cxLog, getContrastColor, MARGIN, COLORS, clamp, getDecimalPlaces, formatValue } from "./cx_utils.js";
+import { cxLog, getContrastColor, MARGIN, COLORS, clamp, getDecimalPlaces, formatValue, openColorPicker } from "./cx_utils.js";
 
 export class CxBaseWidget {
   // --- Framework contract ---
@@ -223,5 +223,36 @@ export class CxNumericWidget extends CxBaseWidget {
         this._node?.setDirtyCanvas(true, true);
       }
     }, event);
+  }
+
+  _buildColorMenu(options, labelPrefix = "Slider") {
+    options.push(null);
+    options.push({
+      content: `🎨 ${labelPrefix} Fill Color`,
+      callback: () => {
+        openColorPicker(this._fillColor, (c) => {
+          this._node.properties.fillColor = c;
+          this._node.setDirtyCanvas(true, true);
+        });
+      }
+    });
+    options.push({
+      content: `🎨 ${labelPrefix} Border Color`,
+      callback: () => {
+        openColorPicker(this._borderColor, (c) => {
+          this._node.properties.borderColor = c;
+          this._node.setDirtyCanvas(true, true);
+        });
+      }
+    });
+    options.push({
+      content: `🎨 ${labelPrefix} Text Color`,
+      callback: () => {
+        openColorPicker(this._resolveTextColor(), (c) => {
+          this._node.properties.textColor = c;
+          this._node.setDirtyCanvas(true, true);
+        });
+      }
+    });
   }
 }
