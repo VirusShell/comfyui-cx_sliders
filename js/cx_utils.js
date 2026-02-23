@@ -92,14 +92,39 @@ export function isValidHexColor(str) {
 // --- Color utilities ---
 
 /**
- * Open a simple prompt for hex color entry.
- * Validates input with isValidHexColor before calling callback.
- * @param {string} currentColor - Current hex color to show as default
- * @param {function} callback - Called with the new valid hex color
+ * Open native system color picker via a temporary <input type="color"> element.
+ * Falls back to prompt() if the color input is not supported.
+ * @param {string} currentColor - Current hex color (#RRGGBB format)
+ * @param {function} callback - Called with the new hex color string
  */
 export function openColorPicker(currentColor, callback) {
-  const color = prompt("Enter hex color:", currentColor);
-  if (color && isValidHexColor(color)) callback(color);
+  // Normalize short hex (#RGB) to full (#RRGGBB) for input[type=color]
+  let initial = currentColor || "#000000";
+  if (initial.length === 4) {
+    initial = "#" + initial[1] + initial[1] + initial[2] + initial[2] + initial[3] + initial[3];
+  }
+
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = initial;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  input.style.pointerEvents = "none";
+  document.body.appendChild(input);
+
+  input.addEventListener("input", () => {
+    callback(input.value);
+  });
+  input.addEventListener("change", () => {
+    callback(input.value);
+    input.remove();
+  });
+  // Clean up if user cancels (blur without change)
+  input.addEventListener("blur", () => {
+    setTimeout(() => input.remove(), 100);
+  });
+
+  input.click();
 }
 
 /**

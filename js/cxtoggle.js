@@ -55,7 +55,7 @@ export class CxToggleWidget extends CxBaseWidget {
   _getLabels() {
     const min = this._getProp("min", 0);
     const max = this._getProp("max", 1);
-    const labelStr = this._getProp("labels", "Off,On");
+    const labelStr = this._getProp("labels", "Off, On");
     const stateCount = max - min + 1;
     let labels = labelStr.split(",").map(s => s.trim());
     while (labels.length < stateCount) labels.push(String(min + labels.length));
@@ -89,7 +89,7 @@ function migrateToggleProps(node, info) {
   // Write config to node.properties (new format)
   node.properties.min = oldMin;
   node.properties.max = oldMax;
-  node.properties.labels = p.labels ?? "Off,On";
+  node.properties.labels = p.labels ?? "Off, On";
 
   // Colors: reset to new defaults (config loss accepted per AC-9.3)
   node.properties.fillColor = COLORS.toggle.fill;
@@ -126,7 +126,7 @@ app.registerExtension({
         Object.assign(this.properties, {
           min: 0,
           max: 1,
-          labels: "Off,On",
+          labels: "Off, On",
           fillColor: COLORS.toggle.fill,
           borderColor: COLORS.widget.border,
           textColor: "auto",
@@ -190,12 +190,11 @@ app.registerExtension({
           this.setDirtyCanvas(true, true);
         })
       });
-      options.push(null); // separator
       options.push({
         content: "↺ Reset to Defaults",
         callback: () => {
           Object.assign(this.properties, {
-            min: 0, max: 1, labels: "Off,On",
+            min: 0, max: 1, labels: "Off, On",
             fillColor: COLORS.toggle.fill,
             borderColor: COLORS.widget.border,
             textColor: "auto",
@@ -211,9 +210,13 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === "toggle");
       if (!w) return;
-      if (name === "min" || name === "max") {
-        w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
+      if (name === "min") {
+        this.properties.min = clamp(Math.round(Number(value) || 0), 0, this.properties.max ?? 1);
       }
+      if (name === "max") {
+        this.properties.max = clamp(Math.round(Number(value) || 1), this.properties.min ?? 0, 20);
+      }
+      w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
       this.setDirtyCanvas(true, true);
     };
 
