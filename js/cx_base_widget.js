@@ -2,7 +2,7 @@
 // Framework contract: draw(), mouse(), computeSize(), serializeValue()
 // Subclasses override _draw() and _mouse(), NOT the framework methods.
 
-import { cxLog, getContrastColor, MARGIN, COLORS } from "./cx_utils.js";
+import { cxLog, getContrastColor, MARGIN, COLORS, clamp, getDecimalPlaces, formatValue } from "./cx_utils.js";
 
 export class CxBaseWidget {
   // --- Framework contract ---
@@ -175,4 +175,53 @@ export class CxNumericWidget extends CxBaseWidget {
   get _fillColor()   { return this._getProp("fillColor", COLORS.slider.fill); }
   get _borderColor() { return this._getProp("borderColor", COLORS.widget.border); }
   get _textColor()   { return this._getProp("textColor", "auto"); }
+
+  // --- Numeric helpers ---
+
+  _getDecimals() {
+    return this._isInteger ? 0 : getDecimalPlaces(this._padding);
+  }
+
+  _formatValue(v) {
+    return formatValue(v, this._getDecimals());
+  }
+
+  _roundValue(v) {
+    if (this._isInteger) return Math.round(v);
+    const d = this._getDecimals();
+    const m = Math.pow(10, d);
+    return Math.round(v * m) / m;
+  }
+
+  _applySnap(ratio, shiftKey) {
+    let shouldSnap = this._snap;
+    if (shiftKey) shouldSnap = !shouldSnap;
+    if (shouldSnap && this._step > 0) {
+      const range = this._max - this._min;
+      if (range > 0) {
+        const stepRatio = this._step / range;
+        ratio = Math.round(ratio / stepRatio) * stepRatio;
+      }
+    }
+    return ratio;
+  }
+
+  _valueFromRatio(ratio) {
+    return this._roundValue(this._min + (this._max - this._min) * ratio);
+  }
+
+  _ratioFromValue(v) {
+    const range = this._max - this._min;
+    return range > 0 ? clamp((v - this._min) / range, 0, 1) : 0;
+  }
+
+  _promptEntry(canvas, event, title, currentFormatted) {
+    canvas.prompt(title, currentFormatted, (v) => {
+      const num = Number(v);
+      if (!isNaN(num)) {
+        this.value = this._roundValue(clamp(num, this._min, this._max));
+        this._node?.setDirtyCanvas(true, true);
+      }
+    }, event);
+  }
 }

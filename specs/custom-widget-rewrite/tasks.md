@@ -151,7 +151,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-2, FR-5, AC-3.2, AC-3.3_
   - _Design: CxNumericWidget section_
 
-- [ ] 1.13 Add numeric helper methods to CxNumericWidget
+- [x] 1.13 Add numeric helper methods to CxNumericWidget
   - **Do**:
     1. Add `_getDecimals()`, `_formatValue(v)`, `_roundValue(v)` methods
     2. Add `_applySnap(ratio, shiftKey)` method with shift-invert behavior
