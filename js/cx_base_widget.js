@@ -157,3 +157,22 @@ export class CxBaseWidget {
         && pos[1] >= bounds[1] && pos[1] <= bounds[1] + bounds[3];
   }
 }
+
+export class CxNumericWidget extends CxBaseWidget {
+  _isInteger = false;
+
+  constructor(name, defaultValue, isInteger, options = {}) {
+    super(name, defaultValue, options);
+    this._isInteger = isInteger;
+  }
+
+  // Property accessors — all read from node.properties via _getProp
+  get _min()         { return this._getProp("min", this._isInteger ? 0 : 0.0); }
+  get _max()         { return this._getProp("max", this._isInteger ? 100 : 100.0); }
+  get _step()        { return this._getProp("step", this._isInteger ? 1 : 0.5); }
+  get _snap()        { return this._getProp("snap", true); }
+  get _padding()     { return this._getProp("padding", this._isInteger ? "0" : "0.000"); }
+  get _fillColor()   { return this._getProp("fillColor", COLORS.slider.fill); }
+  get _borderColor() { return this._getProp("borderColor", COLORS.widget.border); }
+  get _textColor()   { return this._getProp("textColor", "auto"); }
+}

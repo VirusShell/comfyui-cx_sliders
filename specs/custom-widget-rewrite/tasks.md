@@ -112,13 +112,13 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-11, AC-9.1, AC-9.2, AC-9.3, AC-9.4, AC-9.5_
   - _Design: Migration Design section_
 
-- [ ] 1.10 [VERIFY] Quality checkpoint: all POC files
+- [x] 1.10 [VERIFY] Quality checkpoint: all POC files
   - **Do**: Validate all 3 POC files parse without syntax errors
   - **Verify**: `node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cx_utils.js && node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cx_base_widget.js && node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cxtoggle.js`
   - **Done when**: All 3 files pass syntax check
   - **Commit**: `chore(poc): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.11 POC Checkpoint -- Manual Testing Pause
+- [x] 1.11 POC Checkpoint -- Manual Testing Pause
   - **Do**:
     1. User restarts ComfyUI
     2. Add a cxToggle node from `utils/cxSliders` category
@@ -138,7 +138,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1b: CxNumericWidget Foundation
 
-- [ ] 1.12 Add CxNumericWidget class to cx_base_widget.js
+- [x] 1.12 Add CxNumericWidget class to cx_base_widget.js
   - **Do**:
     1. Add `CxNumericWidget extends CxBaseWidget` class to `js/cx_base_widget.js`
     2. Implement constructor with `isInteger` flag
