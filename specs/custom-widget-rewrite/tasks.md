@@ -99,7 +99,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-6.4, AC-6.5, AC-6.7_
   - _Design: cxtoggle.js — Registration section_
 
-- [ ] 1.9 Add v1.x migration support to cxtoggle.js
+- [x] 1.9 Add v1.x migration support to cxtoggle.js
   - **Do**:
     1. Add `migrateToggleProps(node, info)` function: detect old format via `info.properties.current !== undefined` or `info.properties.toggleProps !== undefined`
     2. Extract old `current` value, write to `widget.value`; set new-format properties (colors reset to defaults per AC-9.3)

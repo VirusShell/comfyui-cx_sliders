@@ -71,6 +71,42 @@ export class CxToggleWidget extends CxBaseWidget {
   }
 }
 
+// Module-level migration function for v1.x workflows
+function migrateToggleProps(node, info) {
+  const p = info.properties || {};
+  const wasOldFormat = p.current !== undefined      // v1.2 format
+                     || p.toggleProps !== undefined;  // v1.0 format
+
+  if (!wasOldFormat) return;
+
+  cxLog("debug", "Migrating v1.x toggle properties");
+
+  // Extract old values
+  const oldCurrent = p.current ?? 0;
+  const oldMin = p.min ?? 0;
+  const oldMax = p.max ?? 1;
+
+  // Write config to node.properties (new format)
+  node.properties.min = oldMin;
+  node.properties.max = oldMax;
+  node.properties.labels = p.labels ?? "Off,On";
+
+  // Colors: reset to new defaults (config loss accepted per AC-9.3)
+  node.properties.fillColor = COLORS.toggle.fill;
+  node.properties.borderColor = COLORS.widget.border;
+  node.properties.textColor = "auto";
+
+  // Set widget value (numeric value preserved per AC-9.2)
+  const w = node.widgets?.find(w => w.name === "toggle");
+  if (w) w.value = clamp(oldCurrent, oldMin, oldMax);
+
+  // Clean up old properties
+  delete node.properties.current;
+  delete node.properties.toggleProps;
+  delete node.properties.ver;
+  delete node.properties.aux_id;
+}
+
 app.registerExtension({
   name: "cx.toggle",
   async beforeRegisterNodeDef(nodeType, nodeData) {
@@ -179,6 +215,22 @@ app.registerExtension({
         w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
       }
       this.setDirtyCanvas(true, true);
+    };
+
+    // onConfigure -- migration + restore
+    nodeType.prototype.onConfigure = function(info) {
+      try {
+        migrateToggleProps(this, info);
+        const w = this.widgets?.find(w => w.name === "toggle");
+        if (w && info.widgets_values) {
+          // Framework restores widget.value from widgets_values automatically
+          // Clamp to valid range in case properties changed
+          w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
+        }
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+      } catch (err) {
+        cxLog("error", "cxToggle onConfigure:", err);
+      }
     };
   }
 });
