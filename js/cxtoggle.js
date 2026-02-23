@@ -2,7 +2,7 @@
 // Button-style toggle with configurable states and custom labels
 
 import { app } from "../../scripts/app.js";
-import { clamp, MARGIN, COLORS, cxLog } from "./cx_utils.js";
+import { clamp, MARGIN, COLORS, cxLog, openColorPicker } from "./cx_utils.js";
 import { CxBaseWidget } from "./cx_base_widget.js";
 
 export class CxToggleWidget extends CxBaseWidget {
@@ -116,6 +116,69 @@ app.registerExtension({
       }
     };
 
-    // Tasks 1.8 and 1.9 will add onDblClick, getExtraMenuOptions, onPropertyChanged, onConfigure
+    // onDblClick -- manual numeric entry
+    nodeType.prototype.onDblClick = function(e, pos, canvas) {
+      const w = this.widgets?.find(w => w.name === "toggle");
+      if (!w) return;
+      const current = String(w.value);
+      canvas.prompt("Value", current, (v) => {
+        const num = parseInt(v);
+        if (!isNaN(num)) {
+          w.value = clamp(num, this.properties.min ?? 0, this.properties.max ?? 1);
+          this.setDirtyCanvas(true, true);
+        }
+      }, e);
+    };
+
+    // getExtraMenuOptions -- color pickers + reset
+    nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
+      options.push(null); // separator
+      options.push({
+        content: "🎨 Fill Color",
+        callback: () => openColorPicker(this.properties.fillColor || COLORS.toggle.fill, (c) => {
+          this.properties.fillColor = c;
+          this.setDirtyCanvas(true, true);
+        })
+      });
+      options.push({
+        content: "🎨 Border Color",
+        callback: () => openColorPicker(this.properties.borderColor || COLORS.widget.border, (c) => {
+          this.properties.borderColor = c;
+          this.setDirtyCanvas(true, true);
+        })
+      });
+      options.push({
+        content: "🎨 Text Color",
+        callback: () => openColorPicker(this.properties.textColor || "auto", (c) => {
+          this.properties.textColor = c;
+          this.setDirtyCanvas(true, true);
+        })
+      });
+      options.push(null); // separator
+      options.push({
+        content: "↺ Reset to Defaults",
+        callback: () => {
+          Object.assign(this.properties, {
+            min: 0, max: 1, labels: "Off,On",
+            fillColor: COLORS.toggle.fill,
+            borderColor: COLORS.widget.border,
+            textColor: "auto",
+          });
+          const w = this.widgets?.find(w => w.name === "toggle");
+          if (w) w.value = clamp(w.value, 0, 1);
+          this.setDirtyCanvas(true, true);
+        }
+      });
+    };
+
+    // onPropertyChanged -- sync from Properties Panel
+    nodeType.prototype.onPropertyChanged = function(name, value) {
+      const w = this.widgets?.find(w => w.name === "toggle");
+      if (!w) return;
+      if (name === "min" || name === "max") {
+        w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
+      }
+      this.setDirtyCanvas(true, true);
+    };
   }
 });

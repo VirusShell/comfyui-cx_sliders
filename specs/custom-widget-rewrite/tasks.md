@@ -87,7 +87,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-3, FR-4, AC-2.5, AC-6.6, AC-6.7_
   - _Design: Widget Serialization Order — splice-then-insert strategy_
 
-- [ ] 1.8 Add double-click, context menu, and onPropertyChanged to cxtoggle.js
+- [x] 1.8 Add double-click, context menu, and onPropertyChanged to cxtoggle.js
   - **Do**:
     1. Add `onDblClick` prototype: find toggle widget, call `canvas.prompt()` for manual numeric entry
     2. Add `getExtraMenuOptions` prototype: color pickers for fill/border/text via `openColorPicker`, plus "Reset to Defaults" option
