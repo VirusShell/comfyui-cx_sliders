@@ -239,7 +239,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1d: Dial Widget
 
-- [ ] 1.21 Create cxdial.js with CxDialWidget class and arc rendering
+- [x] 1.21 Create cxdial.js with CxDialWidget class and arc rendering
   - **Do**:
     1. Create `js/cxdial.js` importing from `./cx_utils.js` and `./cx_base_widget.js`
     2. Implement `CxDialWidget extends CxNumericWidget` with static constants: `MIN_HEIGHT = 70`, `START_ANGLE = 0.75 * Math.PI`, `SWEEP = 1.5 * Math.PI`
