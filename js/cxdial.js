@@ -83,6 +83,30 @@ class CxDialWidget extends CxNumericWidget {
     const arcWidth = Math.max(4, radius * 0.2);
     return { cx, cy, radius, arcWidth };
   }
+
+  _updateFromAngle(pos, geo, event) {
+    const dx = pos[0] - geo.cx;
+    const dy = pos[1] - geo.cy;
+    let angle = Math.atan2(dy, dx);
+    if (angle < 0) angle += Math.PI * 2;
+
+    // Dead zone: 90 degrees at bottom (centered on 270 deg = 1.5*PI)
+    const deadStart = CxDialWidget.END_ANGLE % (Math.PI * 2);
+    const deadEnd = CxDialWidget.START_ANGLE;
+    // If in dead zone, snap to nearest endpoint
+    if (angle > deadStart || angle < deadEnd) {
+      const distToStart = Math.abs(angle - CxDialWidget.START_ANGLE);
+      const distToEnd = Math.abs(angle - CxDialWidget.END_ANGLE);
+      angle = distToStart < distToEnd ? CxDialWidget.START_ANGLE : CxDialWidget.END_ANGLE;
+    }
+
+    let ratio = (angle - CxDialWidget.START_ANGLE) / CxDialWidget.SWEEP;
+    ratio = clamp(ratio, 0, 1);
+    ratio = this._applySnap(ratio, event.shiftKey);
+
+    this.value = this._valueFromRatio(ratio);
+    this._node?.setDirtyCanvas(true, true);
+  }
 }
 
 export { CxDialWidget };

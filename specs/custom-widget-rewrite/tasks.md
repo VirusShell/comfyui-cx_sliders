@@ -252,7 +252,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-7, AC-5.1, AC-5.7_
   - _Design: cxdial.js — CxDialWidget draw, _getGeometry_
 
-- [ ] 1.22 Add angle-based interaction and dead zone to CxDialWidget
+- [x] 1.22 Add angle-based interaction and dead zone to CxDialWidget
   - **Do**:
     1. Implement `_getGeometry(width, y, height)` returning `{ cx, cy, radius, arcWidth }` with responsive sizing
     2. Implement `_updateFromAngle(pos, geo, event)`: calculate angle from cursor position, handle 90-degree dead zone at bottom (snap to nearest endpoint), convert to ratio, apply snap, set value
