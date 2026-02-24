@@ -175,7 +175,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-4.5, AC-5.6_
   - _Design: CxNumericWidget — _buildColorMenu_
 
-- [ ] 1.15 [VERIFY] Quality checkpoint: base widget complete
+- [x] 1.15 [VERIFY] Quality checkpoint: base widget complete
   - **Do**: Validate both shared modules after CxNumericWidget additions
   - **Verify**: `node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cx_utils.js && node --input-type=module --check < D:/ai/comfyui-cx_sliders/js/cx_base_widget.js`
   - **Done when**: Both files pass syntax check
@@ -183,7 +183,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1c: Slider Widget
 
-- [ ] 1.16 Create cxslider.js with CxSliderWidget class and draw method
+- [x] 1.16 Create cxslider.js with CxSliderWidget class and draw method
   - **Do**:
     1. Create `js/cxslider.js` importing from `./cx_utils.js` and `./cx_base_widget.js`
     2. Implement `CxSliderWidget extends CxNumericWidget` with `static HEIGHT = 28`
@@ -196,7 +196,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-6, AC-4.1, AC-4.6, AC-4.7_
   - _Design: cxslider.js — CxSliderWidget draw_
 
-- [ ] 1.17 Add drag interaction and Ctrl/Shift modifiers to CxSliderWidget
+- [x] 1.17 Add drag interaction and Ctrl/Shift modifiers to CxSliderWidget
   - **Do**:
     1. Add `_unlock` state property to constructor
     2. Implement `_updateFromPos(posX, width, event)`: calculate ratio, apply Ctrl+drag unlock, Shift+snap invert via `_applySnap`, clamp if not unlocked, set `widget.value`
@@ -208,7 +208,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-4.1, AC-4.2, AC-4.3_
   - _Design: cxslider.js — _updateFromPos_
 
-- [ ] 1.18 Add registration hook for cxSliderInt and cxSliderFloat
+- [x] 1.18 Add registration hook for cxSliderInt and cxSliderFloat
   - **Do**:
     1. Add `app.registerExtension` with `beforeRegisterNodeDef` matching both `cxSliderInt` and `cxSliderFloat` via `SLIDER_NODES` map
     2. In `onNodeCreated`: splice out auto-created widget, insert `CxSliderWidget` at same index, set default properties
