@@ -221,7 +221,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-5, FR-6, FR-11, AC-3.1, AC-3.4, AC-4.4, AC-4.5, AC-4.8, AC-4.9, AC-9.1, AC-9.2_
   - _Design: cxslider.js — Registration Hook_
 
-- [ ] 1.19 Delete old cxslider_int.js and cxslider_float.js
+- [x] 1.19 Delete old cxslider_int.js and cxslider_float.js
   - **Do**:
     1. Delete `js/cxslider_int.js`
     2. Delete `js/cxslider_float.js`
