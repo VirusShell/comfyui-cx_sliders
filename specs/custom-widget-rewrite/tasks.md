@@ -264,7 +264,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-5.2, AC-5.3, AC-5.4, AC-5.10_
   - _Design: cxdial.js — _updateFromAngle, hit area_
 
-- [ ] 1.23 Add registration hook for cxDialInt and cxDialFloat
+- [x] 1.23 Add registration hook for cxDialInt and cxDialFloat
   - **Do**:
     1. Add `app.registerExtension` with `beforeRegisterNodeDef` matching both `cxDialInt` and `cxDialFloat`
     2. In `onNodeCreated`: splice out auto-created widget, insert `CxDialWidget` at same index, set default properties

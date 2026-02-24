@@ -1,7 +1,8 @@
 // cxdial.js — CxDialWidget for cxDialInt and cxDialFloat nodes
 // 270-degree arc dial with needle indicator and value text
 
-import { clamp, MARGIN, COLORS } from "./cx_utils.js";
+import { app } from "../../scripts/app.js";
+import { clamp, MARGIN, COLORS, cxLog } from "./cx_utils.js";
 import { CxNumericWidget } from "./cx_base_widget.js";
 
 class CxDialWidget extends CxNumericWidget {
@@ -110,3 +111,131 @@ class CxDialWidget extends CxNumericWidget {
 }
 
 export { CxDialWidget };
+
+// --- Migration ---
+
+function migrateDialProps(node, info, isInteger) {
+  const p = info.properties || {};
+  const wasOldFormat = p.sliderProps !== undefined || p.current !== undefined;
+  if (!wasOldFormat) return;
+  cxLog("debug", "Migrating v1.x dial properties");
+  const oldCurrent = p.current ?? (isInteger ? 1 : 1.0);
+  const oldMin = p.min ?? (isInteger ? 0 : 0.0);
+  const oldMax = p.max ?? (isInteger ? 100 : 100.0);
+  node.properties.min = oldMin;
+  node.properties.max = oldMax;
+  node.properties.step = p.step ?? (isInteger ? 1 : 0.5);
+  node.properties.snap = p.snap ?? true;
+  node.properties.padding = p.padding ?? (isInteger ? "0" : "0.000");
+  node.properties.fillColor = COLORS.dial.fill;
+  node.properties.borderColor = COLORS.widget.border;
+  node.properties.textColor = "auto";
+  const widgetName = isInteger ? "int" : "float";
+  const w = node.widgets?.find(w => w.name === widgetName);
+  if (w) w.value = clamp(oldCurrent, oldMin, oldMax);
+  delete node.properties.current;
+  delete node.properties.sliderProps;
+  delete node.properties.ver;
+  delete node.properties.aux_id;
+}
+
+// --- Registration ---
+
+const DIAL_NODES = { "cxDialInt": true, "cxDialFloat": false };
+
+app.registerExtension({
+  name: "cxDial",
+  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+    const isInteger = DIAL_NODES[nodeData.name];
+    if (isInteger === undefined) return;
+
+    const widgetName = isInteger ? "int" : "float";
+    const onNodeCreated = nodeType.prototype.onNodeCreated;
+
+    nodeType.prototype.onNodeCreated = function() {
+      onNodeCreated?.apply(this, arguments);
+      try {
+        const idx = this.widgets?.findIndex(w => w.name === widgetName) ?? -1;
+        if (idx >= 0) this.widgets.splice(idx, 1);
+        this.properties = this.properties || {};
+        Object.assign(this.properties, {
+          min: isInteger ? 0 : 0.0,
+          max: isInteger ? 100 : 100.0,
+          step: isInteger ? 1 : 0.5,
+          snap: true,
+          padding: isInteger ? "0" : "0.000",
+          fillColor: COLORS.dial.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+        const defaultVal = isInteger ? 1 : 1.0;
+        const widget = new CxDialWidget(widgetName, defaultVal, isInteger);
+        if (idx >= 0) {
+          this.widgets.splice(idx, 0, widget);
+        } else {
+          this.addCustomWidget(widget);
+        }
+        this.setSize(this.computeSize());
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+        cxLog("debug", `cxDial ${widgetName} widget created`);
+      } catch (err) {
+        cxLog("error", "cxDial onNodeCreated:", err);
+      }
+    };
+
+    nodeType.prototype.onConfigure = function(info) {
+      try {
+        migrateDialProps(this, info, isInteger);
+        const w = this.widgets?.find(w => w.name === widgetName);
+        if (w && info.widgets_values) {
+          w.value = clamp(w.value, this.properties.min, this.properties.max);
+        }
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+      } catch (err) {
+        cxLog("error", "cxDial onConfigure:", err);
+      }
+    };
+
+    nodeType.prototype.onPropertyChanged = function(name, value) {
+      const w = this.widgets?.find(w => w.name === widgetName);
+      if (!w) return;
+      if (name === "min" || name === "max") {
+        w.value = clamp(w.value, this.properties.min, this.properties.max);
+      }
+      this.setDirtyCanvas(true, true);
+    };
+
+    nodeType.prototype.onDblClick = function(e, pos, canvas) {
+      const w = this.widgets?.find(w => w.name === widgetName);
+      if (w) {
+        w._promptEntry(canvas, e, "Value", w._formatValue(w.value));
+        return true;
+      }
+      return false;
+    };
+
+    nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
+      const w = this.widgets?.find(w => w.name === widgetName);
+      if (w) {
+        w._buildColorMenu(options, "Dial");
+        options.push({
+          content: "↺ Reset to Defaults",
+          callback: () => {
+            Object.assign(this.properties, {
+              min: isInteger ? 0 : 0.0,
+              max: isInteger ? 100 : 100.0,
+              step: isInteger ? 1 : 0.5,
+              snap: true,
+              padding: isInteger ? "0" : "0.000",
+              fillColor: COLORS.dial.fill,
+              borderColor: COLORS.widget.border,
+              textColor: "auto",
+            });
+            w.value = isInteger ? 1 : 1.0;
+            this.setDirtyCanvas(true, true);
+          }
+        });
+      }
+    };
+  }
+});
