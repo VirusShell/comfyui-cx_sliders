@@ -295,7 +295,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1e: Seed Widget
 
-- [ ] 1.26 Rewrite cxseed.js with CxSeedButtonWidget class
+- [x] 1.26 Rewrite cxseed.js with CxSeedButtonWidget class
   - **Do**:
     1. Rewrite `js/cxseed.js` from scratch per design.md
     2. Implement `CxSeedButtonWidget extends CxBaseWidget` with `{serialize: false}`, `static HEIGHT = 26`, `static BTN_SIZE = 22`, `static BTN_GAP = 8`
