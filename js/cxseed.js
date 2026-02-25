@@ -112,7 +112,8 @@ export class CxSeedButtonWidget extends CxBaseWidget {
   _doRecall(node) {
     if (this._lastSeed === null) return;
     const seedWidget = node.widgets?.find(w => w.name === "seed");
-    if (seedWidget) seedWidget.value = this._lastSeed;
+    if (!seedWidget) { cxLog("warn", "cxSeed: seed widget not found"); return; }
+    seedWidget.value = this._lastSeed;
     const controlWidget = _findControlWidget(node);
     if (controlWidget) controlWidget.value = "fixed";
     node.setDirtyCanvas(true, true);
@@ -120,7 +121,7 @@ export class CxSeedButtonWidget extends CxBaseWidget {
 
   _doRandomize(node) {
     const seedWidget = node.widgets?.find(w => w.name === "seed");
-    if (!seedWidget) return;
+    if (!seedWidget) { cxLog("warn", "cxSeed: seed widget not found"); return; }
     this._lastSeed = seedWidget.value;
     const maxDigits = node.properties?.max_digits ?? 0;
     const min = node.properties?.min ?? 0;
@@ -135,7 +136,8 @@ export class CxSeedButtonWidget extends CxBaseWidget {
 // Module-level helpers
 function _findControlWidget(node) {
   const seedWidget = node.widgets?.find(w => w.name === "seed");
-  if (seedWidget?.linkedWidgets?.[0]) return seedWidget.linkedWidgets[0];
+  if (!seedWidget) { cxLog("warn", "cxSeed: seed widget not found in _findControlWidget"); return null; }
+  if (seedWidget.linkedWidgets?.[0]) return seedWidget.linkedWidgets[0];
   const controlValues = ["fixed", "increment", "decrement", "randomize"];
   return node.widgets?.find(w =>
     w.name === "control_after_generate" ||

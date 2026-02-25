@@ -107,7 +107,8 @@ export class CxSliderBankWidget extends CxNumericWidget {
     ratio = this._applySnap(ratio, event.shiftKey);
     const value = this._roundValue(clamp(this._valueFromRatio(ratio), this._min, this._max));
     const hiddenWidget = node.widgets?.find(w => w.name === `slider_${index + 1}`);
-    if (hiddenWidget) hiddenWidget.value = value;
+    if (!hiddenWidget) { cxLog("warn", `cxSliderBank: slider_${index + 1} widget not found`); return; }
+    hiddenWidget.value = value;
     node.setDirtyCanvas(true, true);
   }
 
@@ -178,6 +179,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
 
   _reconcileOutputs(node) {
     const target = node.properties.sliderCount;
+    if (!node.outputs) return;
     const typeName = this._isInteger ? "INT" : "FLOAT";
     while (node.outputs.length > target) node.removeOutput(node.outputs.length - 1);
     while (node.outputs.length < target) {
@@ -255,13 +257,18 @@ app.registerExtension({
       const hiddenWidget = this.widgets?.find(w => w.name === `slider_${clickedRow + 1}`);
       if (!hiddenWidget) return false;
       const node = this;
-      canvas.prompt(label, String(hiddenWidget.value), (v) => {
-        const num = Number(v);
-        if (!isNaN(num)) {
-          hiddenWidget.value = clamp(num, node.properties.min ?? 0, node.properties.max ?? 100);
-          node.setDirtyCanvas(true, true);
-        }
-      }, e);
+      try {
+        canvas.prompt(label, String(hiddenWidget.value), (v) => {
+          const num = Number(v);
+          if (!isNaN(num)) {
+            hiddenWidget.value = clamp(num, node.properties.min ?? 0, node.properties.max ?? 100);
+            node.setDirtyCanvas(true, true);
+          }
+        }, e);
+      } catch (err) {
+        cxLog("warn", "cxSliderBank: canvas.prompt() unavailable:", err);
+        return false;
+      }
       return true;
     };
 
