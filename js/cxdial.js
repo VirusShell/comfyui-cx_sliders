@@ -193,7 +193,13 @@ app.registerExtension({
         const w = this.widgets?.find(w => w.name === widgetName);
         if (!w) { cxLog("warn", `cxDial onConfigure: '${widgetName}' widget not found`); return; }
         if (info.widgets_values) {
-          w.value = clamp(w.value, this.properties.min, this.properties.max);
+          const restored = Number(w.value);
+          if (!isFinite(restored)) {
+            cxLog("warn", `cxDial onConfigure: invalid value "${w.value}", defaulting`);
+            w.value = isInteger ? 1 : 1.0;
+          } else {
+            w.value = clamp(restored, this.properties.min, this.properties.max);
+          }
         }
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
       } catch (err) {

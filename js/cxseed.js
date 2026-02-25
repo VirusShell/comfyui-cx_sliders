@@ -116,6 +116,7 @@ export class CxSeedButtonWidget extends CxBaseWidget {
     seedWidget.value = this._lastSeed;
     const controlWidget = _findControlWidget(node);
     if (controlWidget) controlWidget.value = "fixed";
+    cxLog("debug", `cxSeed: recalled seed ${this._lastSeed}`);
     node.setDirtyCanvas(true, true);
   }
 
@@ -129,6 +130,7 @@ export class CxSeedButtonWidget extends CxBaseWidget {
     seedWidget.value = _randomSeed(min, max);
     const controlWidget = _findControlWidget(node);
     if (controlWidget) controlWidget.value = "randomize";
+    cxLog("debug", `cxSeed: randomized seed to ${seedWidget.value}`);
     node.setDirtyCanvas(true, true);
   }
 }
@@ -190,29 +192,33 @@ app.registerExtension({
     // onConfigure — migration from v1.x
     const onConfigure = nodeType.prototype.onConfigure;
     nodeType.prototype.onConfigure = function (info) {
-      onConfigure?.apply(this, arguments);
-      // v1.x migration: detect old seedProps in properties
-      if (
-        info.properties?.seedProps ||
-        info.properties?.current !== undefined
-      ) {
-        const old = info.properties.seedProps || {};
-        this.properties.min =
-          old.min ?? info.properties.min ?? 0;
-        this.properties.max =
-          old.max ?? info.properties.max ?? 0xffffffffffffffff;
-        this.properties.max_digits =
-          old.max_digits ?? info.properties.max_digits ?? 0;
-        // Clean up old keys
-        delete this.properties.seedProps;
-        delete this.properties.current;
-        delete this.properties.ver;
-        cxLog("debug", "cxSeed: migrated v1.x properties");
+      try {
+        onConfigure?.apply(this, arguments);
+        // v1.x migration: detect old seedProps in properties
+        if (
+          info.properties?.seedProps ||
+          info.properties?.current !== undefined
+        ) {
+          const old = info.properties.seedProps || {};
+          this.properties.min =
+            old.min ?? info.properties.min ?? 0;
+          this.properties.max =
+            old.max ?? info.properties.max ?? 0xffffffffffffffff;
+          this.properties.max_digits =
+            old.max_digits ?? info.properties.max_digits ?? 0;
+          // Clean up old keys
+          delete this.properties.seedProps;
+          delete this.properties.current;
+          delete this.properties.ver;
+          cxLog("debug", "cxSeed: migrated v1.x properties");
+        }
+        // Ensure output labels are lowercase
+        this.outputs?.forEach((o) => {
+          o.label = o.name.toLowerCase();
+        });
+      } catch (err) {
+        cxLog("error", "cxSeed onConfigure:", err);
       }
-      // Ensure output labels are lowercase
-      this.outputs?.forEach((o) => {
-        o.label = o.name.toLowerCase();
-      });
     };
 
     // getExtraMenuOptions

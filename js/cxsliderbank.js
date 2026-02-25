@@ -161,6 +161,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
         this._reconcileOutputs(node);
         node.setSize(node.computeSize());
         node.setDirtyCanvas(true, true);
+        cxLog("debug", `cxSliderBank: added slider, count now ${count + 1}`);
         return true;
       }
     };
@@ -172,6 +173,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
         this._reconcileOutputs(node);
         node.setSize(node.computeSize());
         node.setDirtyCanvas(true, true);
+        cxLog("debug", `cxSliderBank: removed slider, count now ${count - 1}`);
         return true;
       }
     };

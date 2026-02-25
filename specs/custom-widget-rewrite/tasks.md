@@ -534,7 +534,7 @@ After all nodes are implemented, improve error handling, add defensive guards, a
   - **Done when**: All files pass syntax check
   - **Commit**: `chore(hardening): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 2.5 Ensure consistent debug logging across all lifecycle events
+- [x] 2.5 Ensure consistent debug logging across all lifecycle events
   - **Do**:
     1. Verify every `onNodeCreated`, `onConfigure`, and migration function logs at debug level via `cxLog("debug", ...)`
     2. Verify every error catch logs at error level via `cxLog("error", ...)`
@@ -546,7 +546,7 @@ After all nodes are implemented, improve error handling, add defensive guards, a
   - **Commit**: `feat(logging): ensure consistent debug/error logging across all nodes`
   - _Requirements: FR-16, AC-11.4, AC-12.1, AC-12.2, AC-12.3, AC-12.4_
 
-- [ ] 2.6 Ensure consistent debug logging in cxseed.js and cxsliderbank.js
+- [x] 2.6 Ensure consistent debug logging in cxseed.js and cxsliderbank.js
   - **Do**:
     1. Verify `cxseed.js` logs: widget creation, recall/randomize actions, migration events
     2. Verify `cxsliderbank.js` logs: widget creation, slider add/remove, migration events
