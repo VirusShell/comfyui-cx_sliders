@@ -176,6 +176,13 @@ export class CxSliderBankWidget extends CxNumericWidget {
     };
   }
 
-  // Stub — implemented in task 1.33
-  _reconcileOutputs(node) {}
+  _reconcileOutputs(node) {
+    const target = node.properties.sliderCount;
+    const typeName = this._isInteger ? "INT" : "FLOAT";
+    while (node.outputs.length > target) node.removeOutput(node.outputs.length - 1);
+    while (node.outputs.length < target) {
+      node.addOutput(`OUT_${node.outputs.length + 1}`, typeName);
+      node.outputs[node.outputs.length - 1].label = node.outputs[node.outputs.length - 1].name.toLowerCase();
+    }
+  }
 }

@@ -380,7 +380,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-8.4, AC-8.11_
   - _Design: cxsliderbank.js — _updateMiniSlider, hit areas_
 
-- [ ] 1.33 Add output reconciliation to CxSliderBankWidget
+- [x] 1.33 Add output reconciliation to CxSliderBankWidget
   - **Do**:
     1. Implement `_reconcileOutputs(node)`: add/remove outputs to match `sliderCount`, using correct type name (`INT` or `FLOAT`), lowercase labels
     2. Wire output reconciliation into [+] and [-] button hit area callbacks
