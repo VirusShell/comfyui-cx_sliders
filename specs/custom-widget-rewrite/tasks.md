@@ -277,7 +277,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-5, FR-7, FR-11, AC-3.1, AC-3.4, AC-5.5, AC-5.6, AC-5.8, AC-5.9_
   - _Design: cxdial.js — Registration section_
 
-- [ ] 1.24 Delete old cxdial_int.js and cxdial_float.js
+- [x] 1.24 Delete old cxdial_int.js and cxdial_float.js
   - **Do**:
     1. Delete `js/cxdial_int.js`
     2. Delete `js/cxdial_float.js`
