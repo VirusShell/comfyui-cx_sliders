@@ -411,7 +411,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-5, FR-10, AC-3.1, AC-3.4, AC-8.7, AC-8.8, AC-8.10_
   - _Design: cxsliderbank.js — Registration section_
 
-- [ ] 1.36 Add double-click, context menu, migration, and property sync to cxsliderbank.js
+- [x] 1.36 Add double-click, context menu, migration, and property sync to cxsliderbank.js
   - **Do**:
     1. Add `onDblClick`: detect which mini-slider row was clicked by Y position, open prompt with row label
     2. Add `getExtraMenuOptions`: color pickers + Reset to Defaults

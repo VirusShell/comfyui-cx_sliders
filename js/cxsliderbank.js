@@ -240,5 +240,107 @@ app.registerExtension({
         cxLog("error", "cxSliderBank onNodeCreated:", err);
       }
     };
+
+    // onDblClick -- detect which mini-slider row was clicked, prompt for value
+    nodeType.prototype.onDblClick = function(e, pos, canvas) {
+      const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+      if (!bankWidget) return false;
+      const count = this.properties.sliderCount ?? 3;
+      const miniStartY = bankWidget.last_y + 2 + CxSliderBankWidget.BTN_ROW_H + CxSliderBankWidget.BTN_GAP;
+      const rowH = CxSliderBankWidget.MINI_H + CxSliderBankWidget.MINI_GAP;
+      const clickedRow = Math.floor((pos[1] - miniStartY) / rowH);
+      if (clickedRow < 0 || clickedRow >= count) return false;
+      const labels = bankWidget._getLabels();
+      const label = labels[clickedRow] || `Slider ${clickedRow + 1}`;
+      const hiddenWidget = this.widgets?.find(w => w.name === `slider_${clickedRow + 1}`);
+      if (!hiddenWidget) return false;
+      const node = this;
+      canvas.prompt(label, String(hiddenWidget.value), (v) => {
+        const num = Number(v);
+        if (!isNaN(num)) {
+          hiddenWidget.value = clamp(num, node.properties.min ?? 0, node.properties.max ?? 100);
+          node.setDirtyCanvas(true, true);
+        }
+      }, e);
+      return true;
+    };
+
+    // getExtraMenuOptions -- color pickers + reset
+    nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
+      const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+      if (bankWidget) {
+        bankWidget._buildColorMenu(options, "Slider Bank");
+        options.push({
+          content: "\u21ba Reset to Defaults",
+          callback: () => {
+            Object.assign(this.properties, {
+              sliderCount: 3,
+              min: isInteger ? 0 : 0.0,
+              max: isInteger ? 100 : 100.0,
+              step: isInteger ? 1 : 0.5,
+              snap: true,
+              padding: isInteger ? "0" : "0.000",
+              labels: "Slider 1,Slider 2,Slider 3,Slider 4,Slider 5,Slider 6,Slider 7,Slider 8",
+              fillColor: COLORS.slider.fill,
+              borderColor: COLORS.widget.border,
+              textColor: "auto",
+            });
+            for (let i = 1; i <= 8; i++) {
+              const hw = this.widgets?.find(w => w.name === `slider_${i}`);
+              if (hw) hw.value = isInteger ? 0 : 0.0;
+            }
+            bankWidget._reconcileOutputs(this);
+            this.setSize(this.computeSize());
+            this.setDirtyCanvas(true, true);
+          }
+        });
+      }
+    };
+
+    // onConfigure -- v1.x migration + reconcile
+    nodeType.prototype.onConfigure = function(info) {
+      try {
+        // v1.x migration: detect old format via properties.value_1
+        if (info.properties?.value_1 !== undefined) {
+          const count = info.properties.sliderCount ?? info.properties.slider_count ?? 3;
+          this.properties.sliderCount = count;
+          for (let i = 1; i <= 8; i++) {
+            const oldVal = info.properties[`value_${i}`];
+            if (oldVal !== undefined) {
+              const hw = this.widgets?.find(w => w.name === `slider_${i}`);
+              if (hw) hw.value = oldVal;
+            }
+            delete this.properties[`value_${i}`];
+          }
+          delete this.properties.slider_count;
+          delete this.properties.ver;
+          cxLog("debug", "cxSliderBank: migrated v1.x properties");
+        }
+        // Reconcile outputs and labels
+        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+        if (bankWidget) bankWidget._reconcileOutputs(this);
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+      } catch (err) {
+        cxLog("error", "cxSliderBank onConfigure:", err);
+      }
+    };
+
+    // onPropertyChanged -- reconcile on sliderCount change, clamp on min/max change
+    nodeType.prototype.onPropertyChanged = function(name, value) {
+      if (name === "sliderCount") {
+        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+        if (bankWidget) {
+          bankWidget._reconcileOutputs(this);
+          this.setSize(this.computeSize());
+        }
+      }
+      if (name === "min" || name === "max") {
+        for (let i = 1; i <= 8; i++) {
+          const hw = this.widgets?.find(w => w.name === `slider_${i}`);
+          if (hw) hw.value = clamp(hw.value, this.properties.min ?? 0, this.properties.max ?? 100);
+        }
+      }
+      this.setDirtyCanvas(true, true);
+    };
   }
 });
