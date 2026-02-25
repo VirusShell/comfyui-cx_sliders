@@ -321,7 +321,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-7.1, AC-7.2, AC-7.8, AC-7.9, AC-7.10_
   - _Design: cxseed.js — _doRecall, _doRandomize, helpers_
 
-- [ ] 1.28 Add registration hook for cxSeed with deferred setup
+- [x] 1.28 Add registration hook for cxSeed with deferred setup
   - **Do**:
     1. Add `app.registerExtension` with `beforeRegisterNodeDef` matching `cxSeed`
     2. In `onNodeCreated`: use `requestAnimationFrame` to defer widget creation (Node 2.0 timing requirement)

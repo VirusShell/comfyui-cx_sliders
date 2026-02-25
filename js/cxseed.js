@@ -154,3 +154,109 @@ function _getEffectiveMax(max, maxDigits) {
   if (maxDigits > 0) return Math.min(max, Math.pow(10, maxDigits) - 1);
   return max;
 }
+
+// --- Registration ---
+app.registerExtension({
+  name: "cxSeed",
+  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+    if (nodeData.name !== "cxSeed") return;
+
+    const onNodeCreated = nodeType.prototype.onNodeCreated;
+
+    nodeType.prototype.onNodeCreated = function () {
+      onNodeCreated?.apply(this, arguments);
+
+      // DO NOT remove or replace the seed/control widgets.
+      // Add UI-only button widget after them.
+      const self = this;
+      requestAnimationFrame(() => {
+        try {
+          const btnWidget = new CxSeedButtonWidget();
+          self.addCustomWidget(btnWidget);
+          self.setSize(self.computeSize());
+          self.outputs?.forEach((o) => {
+            o.label = o.name.toLowerCase();
+          });
+          self.setDirtyCanvas(true, true);
+          cxLog("debug", "cxSeed button widget created");
+        } catch (err) {
+          cxLog("error", "cxSeed onNodeCreated:", err);
+        }
+      });
+    };
+
+    // onConfigure — migration from v1.x
+    const onConfigure = nodeType.prototype.onConfigure;
+    nodeType.prototype.onConfigure = function (info) {
+      onConfigure?.apply(this, arguments);
+      // v1.x migration: detect old seedProps in properties
+      if (
+        info.properties?.seedProps ||
+        info.properties?.current !== undefined
+      ) {
+        const old = info.properties.seedProps || {};
+        this.properties.min =
+          old.min ?? info.properties.min ?? 0;
+        this.properties.max =
+          old.max ?? info.properties.max ?? 0xffffffffffffffff;
+        this.properties.max_digits =
+          old.max_digits ?? info.properties.max_digits ?? 0;
+        // Clean up old keys
+        delete this.properties.seedProps;
+        delete this.properties.current;
+        delete this.properties.ver;
+        cxLog("debug", "cxSeed: migrated v1.x properties");
+      }
+      // Ensure output labels are lowercase
+      this.outputs?.forEach((o) => {
+        o.label = o.name.toLowerCase();
+      });
+    };
+
+    // getExtraMenuOptions
+    nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
+      const self = this;
+      const btnWidget = this.widgets?.find(
+        (w) => w.name === "cx_seed_buttons"
+      );
+
+      options.push(null); // separator
+      options.push({
+        content: "Randomize Seed Now",
+        callback: () => {
+          if (btnWidget) btnWidget._doRandomize(self);
+        },
+      });
+      options.push({
+        content: "Reset to Defaults",
+        callback: () => {
+          self.properties.min = 0;
+          self.properties.max = 0xffffffffffffffff;
+          self.properties.max_digits = 0;
+          if (btnWidget) {
+            btnWidget._lastSeed = null;
+            btnWidget._doRandomize(self);
+          }
+          self.setDirtyCanvas(true, true);
+        },
+      });
+    };
+
+    // onPropertyChanged
+    nodeType.prototype.onPropertyChanged = function (name, value) {
+      if (name === "min" || name === "max" || name === "max_digits") {
+        const seedWidget = this.widgets?.find((w) => w.name === "seed");
+        if (seedWidget) {
+          const min = this.properties.min ?? 0;
+          const max = _getEffectiveMax(
+            this.properties.max ?? 0xffffffffffffffff,
+            this.properties.max_digits ?? 0
+          );
+          if (seedWidget.value < min) seedWidget.value = min;
+          if (seedWidget.value > max) seedWidget.value = max;
+        }
+        this.setDirtyCanvas(true, true);
+      }
+    };
+  },
+});
