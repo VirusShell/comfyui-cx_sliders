@@ -7,12 +7,26 @@ import { CxNumericWidget } from "./cx_base_widget.js";
 
 class CxDialWidget extends CxNumericWidget {
   static MIN_HEIGHT = 70;
+  static TEXT_SPACE = 20;  // Space below dial for value text
+  static TOP_PAD = 4;
   static START_ANGLE = 0.75 * Math.PI;   // 135 degrees (bottom-left)
   static SWEEP = 1.5 * Math.PI;          // 270 degrees
   static END_ANGLE = CxDialWidget.START_ANGLE + CxDialWidget.SWEEP;
 
+  constructor(name, defaultValue, isInteger) {
+    super(name, defaultValue, isInteger);
+    this._enableCurrentSync();
+  }
+
   computeSize(width) {
-    return [width, CxDialWidget.MIN_HEIGHT];
+    const radius = this._calcRadius(width);
+    const h = CxDialWidget.TOP_PAD + radius * 2 + CxDialWidget.TEXT_SPACE;
+    return [width, Math.max(CxDialWidget.MIN_HEIGHT, h)];
+  }
+
+  _calcRadius(width) {
+    const availW = width - MARGIN * 2;
+    return Math.max(20, availW * 0.3);
   }
 
   _draw(ctx, node, width, y, height) {
@@ -78,9 +92,8 @@ class CxDialWidget extends CxNumericWidget {
 
   _getGeometry(width, y, height) {
     const cx = width / 2;
-    const maxR = Math.min(width / 2 - MARGIN, (height - 20) / 2);
-    const radius = Math.max(12, maxR - 4);
-    const cy = y + radius + 4;
+    const radius = this._calcRadius(width);
+    const cy = y + CxDialWidget.TOP_PAD + radius;
     const arcWidth = Math.max(4, radius * 0.2);
     return { cx, cy, radius, arcWidth };
   }
@@ -162,7 +175,9 @@ app.registerExtension({
         const idx = this.widgets?.findIndex(w => w.name === widgetName) ?? -1;
         if (idx >= 0) this.widgets.splice(idx, 1);
         this.properties = this.properties || {};
+        const defaultVal = isInteger ? 1 : 1.0;
         Object.assign(this.properties, {
+          current: defaultVal,
           min: isInteger ? 0 : 0.0,
           max: isInteger ? 100 : 100.0,
           step: isInteger ? 1 : 0.5,
@@ -172,7 +187,6 @@ app.registerExtension({
           borderColor: COLORS.widget.border,
           textColor: "auto",
         });
-        const defaultVal = isInteger ? 1 : 1.0;
         const widget = new CxDialWidget(widgetName, defaultVal, isInteger);
         if (idx >= 0) {
           this.widgets.splice(idx, 0, widget);
@@ -210,6 +224,16 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === widgetName);
       if (!w) { cxLog("warn", `cxDial onPropertyChanged: '${widgetName}' widget not found`); return; }
+      if (name === "current") {
+        const num = Number(value);
+        if (isFinite(num)) {
+          w.value = clamp(num, this.properties.min, this.properties.max);
+        } else {
+          this.properties.current = w.value; // revert
+        }
+        this.setDirtyCanvas(true, true);
+        return;
+      }
       if (name === "min" || name === "max") {
         w.value = clamp(w.value, this.properties.min, this.properties.max);
       }
@@ -217,6 +241,7 @@ app.registerExtension({
     };
 
     nodeType.prototype.onDblClick = function(e, pos, canvas) {
+      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
       const w = this.widgets?.find(w => w.name === widgetName);
       if (!w) { cxLog("warn", `cxDial onDblClick: '${widgetName}' widget not found`); return false; }
       w._promptEntry(canvas, e, "Value", w._formatValue(w.value));

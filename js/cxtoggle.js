@@ -10,6 +10,7 @@ export class CxToggleWidget extends CxBaseWidget {
 
   constructor(name, defaultValue) {
     super(name, defaultValue);
+    this._enableCurrentSync();
   }
 
   computeSize(width) {
@@ -128,6 +129,7 @@ app.registerExtension({
         // Set default properties (config-only state, NOT in widget.value)
         this.properties = this.properties || {};
         Object.assign(this.properties, {
+          current: 0,
           min: 0,
           max: 1,
           labels: "Off, On",
@@ -158,6 +160,7 @@ app.registerExtension({
 
     // onDblClick -- manual numeric entry
     nodeType.prototype.onDblClick = function(e, pos, canvas) {
+      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
       const w = this.widgets?.find(w => w.name === "toggle");
       if (!w) { cxLog("warn", "cxToggle onDblClick: 'toggle' widget not found"); return; }
       const current = String(w.value);
@@ -215,6 +218,16 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === "toggle");
       if (!w) { cxLog("warn", "cxToggle onPropertyChanged: 'toggle' widget not found"); return; }
+      if (name === "current") {
+        const num = Number(value);
+        if (isFinite(num)) {
+          w.value = clamp(Math.round(num), this.properties.min ?? 0, this.properties.max ?? 1);
+        } else {
+          this.properties.current = w.value; // revert
+        }
+        this.setDirtyCanvas(true, true);
+        return;
+      }
       if (name === "min" || name === "max") {
         const num = Number(value);
         if (!isFinite(num)) {

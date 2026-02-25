@@ -11,6 +11,7 @@ class CxSliderWidget extends CxNumericWidget {
   constructor(name, defaultValue, isInteger) {
     super(name, defaultValue, isInteger);
     this._unlock = false;
+    this._enableCurrentSync();
   }
 
   computeSize(width) {
@@ -114,7 +115,9 @@ app.registerExtension({
         const idx = this.widgets?.findIndex(w => w.name === widgetName) ?? -1;
         if (idx >= 0) this.widgets.splice(idx, 1);
         this.properties = this.properties || {};
+        const defaultVal = isInteger ? 1 : 1.0;
         Object.assign(this.properties, {
+          current: defaultVal,
           min: isInteger ? 0 : 0.0,
           max: isInteger ? 100 : 100.0,
           step: isInteger ? 1 : 0.5,
@@ -124,7 +127,6 @@ app.registerExtension({
           borderColor: COLORS.widget.border,
           textColor: "auto",
         });
-        const defaultVal = isInteger ? 1 : 1.0;
         const widget = new CxSliderWidget(widgetName, defaultVal, isInteger);
         if (idx >= 0) {
           this.widgets.splice(idx, 0, widget);
@@ -162,6 +164,16 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === widgetName);
       if (!w) { cxLog("warn", `cxSlider onPropertyChanged: '${widgetName}' widget not found`); return; }
+      if (name === "current") {
+        const num = Number(value);
+        if (isFinite(num)) {
+          w.value = clamp(num, this.properties.min, this.properties.max);
+        } else {
+          this.properties.current = w.value; // revert
+        }
+        this.setDirtyCanvas(true, true);
+        return;
+      }
       if (name === "min" || name === "max" || name === "step") {
         const num = Number(value);
         if (!isFinite(num)) {
@@ -182,6 +194,7 @@ app.registerExtension({
     };
 
     nodeType.prototype.onDblClick = function(e, pos, canvas) {
+      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
       const w = this.widgets?.find(w => w.name === widgetName);
       if (!w) { cxLog("warn", `cxSlider onDblClick: '${widgetName}' widget not found`); return false; }
       w._promptEntry(canvas, e, "Value", w._formatValue(w.value));

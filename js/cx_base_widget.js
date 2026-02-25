@@ -78,6 +78,26 @@ export class CxBaseWidget {
     return (tc === "auto") ? getContrastColor(fill) : tc;
   }
 
+  // --- Current property sync ---
+
+  /**
+   * Enable bidirectional sync between widget.value and node.properties.current.
+   * Call in subclass constructor after super(). Uses Object.defineProperty
+   * to intercept value changes and push them to node.properties.
+   */
+  _enableCurrentSync() {
+    let _value = this.value;
+    Object.defineProperty(this, 'value', {
+      get: () => _value,
+      set: (v) => {
+        _value = v;
+        if (this._node?.properties) this._node.properties.current = v;
+      },
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
   // --- Helpers ---
 
   _isLowQuality() {

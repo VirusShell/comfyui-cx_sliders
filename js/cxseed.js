@@ -63,8 +63,8 @@ export class CxSeedButtonWidget extends CxBaseWidget {
     // Tooltip
     if (!this._isLowQuality() && this._hoveredButton) {
       this._drawTooltip(ctx, this._hoveredButton === "recall"
-        ? { x: startX, text: "Recall" }
-        : { x: randX, text: "Randomize" },
+        ? { x: startX, text: hasLast ? "Recall previous seed" : "No seed to recall" }
+        : { x: randX, text: "Generate random seed" },
         btnSize, btnY);
     }
 
@@ -170,6 +170,14 @@ app.registerExtension({
     nodeType.prototype.onNodeCreated = function () {
       onNodeCreated?.apply(this, arguments);
 
+      // Set default properties so they appear in the Properties Panel
+      this.properties = this.properties || {};
+      Object.assign(this.properties, {
+        min: this.properties.min ?? 0,
+        max: this.properties.max ?? 0xffffffffffffffff,
+        max_digits: this.properties.max_digits ?? 0,
+      });
+
       // DO NOT remove or replace the seed/control widgets.
       // Add UI-only button widget after them.
       const self = this;
@@ -248,6 +256,30 @@ app.registerExtension({
           self.setDirtyCanvas(true, true);
         },
       });
+    };
+
+    // onMouseMove — relay hover events to button widget for tooltip display
+    // (LiteGraph only dispatches pointermove to widgets during drag)
+    nodeType.prototype.onMouseMove = function (e, pos, canvas) {
+      const btnWidget = this.widgets?.find(
+        (w) => w.name === "cx_seed_buttons"
+      );
+      if (btnWidget) {
+        btnWidget._mouse({ type: "pointermove" }, pos, this);
+      }
+    };
+
+    // onMouseLeave — clear hover state when mouse exits node
+    const onMouseLeave = nodeType.prototype.onMouseLeave;
+    nodeType.prototype.onMouseLeave = function (e) {
+      onMouseLeave?.apply(this, arguments);
+      const btnWidget = this.widgets?.find(
+        (w) => w.name === "cx_seed_buttons"
+      );
+      if (btnWidget && btnWidget._hoveredButton) {
+        btnWidget._hoveredButton = null;
+        this.setDirtyCanvas(true, false);
+      }
     };
 
     // onPropertyChanged
