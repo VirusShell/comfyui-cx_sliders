@@ -516,7 +516,7 @@ After all nodes are implemented, improve error handling, add defensive guards, a
   - _Requirements: FR-15, AC-11.1, AC-11.2, AC-11.3_
   - _Design: Error Handling section_
 
-- [ ] 2.3 Add NaN/type coercion guards to value assignment paths
+- [x] 2.3 Add NaN/type coercion guards to value assignment paths
   - **Do**:
     1. In all `_promptEntry` callbacks and `onConfigure` handlers, add `isNaN()` check before assigning to `widget.value`
     2. In `onPropertyChanged`, validate property values: numbers must be finite, strings must be strings

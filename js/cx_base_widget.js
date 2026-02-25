@@ -217,10 +217,13 @@ export class CxNumericWidget extends CxBaseWidget {
 
   _promptEntry(canvas, event, title, currentFormatted) {
     canvas.prompt(title, currentFormatted, (v) => {
+      if (v == null || v === "") return;
       const num = Number(v);
-      if (!isNaN(num)) {
+      if (!isNaN(num) && isFinite(num)) {
         this.value = this._roundValue(clamp(num, this._min, this._max));
         this._node?.setDirtyCanvas(true, true);
+      } else {
+        cxLog("warn", `_promptEntry: invalid input "${v}", ignoring`);
       }
     }, event);
   }

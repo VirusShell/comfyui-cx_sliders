@@ -145,7 +145,13 @@ app.registerExtension({
         const w = this.widgets?.find(w => w.name === widgetName);
         if (!w) { cxLog("warn", `cxSlider onConfigure: '${widgetName}' widget not found`); return; }
         if (info.widgets_values) {
-          w.value = clamp(w.value, this.properties.min, this.properties.max);
+          const restored = Number(w.value);
+          if (!isFinite(restored)) {
+            cxLog("warn", `cxSlider onConfigure: invalid value "${w.value}", defaulting`);
+            w.value = isInteger ? 1 : 1.0;
+          } else {
+            w.value = clamp(restored, this.properties.min, this.properties.max);
+          }
         }
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
       } catch (err) {
@@ -156,9 +162,22 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === widgetName);
       if (!w) { cxLog("warn", `cxSlider onPropertyChanged: '${widgetName}' widget not found`); return; }
-      if (name === "min" || name === "max") {
-        w.value = clamp(w.value, this.properties.min, this.properties.max);
+      if (name === "min" || name === "max" || name === "step") {
+        const num = Number(value);
+        if (!isFinite(num)) {
+          cxLog("warn", `cxSlider onPropertyChanged: invalid ${name} "${value}", reverting`);
+          const defaults = { min: isInteger ? 0 : 0.0, max: isInteger ? 100 : 100.0, step: isInteger ? 1 : 0.5 };
+          this.properties[name] = defaults[name];
+        } else if (isInteger && (name === "min" || name === "max")) {
+          this.properties[name] = Math.round(num);
+        }
       }
+      if (name === "padding" && typeof value !== "string") {
+        cxLog("warn", `cxSlider onPropertyChanged: padding must be string, got ${typeof value}`);
+        this.properties.padding = String(value ?? (isInteger ? "0" : "0.000"));
+      }
+      const cVal = Number(w.value);
+      w.value = isFinite(cVal) ? clamp(cVal, this.properties.min, this.properties.max) : (isInteger ? 1 : 1.0);
       this.setDirtyCanvas(true, true);
     };
 

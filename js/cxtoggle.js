@@ -215,13 +215,23 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === "toggle");
       if (!w) { cxLog("warn", "cxToggle onPropertyChanged: 'toggle' widget not found"); return; }
-      if (name === "min") {
-        this.properties.min = clamp(Math.round(Number(value) || 0), 0, this.properties.max ?? 1);
+      if (name === "min" || name === "max") {
+        const num = Number(value);
+        if (!isFinite(num)) {
+          cxLog("warn", `cxToggle onPropertyChanged: invalid ${name} "${value}", reverting`);
+          this.properties[name] = name === "min" ? 0 : 1;
+        } else if (name === "min") {
+          this.properties.min = clamp(Math.round(num), 0, this.properties.max ?? 1);
+        } else {
+          this.properties.max = clamp(Math.round(num), this.properties.min ?? 0, 20);
+        }
       }
-      if (name === "max") {
-        this.properties.max = clamp(Math.round(Number(value) || 1), this.properties.min ?? 0, 20);
+      if (name === "labels" && typeof value !== "string") {
+        cxLog("warn", `cxToggle onPropertyChanged: labels must be string, got ${typeof value}`);
+        this.properties.labels = String(value ?? "Off, On");
       }
-      w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
+      const cVal = Number(w.value);
+      w.value = isFinite(cVal) ? clamp(cVal, this.properties.min ?? 0, this.properties.max ?? 1) : (this.properties.min ?? 0);
       this.setDirtyCanvas(true, true);
     };
 
@@ -233,8 +243,14 @@ app.registerExtension({
         if (!w) { cxLog("warn", "cxToggle onConfigure: 'toggle' widget not found"); return; }
         if (info.widgets_values) {
           // Framework restores widget.value from widgets_values automatically
-          // Clamp to valid range in case properties changed
-          w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
+          // Guard against NaN/undefined from corrupted workflows
+          const restored = Number(w.value);
+          if (!isFinite(restored)) {
+            cxLog("warn", `cxToggle onConfigure: invalid value "${w.value}", defaulting to min`);
+            w.value = this.properties.min ?? 0;
+          } else {
+            w.value = clamp(restored, this.properties.min ?? 0, this.properties.max ?? 1);
+          }
         }
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
       } catch (err) {
