@@ -109,7 +109,48 @@ export class CxSeedButtonWidget extends CxBaseWidget {
     ctx.fillText(config.text, config.x + btnSize / 2, ty + 8);
   }
 
-  // Stub methods — implemented in task 1.27
-  _doRecall(node) {}
-  _doRandomize(node) {}
+  _doRecall(node) {
+    if (this._lastSeed === null) return;
+    const seedWidget = node.widgets?.find(w => w.name === "seed");
+    if (seedWidget) seedWidget.value = this._lastSeed;
+    const controlWidget = _findControlWidget(node);
+    if (controlWidget) controlWidget.value = "fixed";
+    node.setDirtyCanvas(true, true);
+  }
+
+  _doRandomize(node) {
+    const seedWidget = node.widgets?.find(w => w.name === "seed");
+    if (!seedWidget) return;
+    this._lastSeed = seedWidget.value;
+    const maxDigits = node.properties?.max_digits ?? 0;
+    const min = node.properties?.min ?? 0;
+    const max = _getEffectiveMax(node.properties?.max ?? 0xffffffffffffffff, maxDigits);
+    seedWidget.value = _randomSeed(min, max);
+    const controlWidget = _findControlWidget(node);
+    if (controlWidget) controlWidget.value = "randomize";
+    node.setDirtyCanvas(true, true);
+  }
+}
+
+// Module-level helpers
+function _findControlWidget(node) {
+  const seedWidget = node.widgets?.find(w => w.name === "seed");
+  if (seedWidget?.linkedWidgets?.[0]) return seedWidget.linkedWidgets[0];
+  const controlValues = ["fixed", "increment", "decrement", "randomize"];
+  return node.widgets?.find(w =>
+    w.name === "control_after_generate" ||
+    (w.type === "combo" && w.options?.values &&
+     controlValues.every(v => w.options.values.includes(v)))
+  ) || null;
+}
+
+function _randomSeed(min, max) {
+  const range = BigInt(max) - BigInt(min) + 1n;
+  const randomBig = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+  return Number(BigInt(min) + (randomBig % range));
+}
+
+function _getEffectiveMax(max, maxDigits) {
+  if (maxDigits > 0) return Math.min(max, Math.pow(10, maxDigits) - 1);
+  return max;
 }

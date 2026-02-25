@@ -308,7 +308,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-9, AC-7.3, AC-7.5, AC-7.6_
   - _Design: cxseed.js — CxSeedButtonWidget_
 
-- [ ] 1.27 Add recall, randomize, and helper functions to cxseed.js
+- [x] 1.27 Add recall, randomize, and helper functions to cxseed.js
   - **Do**:
     1. Implement `_doRecall(node)`: restore `lastSeed` to seed widget, set control to "fixed"
     2. Implement `_doRandomize(node)`: save current seed to `lastSeed`, generate new random seed using BigInt, set control to "randomize"
