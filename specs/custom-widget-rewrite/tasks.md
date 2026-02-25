@@ -342,7 +342,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1f: Slider Bank Widget
 
-- [ ] 1.30 Create cxsliderbank.js with CxSliderBankWidget class and button rendering
+- [x] 1.30 Create cxsliderbank.js with CxSliderBankWidget class and button rendering
   - **Do**:
     1. Create `js/cxsliderbank.js` importing from `./cx_utils.js` and `./cx_base_widget.js`
     2. Implement `CxSliderBankWidget extends CxNumericWidget` with `{serialize: false}`, static constants: `BTN_ROW_H = 24`, `BTN_GAP = 6`, `MINI_H = 20`, `MINI_GAP = 2`, `LABEL_W = 50`, `SIDE_PAD = 6`
