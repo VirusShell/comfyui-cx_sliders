@@ -436,7 +436,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 ### Phase 1g: Cleanup and RangeSlider Removal
 
-- [ ] 1.38 Delete cxRangeSlider files (JS and Python)
+- [x] 1.38 Delete cxRangeSlider files (JS and Python)
   - **Do**:
     1. Delete `js/cxrangeslider_int.js`
     2. Delete `js/cxrangeslider_float.js`
