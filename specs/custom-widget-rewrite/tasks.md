@@ -368,7 +368,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: AC-8.2, AC-8.3_
   - _Design: cxsliderbank.js — _drawMiniSlider, _getLabels_
 
-- [ ] 1.32 Add drag interaction and hit areas to CxSliderBankWidget mini-sliders
+- [x] 1.32 Add drag interaction and hit areas to CxSliderBankWidget mini-sliders
   - **Do**:
     1. Register per-row hit areas `slider_0` through `slider_7` in `_drawMiniSlider`
     2. Implement `_updateMiniSlider(node, index, posX, barX, barW, event)`: calculate ratio, clamp, apply snap, update hidden widget value

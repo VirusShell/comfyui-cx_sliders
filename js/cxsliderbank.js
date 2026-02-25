@@ -85,6 +85,30 @@ export class CxSliderBankWidget extends CxNumericWidget {
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText(this._formatValue(val), barX + barW/2, y + h/2);
     }
+
+    // Hit area per mini-slider row.
+    // _activeDragArea in CxBaseWidget ensures only the initiating slider
+    // receives onMove/onUp events -- no index guard needed.
+    this._hitAreas[`slider_${index}`] = {
+      bounds: [barX, y, barW, h],
+      onDown: (event, pos, node) => {
+        this._updateMiniSlider(node, index, pos[0], barX, barW, event);
+        return true;
+      },
+      onMove: (event, pos, node) => {
+        this._updateMiniSlider(node, index, pos[0], barX, barW, event);
+      },
+      onUp: () => { /* drag complete, no cleanup needed */ }
+    };
+  }
+
+  _updateMiniSlider(node, index, posX, barX, barW, event) {
+    let ratio = clamp((posX - barX) / barW, 0, 1);
+    ratio = this._applySnap(ratio, event.shiftKey);
+    const value = this._roundValue(clamp(this._valueFromRatio(ratio), this._min, this._max));
+    const hiddenWidget = node.widgets?.find(w => w.name === `slider_${index + 1}`);
+    if (hiddenWidget) hiddenWidget.value = value;
+    node.setDirtyCanvas(true, true);
   }
 
   _getLabels() {
