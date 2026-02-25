@@ -424,7 +424,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-11, AC-8.5, AC-8.6, AC-8.10, AC-9.1, AC-9.2_
   - _Design: cxsliderbank.js — Registration, Migration_
 
-- [ ] 1.37 Delete old cxsliderbank_int.js and cxsliderbank_float.js
+- [x] 1.37 Delete old cxsliderbank_int.js and cxsliderbank_float.js
   - **Do**:
     1. Delete `js/cxsliderbank_int.js`
     2. Delete `js/cxsliderbank_float.js`
