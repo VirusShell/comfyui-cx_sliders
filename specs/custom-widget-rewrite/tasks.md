@@ -466,7 +466,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - **Done when**: All 7 JS files and __init__.py pass validation
   - **Commit**: `chore(all): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.41 Update CX_VERSION constant in cx_utils.js to match 2.0.0
+- [x] 1.41 Update CX_VERSION constant in cx_utils.js to match 2.0.0
   - **Do**:
     1. Ensure `CX_VERSION` in `js/cx_utils.js` is `"2.0.0"` matching `__init__.py`
   - **Files**: `js/cx_utils.js` (modify)
