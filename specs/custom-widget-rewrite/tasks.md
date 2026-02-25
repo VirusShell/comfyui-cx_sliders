@@ -355,7 +355,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-10, AC-8.1_
   - _Design: cxsliderbank.js — CxSliderBankWidget, _drawButtons_
 
-- [ ] 1.31 Add mini-slider row rendering to CxSliderBankWidget
+- [x] 1.31 Add mini-slider row rendering to CxSliderBankWidget
   - **Do**:
     1. Implement `_drawMiniSlider(ctx, node, index, width, y, label)`: render label (truncated with ".." if too wide), bar background, fill proportional to hidden widget value, border, centered value text
     2. Implement `_draw()` that calls `_drawButtons` then loops `_drawMiniSlider` for each active slider

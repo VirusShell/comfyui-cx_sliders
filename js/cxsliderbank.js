@@ -27,10 +27,72 @@ export class CxSliderBankWidget extends CxNumericWidget {
   }
 
   _draw(ctx, node, width, y, height) {
-    // Stub — full rendering implemented in task 1.31
     const count = this._getProp("sliderCount", 3);
+    const labels = this._getLabels();
+
+    // --- Button row ---
     const btnY = y + 2;
     this._drawButtons(ctx, width, btnY, count);
+
+    // --- Mini-sliders ---
+    const miniStartY = btnY + CxSliderBankWidget.BTN_ROW_H + CxSliderBankWidget.BTN_GAP;
+    for (let i = 0; i < count; i++) {
+      const rowY = miniStartY + i * (CxSliderBankWidget.MINI_H + CxSliderBankWidget.MINI_GAP);
+      this._drawMiniSlider(ctx, node, i, width, rowY, labels[i] || `Slider ${i+1}`);
+    }
+  }
+
+  _drawMiniSlider(ctx, node, index, width, y, label) {
+    const lw = CxSliderBankWidget.LABEL_W;
+    const sp = CxSliderBankWidget.SIDE_PAD;
+    const barX = sp + lw + 4;
+    const barW = width - sp * 2 - lw - 4;
+    const h = CxSliderBankWidget.MINI_H;
+
+    // Get value from hidden widget
+    const hiddenWidget = node.widgets?.find(w => w.name === `slider_${index + 1}`);
+    const val = hiddenWidget?.value ?? 0;
+    const ratio = this._ratioFromValue(val);
+
+    // Label (truncated)
+    if (!this._isLowQuality()) {
+      ctx.fillStyle = COLORS.widget.textSecondary;
+      ctx.font = "10px Arial";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      let truncLabel = label;
+      const maxW = lw - 2;
+      if (ctx.measureText(truncLabel).width > maxW) {
+        while (truncLabel.length > 2 && ctx.measureText(truncLabel + "..").width > maxW) {
+          truncLabel = truncLabel.slice(0, -1);
+        }
+        truncLabel += "..";
+      }
+      ctx.fillText(truncLabel, sp + lw, y + h/2);
+    }
+
+    // Bar
+    this._drawBackground(ctx, barX, y, barW, h, COLORS.widget.background, 3);
+    if (ratio > 0) {
+      this._drawBackground(ctx, barX, y, barW * ratio, h, this._fillColor, 3);
+    }
+    this._drawBorder(ctx, barX, y, barW, h, this._borderColor, 3);
+
+    // Value text
+    if (!this._isLowQuality()) {
+      ctx.fillStyle = this._resolveTextColor();
+      ctx.font = "bold 10px Arial";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(this._formatValue(val), barX + barW/2, y + h/2);
+    }
+  }
+
+  _getLabels() {
+    const labelStr = this._getProp("labels",
+      "Slider 1,Slider 2,Slider 3,Slider 4,Slider 5,Slider 6,Slider 7,Slider 8");
+    let labels = labelStr.split(",").map(s => s.trim());
+    while (labels.length < 8) labels.push(`Slider ${labels.length + 1}`);
+    return labels;
   }
 
   _drawButtons(ctx, width, y, count) {
