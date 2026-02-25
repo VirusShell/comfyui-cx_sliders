@@ -448,7 +448,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - _Requirements: FR-12, AC-10.1, AC-10.2, AC-10.4_
   - _Note: AC-10.4 (missing node behavior, not crash) is satisfied by ComfyUI's default handling when node class is absent_
 
-- [ ] 1.39 Update __init__.py: remove range slider references, bump version to 2.0.0
+- [x] 1.39 Update __init__.py: remove range slider references, bump version to 2.0.0
   - **Do**:
     1. Delete all commented-out range slider import lines and references
     2. Delete commented-out entries in `NODE_CLASS_MAPPINGS`, `NODE_DISPLAY_NAME_MAPPINGS`, `_entrypoints`, and `get_node_list`
