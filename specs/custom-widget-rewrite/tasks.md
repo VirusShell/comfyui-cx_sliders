@@ -491,7 +491,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
 
 After all nodes are implemented, improve error handling, add defensive guards, and ensure consistent logging patterns.
 
-- [ ] 2.1 Add defensive null checks to all widget lookup patterns
+- [x] 2.1 Add defensive null checks to all widget lookup patterns
   - **Do**:
     1. Audit all `node.widgets?.find()` calls across all 5 node files
     2. Ensure every result is null-checked before use

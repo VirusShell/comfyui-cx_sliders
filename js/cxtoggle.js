@@ -98,7 +98,11 @@ function migrateToggleProps(node, info) {
 
   // Set widget value (numeric value preserved per AC-9.2)
   const w = node.widgets?.find(w => w.name === "toggle");
-  if (w) w.value = clamp(oldCurrent, oldMin, oldMax);
+  if (w) {
+    w.value = clamp(oldCurrent, oldMin, oldMax);
+  } else {
+    cxLog("warn", "cxToggle migration: 'toggle' widget not found");
+  }
 
   // Clean up old properties
   delete node.properties.current;
@@ -155,7 +159,7 @@ app.registerExtension({
     // onDblClick -- manual numeric entry
     nodeType.prototype.onDblClick = function(e, pos, canvas) {
       const w = this.widgets?.find(w => w.name === "toggle");
-      if (!w) return;
+      if (!w) { cxLog("warn", "cxToggle onDblClick: 'toggle' widget not found"); return; }
       const current = String(w.value);
       canvas.prompt("Value", current, (v) => {
         const num = parseInt(v);
@@ -200,7 +204,8 @@ app.registerExtension({
             textColor: "auto",
           });
           const w = this.widgets?.find(w => w.name === "toggle");
-          if (w) w.value = clamp(w.value, 0, 1);
+          if (w) { w.value = clamp(w.value, 0, 1); }
+          else { cxLog("warn", "cxToggle reset: 'toggle' widget not found"); }
           this.setDirtyCanvas(true, true);
         }
       });
@@ -209,7 +214,7 @@ app.registerExtension({
     // onPropertyChanged -- sync from Properties Panel
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === "toggle");
-      if (!w) return;
+      if (!w) { cxLog("warn", "cxToggle onPropertyChanged: 'toggle' widget not found"); return; }
       if (name === "min") {
         this.properties.min = clamp(Math.round(Number(value) || 0), 0, this.properties.max ?? 1);
       }
@@ -225,7 +230,8 @@ app.registerExtension({
       try {
         migrateToggleProps(this, info);
         const w = this.widgets?.find(w => w.name === "toggle");
-        if (w && info.widgets_values) {
+        if (!w) { cxLog("warn", "cxToggle onConfigure: 'toggle' widget not found"); return; }
+        if (info.widgets_values) {
           // Framework restores widget.value from widgets_values automatically
           // Clamp to valid range in case properties changed
           w.value = clamp(w.value, this.properties.min ?? 0, this.properties.max ?? 1);
