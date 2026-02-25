@@ -398,7 +398,7 @@ Focus: Validate the custom widget pattern works end-to-end with cxToggle. Create
   - **Done when**: All 7 files pass syntax check
   - **Commit**: `chore(bank): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.35 Add registration hook for cxSliderBankInt and cxSliderBankFloat
+- [x] 1.35 Add registration hook for cxSliderBankInt and cxSliderBankFloat
   - **Do**:
     1. Add `app.registerExtension` matching both `cxSliderBankInt` and `cxSliderBankFloat`
     2. In `onNodeCreated`: hide all 8 `slider_N` widgets (set `hidden = true`, `computeSize = () => [0, -4]`), add `CxSliderBankWidget` via `addCustomWidget()` with `{serialize: false}`

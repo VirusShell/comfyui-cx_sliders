@@ -186,3 +186,59 @@ export class CxSliderBankWidget extends CxNumericWidget {
     }
   }
 }
+
+// --- Registration ---
+
+const BANK_NODES = { "cxSliderBankInt": true, "cxSliderBankFloat": false };
+
+app.registerExtension({
+  name: "cxSliderBank",
+  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+    const isInteger = BANK_NODES[nodeData.name];
+    if (isInteger === undefined) return;
+
+    const onNodeCreated = nodeType.prototype.onNodeCreated;
+
+    nodeType.prototype.onNodeCreated = function() {
+      onNodeCreated?.apply(this, arguments);
+      try {
+        // Hide all 8 slider_N widgets (keep them for serialization)
+        for (let i = 1; i <= 8; i++) {
+          const w = this.widgets?.find(w => w.name === `slider_${i}`);
+          if (w) {
+            w.hidden = true;
+            w.computeSize = () => [0, -4];
+          }
+        }
+
+        // Set default properties
+        this.properties = this.properties || {};
+        Object.assign(this.properties, {
+          sliderCount: 3,
+          min: isInteger ? 0 : 0.0,
+          max: isInteger ? 100 : 100.0,
+          step: isInteger ? 1 : 0.5,
+          snap: true,
+          padding: isInteger ? "0" : "0.000",
+          labels: "Slider 1,Slider 2,Slider 3,Slider 4,Slider 5,Slider 6,Slider 7,Slider 8",
+          fillColor: COLORS.slider.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+
+        // Add UI widget
+        const bankWidget = new CxSliderBankWidget("cx_bank_ui", isInteger);
+        this.addCustomWidget(bankWidget);
+
+        // Set initial outputs to match sliderCount
+        bankWidget._reconcileOutputs(this);
+
+        this.setSize(this.computeSize());
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+        cxLog("debug", `cxSliderBank ${isInteger ? "Int" : "Float"} widget created`);
+      } catch (err) {
+        cxLog("error", "cxSliderBank onNodeCreated:", err);
+      }
+    };
+  }
+});
