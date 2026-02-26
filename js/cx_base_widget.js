@@ -1,5 +1,5 @@
 // cx_base_widget.js — Base custom widget class for cx_sliders package
-// Framework contract: draw(), mouse(), computeSize(), serializeValue()
+// Framework contract: draw(), mouse(), computeSize(), serializeValue(), onPointerDown()
 // Subclasses override _draw() and _mouse(), NOT the framework methods.
 
 import { cxLog, getContrastColor, MARGIN, COLORS, clamp, getDecimalPlaces, formatValue, openColorPicker } from "./cx_utils.js";
@@ -62,9 +62,22 @@ export class CxBaseWidget {
     return this.value;
   }
 
+  // Modern CanvasPointer API — checked before mouse() by the framework.
+  // Registers pointer.onDoubleClick for value entry, then returns false
+  // so mouse() still handles click/drag interaction.
+  onPointerDown(pointer, node, canvas) {
+    this._node = node;
+    pointer.onDoubleClick = (upEvent) => {
+      const pos = [upEvent.canvasX - node.pos[0], upEvent.canvasY - node.pos[1]];
+      this._onDblClick(upEvent, pos, node);
+    };
+    return false;
+  }
+
   // --- Subclass hooks (override these, not the framework methods) ---
   _draw(ctx, node, width, y, height) {}
   _mouse(event, pos, node) { return false; }
+  _onDblClick(event, pos, node) { return false; }
 
   // --- Property accessors ---
 

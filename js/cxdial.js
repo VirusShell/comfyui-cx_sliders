@@ -98,6 +98,11 @@ class CxDialWidget extends CxNumericWidget {
     return { cx, cy, radius, arcWidth };
   }
 
+  _onDblClick(event, pos, node) {
+    this._promptEntry(app.canvas, event, "Value", this._formatValue(this.value));
+    return true;
+  }
+
   _updateFromAngle(pos, geo, event) {
     const dx = pos[0] - geo.cx;
     const dy = pos[1] - geo.cy;
@@ -238,14 +243,6 @@ app.registerExtension({
         w.value = clamp(w.value, this.properties.min, this.properties.max);
       }
       this.setDirtyCanvas(true, true);
-    };
-
-    nodeType.prototype.onDblClick = function(e, pos, canvas) {
-      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
-      const w = this.widgets?.find(w => w.name === widgetName);
-      if (!w) { cxLog("warn", `cxDial onDblClick: '${widgetName}' widget not found`); return false; }
-      w._promptEntry(canvas, e, "Value", w._formatValue(w.value));
-      return true;
     };
 
     nodeType.prototype.getExtraMenuOptions = function(canvas, options) {

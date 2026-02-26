@@ -53,6 +53,11 @@ class CxSliderWidget extends CxNumericWidget {
     };
   }
 
+  _onDblClick(event, pos, node) {
+    this._promptEntry(app.canvas, event, "Value", this._formatValue(this.value));
+    return true;
+  }
+
   _updateFromPos(posX, width, event) {
     const m = MARGIN;
     const barW = width - m * 2;
@@ -191,14 +196,6 @@ app.registerExtension({
       const cVal = Number(w.value);
       w.value = isFinite(cVal) ? clamp(cVal, this.properties.min, this.properties.max) : (isInteger ? 1 : 1.0);
       this.setDirtyCanvas(true, true);
-    };
-
-    nodeType.prototype.onDblClick = function(e, pos, canvas) {
-      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
-      const w = this.widgets?.find(w => w.name === widgetName);
-      if (!w) { cxLog("warn", `cxSlider onDblClick: '${widgetName}' widget not found`); return false; }
-      w._promptEntry(canvas, e, "Value", w._formatValue(w.value));
-      return true;
     };
 
     nodeType.prototype.getExtraMenuOptions = function(canvas, options) {

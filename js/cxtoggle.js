@@ -53,6 +53,18 @@ export class CxToggleWidget extends CxBaseWidget {
     };
   }
 
+  _onDblClick(event, pos, node) {
+    const current = String(this.value);
+    app.canvas.prompt("Value", current, (v) => {
+      const num = parseInt(v);
+      if (!isNaN(num)) {
+        this.value = clamp(num, this._getProp("min", 0), this._getProp("max", 1));
+        node.setDirtyCanvas(true, true);
+      }
+    }, event);
+    return true;
+  }
+
   _getLabels() {
     const min = this._getProp("min", 0);
     const max = this._getProp("max", 1);
@@ -156,21 +168,6 @@ app.registerExtension({
       } catch (err) {
         cxLog("error", "cxToggle onNodeCreated:", err);
       }
-    };
-
-    // onDblClick -- manual numeric entry
-    nodeType.prototype.onDblClick = function(e, pos, canvas) {
-      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
-      const w = this.widgets?.find(w => w.name === "toggle");
-      if (!w) { cxLog("warn", "cxToggle onDblClick: 'toggle' widget not found"); return; }
-      const current = String(w.value);
-      canvas.prompt("Value", current, (v) => {
-        const num = parseInt(v);
-        if (!isNaN(num)) {
-          w.value = clamp(num, this.properties.min ?? 0, this.properties.max ?? 1);
-          this.setDirtyCanvas(true, true);
-        }
-      }, e);
     };
 
     // getExtraMenuOptions -- color pickers + reset

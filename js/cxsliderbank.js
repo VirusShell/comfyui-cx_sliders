@@ -112,6 +112,33 @@ export class CxSliderBankWidget extends CxNumericWidget {
     node.setDirtyCanvas(true, true);
   }
 
+  _onDblClick(event, pos, node) {
+    const count = this._getProp("sliderCount", 3);
+    for (let i = 0; i < count; i++) {
+      const area = this._hitAreas[`slider_${i}`];
+      if (area && this._inBounds(pos, area.bounds)) {
+        const labels = this._getLabels();
+        const label = labels[i] || `Slider ${i + 1}`;
+        const hiddenWidget = node.widgets?.find(w => w.name === `slider_${i + 1}`);
+        if (!hiddenWidget) return false;
+        try {
+          app.canvas.prompt(label, String(hiddenWidget.value), (v) => {
+            const num = Number(v);
+            if (!isNaN(num)) {
+              hiddenWidget.value = clamp(num, this._min, this._max);
+              node.setDirtyCanvas(true, true);
+            }
+          }, event);
+        } catch (err) {
+          cxLog("warn", "cxSliderBank: canvas.prompt() unavailable:", err);
+          return false;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   _getLabels() {
     const labelStr = this._getProp("labels",
       "Slider 1,Slider 2,Slider 3,Slider 4,Slider 5,Slider 6,Slider 7,Slider 8");
@@ -243,39 +270,6 @@ app.registerExtension({
       } catch (err) {
         cxLog("error", "cxSliderBank onNodeCreated:", err);
       }
-    };
-
-    // onDblClick -- detect which mini-slider row was clicked via hit areas, prompt for value
-    nodeType.prototype.onDblClick = function(e, pos, canvas) {
-      if (pos[1] < 0) return false; // Title bar — let LiteGraph handle rename
-      const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
-      if (!bankWidget) return false;
-      const count = this.properties.sliderCount ?? 3;
-      // Use hit areas for accurate row detection
-      for (let i = 0; i < count; i++) {
-        const area = bankWidget._hitAreas[`slider_${i}`];
-        if (area && bankWidget._inBounds(pos, area.bounds)) {
-          const labels = bankWidget._getLabels();
-          const label = labels[i] || `Slider ${i + 1}`;
-          const hiddenWidget = this.widgets?.find(w => w.name === `slider_${i + 1}`);
-          if (!hiddenWidget) return false;
-          const node = this;
-          try {
-            canvas.prompt(label, String(hiddenWidget.value), (v) => {
-              const num = Number(v);
-              if (!isNaN(num)) {
-                hiddenWidget.value = clamp(num, node.properties.min ?? 0, node.properties.max ?? 100);
-                node.setDirtyCanvas(true, true);
-              }
-            }, e);
-          } catch (err) {
-            cxLog("warn", "cxSliderBank: canvas.prompt() unavailable:", err);
-            return false;
-          }
-          return true;
-        }
-      }
-      return false;
     };
 
     // getExtraMenuOptions -- color pickers + reset
