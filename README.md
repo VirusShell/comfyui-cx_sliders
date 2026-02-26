@@ -1,19 +1,21 @@
-# ComfyUI cxSlider
+# ComfyUI cxSliders
 
-**Version 1.0.0**
+**Version 2.0.0**
 
-Custom slider nodes for ComfyUI that provide visual slider controls for integer and floating-point values.
+Custom slider, dial, toggle, seed, and slider bank nodes for ComfyUI with visual controls.
 
 Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit) by Max Smirnov.
 
 ## Features
 
 - **V3 Schema Support**: Automatically uses V3 schema when available, with V1 fallback for compatibility
-- **Visual Slider Control**: Interactive slider bar is the sole method of value adjustment
-- **Compact Design**: Widget is hidden for a cleaner, smaller node appearance
-- **Proper Mouse Capture**: Click and drag to adjust values, releases properly on mouse up
-- **Double-click Editing**: Built-in value editing dialog
+- **Custom Widget Architecture**: All nodes use proper custom widgets with `draw()`/`mouse()`/`computeSize()` — framework-managed layout, no manual Y calculations
+- **Visual Controls**: Interactive sliders, dials, toggles, and seed buttons
+- **Double-click Editing**: Built-in value editing dialog on all numeric nodes
 - **Properties Panel Integration**: Edit all parameters through ComfyUI's Properties Panel
+- **Customizable Colors**: Right-click color pickers for fill, border, and text colors
+- **Low-quality Rendering**: Skips fine detail when zoomed out for performance
+- **v1.x Migration**: Automatically migrates old-format workflows
 
 ## Installation
 
@@ -31,44 +33,50 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 
 ## Nodes
 
-### cxSlider - Int
+### cxSlider - Int / Float
 
-Integer slider node for controlling whole number values.
-
-**Inputs:**
-- `value_override` (optional) - When connected, overrides the slider value. Useful in subgraphs.
+Slider nodes for controlling integer or floating-point values.
 
 **Properties (via Properties Panel):**
-- `current` - Current value (default: 1)
-- `min` - Minimum allowed value (default: 0)
-- `max` - Maximum allowed value (default: 100)
-- `step` - Step increment when snap is enabled (default: 1, minimum: 1)
+- `min` - Minimum allowed value
+- `max` - Maximum allowed value
+- `step` - Step increment when snap is enabled
 - `snap` - Enable/disable step snapping (default: true)
+- `padding` - Decimal places format (Float only, default: "0.000")
+- `fillColor` / `borderColor` / `textColor` - Visual customization
 
 **Output:**
-- `INT` - Integer type
+- `INT` or `FLOAT`
 
-### cxSlider - Float
+### cxDial - Int / Float
 
-Floating-point slider node for controlling decimal values.
-
-**Inputs:**
-- `value_override` (optional) - When connected, overrides the slider value. Useful in subgraphs.
+Rotary dial nodes for controlling integer or floating-point values.
 
 **Properties (via Properties Panel):**
-- `current` - Current value (default: 1.0)
-- `min` - Minimum allowed value (default: 0.0)
-- `max` - Maximum allowed value (default: 100.0)
-- `step` - Step increment when snap is enabled (default: 0.5)
+- `min` - Minimum allowed value
+- `max` - Maximum allowed value
+- `step` - Step increment when snap is enabled
 - `snap` - Enable/disable step snapping (default: true)
-- `padding` - Decimal places format (default: "0.000" for 3 decimal places)
+- `padding` - Decimal places format (Float only)
+- `fillColor` / `borderColor` / `textColor` - Visual customization
 
 **Output:**
-- `FLOAT` - Float type
+- `INT` or `FLOAT`
+
+### cxToggle
+
+Binary toggle node (0/1).
+
+**Properties (via Properties Panel):**
+- `min` / `max` - Value bounds (default: 0/1)
+- `fillColor` / `borderColor` / `textColor` - Visual customization
+
+**Output:**
+- `INT`
 
 ### cxSeed
 
-Seed generation node with configurable after-generation behavior. Uses ComfyUI's built-in seed control mechanism.
+Seed generation node with configurable after-generation behavior.
 
 **Widgets:**
 - `seed` - Current seed value
@@ -77,55 +85,58 @@ Seed generation node with configurable after-generation behavior. Uses ComfyUI's
 **Properties (via Properties Panel):**
 - `min` - Minimum allowed seed value (default: 0)
 - `max` - Maximum allowed seed value (default: 18446744073709551615)
-- `max_digits` - Maximum number of digits for seed (0 = no limit, 1-19). For example, setting to 8 limits seeds to 0-99999999
+- `max_digits` - Maximum number of digits for seed (0 = no limit, 1-19)
 
 **Buttons:**
-- `♻️` - Copy the last used seed to the current seed and set mode to "fixed"
-- `🎲` - Generate a new random seed and set mode to "randomize"
+- Recall - Copy the last used seed and set mode to "fixed"
+- Random - Generate a new random seed and set mode to "randomize"
 
 **Output:**
-- `SEED` - Integer type (seed value)
+- `SEED` - Integer type
+
+### cxSliderBank - Int / Float
+
+Multi-slider bank with configurable number of rows (1-8).
+
+**Properties (via Properties Panel):**
+- `sliderCount` - Number of slider rows (1-8)
+- `min` / `max` - Value bounds for all sliders
+- `step` - Step increment
+- `snap` - Enable/disable step snapping
+- `labels` - Comma-separated row labels
+- `fillColor` / `borderColor` / `textColor` - Visual customization
+
+**Outputs:**
+- `slider_1` through `slider_8` - Individual values per row
 
 ## Usage
 
 ### Basic Interaction
 
-- **Click and drag** on the slider bar to adjust the value
-- **Double-click** on the slider bar to manually enter a value using ComfyUI's built-in dialog
+- **Click and drag** on sliders/dials to adjust values
+- **Double-click** to manually enter a value via dialog
 - Values are automatically clamped to the min/max range
 
 ### Keyboard Modifiers
 
-- **Shift + drag** - Inverts the snap behavior (if snap is off, temporarily enables it; if snap is on, temporarily disables it)
+- **Shift + drag** - Inverts the snap behavior (if snap is off, temporarily enables it; if on, temporarily disables it)
 - **Ctrl + drag** - Allows setting values outside the defined min/max range
 
-### Using in Subgraphs (Group Nodes)
+### Color Customization
 
-The slider nodes have an optional `value_override` input that appears as a connection point. This allows you to:
-1. Use the slider normally when no input is connected
-2. Connect an external value when the node is inside a subgraph/group node
-3. Expose the input when converting a workflow to a group node
-
-When `value_override` is connected, it takes priority over the slider's internal value.
+Right-click any node to access color pickers for fill, border, and text colors. Set text color to "auto" for automatic contrast.
 
 ### cxSeed Usage
-
-The cxSeed node provides flexible seed management using ComfyUI's built-in control mechanism:
 
 1. **Randomize mode**: A new random seed is generated after each queue execution
 2. **Increment mode**: The seed increases by 1 after each execution
 3. **Decrement mode**: The seed decreases by 1 after each execution
 4. **Fixed mode**: The seed remains unchanged between executions
 
-The "Last Seed" display shows the seed that was used in the most recent generation. Use the "Use Last → Fixed" button to lock in a seed you liked from a random generation.
-
 **max_digits Property:**
-Instead of calculating that an 8-digit seed requires max=99999999, you can simply set `max_digits=8`. This is a convenience property that limits the effective maximum based on digit count:
 - `max_digits=0` - No digit limit (uses `max` property)
 - `max_digits=8` - Seeds limited to 0-99999999
 - `max_digits=10` - Seeds limited to 0-9999999999
-
-The effective maximum is the smaller of `max` and `10^max_digits - 1`.
 
 ### Properties Panel
 
@@ -133,33 +144,6 @@ All properties can be edited through ComfyUI's Properties Panel:
 1. Right-click the node
 2. Select "Properties" or use the Properties Panel
 3. Edit values directly
-
-### Padding (Float node only)
-
-The `padding` property controls decimal precision display:
-- `"0.0"` - 1 decimal place
-- `"0.00"` - 2 decimal places
-- `"0.000"` - 3 decimal places (default)
-- `"0.0000"` - 4 decimal places
-
-Simply add zeros after the decimal point to increase precision.
-
-## Visual Design
-
-- **INT slider** - Blue fill color (#4a90d9)
-- **FLOAT slider** - Orange fill color (#d99a4a)
-- The slider bar fills the node body for a compact appearance
-- The current value is displayed centered on the slider bar
-- The internal widget is hidden (used only for backend value storage)
-
-## Schema Support
-
-This extension supports both V1 (legacy) and V3 (modern) ComfyUI schemas:
-
-- **V3 Schema**: Used automatically when `comfy_api.latest` is available
-- **V1 Schema**: Fallback for older ComfyUI versions
-
-The extension will automatically detect and use the appropriate schema.
 
 ## File Structure
 
@@ -169,9 +153,13 @@ comfyui_cxslider/
 ├── cxsliders.py           # Slider node definitions (V1/V3 hybrid)
 ├── cxseed.py              # Seed node definition (V1/V3 hybrid)
 ├── js/
-│   ├── cxslider_int.js    # INT slider UI
-│   ├── cxslider_float.js  # FLOAT slider UI
-│   └── cxseed.js          # Seed node UI
+│   ├── cx_utils.js        # Shared utilities and constants
+│   ├── cx_base_widget.js  # Base widget classes (CxBaseWidget, CxNumericWidget)
+│   ├── cxslider.js        # Slider UI (Int + Float)
+│   ├── cxdial.js          # Dial UI (Int + Float)
+│   ├── cxtoggle.js        # Toggle UI
+│   ├── cxseed.js          # Seed node UI
+│   └── cxsliderbank.js    # Slider bank UI (Int + Float)
 └── README.md              # This file
 ```
 
@@ -186,16 +174,23 @@ comfyui_cxslider/
 
 ## Changelog
 
+### 2.0.0 (Breaking)
+- **Architecture rewrite**: All nodes now use custom widgets with `draw()`/`mouse()`/`computeSize()` instead of hidden widgets + `onDrawForeground`
+- **Shared base classes**: `CxBaseWidget` and `CxNumericWidget` in `cx_base_widget.js`
+- **Shared utilities**: `cx_utils.js` with common functions and color constants
+- **Merged int/float files**: Each node type is a single JS file (was separate int/float files)
+- **New nodes**: cxDial (Int/Float), cxToggle, cxSliderBank (Int/Float)
+- **Removed**: cxRangeSlider (deprecated)
+- **Removed**: `value_override` input on slider nodes (use ComfyUI's built-in widget-to-input conversion instead)
+- **Color customization**: Right-click color pickers for fill, border, and text
+- **v1.x migration**: Automatic migration of old-format workflow files
+- **Error resilience**: Defensive null checks, NaN guards, structured logging
+
 ### 1.0.0
 - Initial release
 - cxSlider - Int: Integer slider with visual control
 - cxSlider - Float: Float slider with decimal precision control
 - cxSeed: Seed node with last-seed tracking and quick buttons
-- V3 schema support with V1 fallback
-- Optional `value_override` input for subgraph compatibility
-- Properties Panel integration
-- Centered emoji buttons with hover tooltips (cxSeed)
-- `max_digits` property for digit-based seed limiting (cxSeed)
 
 ## License
 
