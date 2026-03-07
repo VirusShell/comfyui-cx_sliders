@@ -272,38 +272,6 @@ app.registerExtension({
       }
     };
 
-    // getExtraMenuOptions -- color pickers + reset
-    nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
-      const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
-      if (bankWidget) {
-        bankWidget._buildColorMenuItems(options, "Slider Bank");
-        options.push({
-          content: "\u21ba Reset to Defaults",
-          callback: () => {
-            Object.assign(this.properties, {
-              sliderCount: 3,
-              min: isInteger ? 0 : 0.0,
-              max: isInteger ? 100 : 100.0,
-              step: isInteger ? 1 : 0.5,
-              snap: true,
-              padding: isInteger ? "0" : "0.000",
-              labels: "Slider 1,Slider 2,Slider 3,Slider 4,Slider 5,Slider 6,Slider 7,Slider 8",
-              fillColor: COLORS.slider.fill,
-              borderColor: COLORS.widget.border,
-              textColor: "auto",
-            });
-            for (let i = 1; i <= 8; i++) {
-              const hw = this.widgets?.find(w => w.name === `slider_${i}`);
-              if (hw) hw.value = isInteger ? 0 : 0.0;
-            }
-            bankWidget._reconcileOutputs(this);
-            this.setSize(this.computeSize());
-            this.setDirtyCanvas(true, true);
-          }
-        });
-      }
-    };
-
     // onConfigure -- v1.x migration + reconcile
     nodeType.prototype.onConfigure = function(info) {
       try {
@@ -349,5 +317,38 @@ app.registerExtension({
       }
       this.setDirtyCanvas(true, true);
     };
+  },
+  getNodeMenuItems(node) {
+    const isInteger = BANK_NODES[node.comfyClass];
+    if (isInteger === undefined) return;
+    const bankWidget = node.widgets?.find(w => w.name === "cx_bank_ui");
+    if (!bankWidget) return;
+    const items = [];
+    bankWidget._buildColorMenuItems(items, "Slider Bank");
+    items.push({
+      content: "\u21ba Reset to Defaults",
+      callback: () => {
+        Object.assign(node.properties, {
+          sliderCount: 3,
+          min: isInteger ? 0 : 0.0,
+          max: isInteger ? 100 : 100.0,
+          step: isInteger ? 1 : 0.5,
+          snap: true,
+          padding: isInteger ? "0" : "0.000",
+          labels: "Slider 1,Slider 2,Slider 3,Slider 4,Slider 5,Slider 6,Slider 7,Slider 8",
+          fillColor: COLORS.slider.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+        for (let i = 1; i <= 8; i++) {
+          const hw = node.widgets?.find(w => w.name === `slider_${i}`);
+          if (hw) hw.value = isInteger ? 0 : 0.0;
+        }
+        bankWidget._reconcileOutputs(node);
+        node.setSize(node.computeSize());
+        node.setDirtyCanvas(true, true);
+      }
+    });
+    return items;
   }
 });
