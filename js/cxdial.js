@@ -15,7 +15,6 @@ class CxDialWidget extends CxNumericWidget {
 
   constructor(name, defaultValue, isInteger) {
     super(name, defaultValue, isInteger);
-    this._enableCurrentSync();
   }
 
   computeSize(width) {
@@ -148,12 +147,12 @@ function migrateDialProps(node, info, isInteger) {
   node.properties.fillColor = COLORS.dial.fill;
   node.properties.borderColor = COLORS.widget.border;
   node.properties.textColor = "auto";
-  const widgetName = isInteger ? "int" : "float";
-  const w = node.widgets?.find(w => w.name === widgetName);
+  // Widget was renamed from "int"/"float" to "value" in v2.1.0
+  const w = node.widgets?.find(w => w.name === "value");
   if (w) {
     w.value = clamp(oldCurrent, oldMin, oldMax);
   } else {
-    cxLog("warn", `cxDial migration: '${widgetName}' widget not found`);
+    cxLog("warn", "cxDial migration: 'value' widget not found");
   }
   delete node.properties.current;
   delete node.properties.sliderProps;
@@ -166,23 +165,21 @@ function migrateDialProps(node, info, isInteger) {
 const DIAL_NODES = { "cxDialInt": true, "cxDialFloat": false };
 
 app.registerExtension({
-  name: "cxDial",
+  name: "cx.sliders.dial",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
     const isInteger = DIAL_NODES[nodeData.name];
     if (isInteger === undefined) return;
 
-    const widgetName = isInteger ? "int" : "float";
     const onNodeCreated = nodeType.prototype.onNodeCreated;
 
     nodeType.prototype.onNodeCreated = function() {
       onNodeCreated?.apply(this, arguments);
       try {
-        const idx = this.widgets?.findIndex(w => w.name === widgetName) ?? -1;
+        const idx = this.widgets?.findIndex(w => w.name === "value") ?? -1;
         if (idx >= 0) this.widgets.splice(idx, 1);
         this.properties = this.properties || {};
         const defaultVal = isInteger ? 1 : 1.0;
         Object.assign(this.properties, {
-          current: defaultVal,
           min: isInteger ? 0 : 0.0,
           max: isInteger ? 100 : 100.0,
           step: isInteger ? 1 : 0.5,
@@ -192,7 +189,7 @@ app.registerExtension({
           borderColor: COLORS.widget.border,
           textColor: "auto",
         });
-        const widget = new CxDialWidget(widgetName, defaultVal, isInteger);
+        const widget = new CxDialWidget("value", defaultVal, isInteger);
         if (idx >= 0) {
           this.widgets.splice(idx, 0, widget);
         } else {
@@ -200,7 +197,7 @@ app.registerExtension({
         }
         this.setSize(this.computeSize());
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
-        cxLog("debug", `cxDial ${widgetName} widget created`);
+        cxLog("debug", "cxDial value widget created");
       } catch (err) {
         cxLog("error", "cxDial onNodeCreated:", err);
       }
@@ -209,8 +206,8 @@ app.registerExtension({
     nodeType.prototype.onConfigure = function(info) {
       try {
         migrateDialProps(this, info, isInteger);
-        const w = this.widgets?.find(w => w.name === widgetName);
-        if (!w) { cxLog("warn", `cxDial onConfigure: '${widgetName}' widget not found`); return; }
+        const w = this.widgets?.find(w => w.name === "value");
+        if (!w) { cxLog("warn", "cxDial onConfigure: 'value' widget not found"); return; }
         if (info.widgets_values) {
           const restored = Number(w.value);
           if (!isFinite(restored)) {
@@ -227,18 +224,8 @@ app.registerExtension({
     };
 
     nodeType.prototype.onPropertyChanged = function(name, value) {
-      const w = this.widgets?.find(w => w.name === widgetName);
-      if (!w) { cxLog("warn", `cxDial onPropertyChanged: '${widgetName}' widget not found`); return; }
-      if (name === "current") {
-        const num = Number(value);
-        if (isFinite(num)) {
-          w.value = clamp(num, this.properties.min, this.properties.max);
-        } else {
-          this.properties.current = w.value; // revert
-        }
-        this.setDirtyCanvas(true, true);
-        return;
-      }
+      const w = this.widgets?.find(w => w.name === "value");
+      if (!w) { cxLog("warn", "cxDial onPropertyChanged: 'value' widget not found"); return; }
       if (name === "min" || name === "max") {
         w.value = clamp(w.value, this.properties.min, this.properties.max);
       }
@@ -246,8 +233,8 @@ app.registerExtension({
     };
 
     nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
-      const w = this.widgets?.find(w => w.name === widgetName);
-      if (!w) { cxLog("warn", `cxDial getExtraMenuOptions: '${widgetName}' widget not found`); return; }
+      const w = this.widgets?.find(w => w.name === "value");
+      if (!w) { cxLog("warn", "cxDial getExtraMenuOptions: 'value' widget not found"); return; }
       w._buildColorMenu(options, "Dial");
       options.push({
         content: "↺ Reset to Defaults",

@@ -11,7 +11,6 @@ class CxSliderWidget extends CxNumericWidget {
   constructor(name, defaultValue, isInteger) {
     super(name, defaultValue, isInteger);
     this._unlock = false;
-    this._enableCurrentSync();
   }
 
   computeSize(width) {
@@ -88,12 +87,12 @@ function migrateSliderProps(node, info, isInteger) {
   node.properties.fillColor = COLORS.slider.fill;
   node.properties.borderColor = COLORS.widget.border;
   node.properties.textColor = "auto";
-  const widgetName = isInteger ? "int" : "float";
-  const w = node.widgets?.find(w => w.name === widgetName);
+  // Widget was renamed from "int"/"float" to "value" in v2.1.0
+  const w = node.widgets?.find(w => w.name === "value");
   if (w) {
     w.value = clamp(oldCurrent, oldMin, oldMax);
   } else {
-    cxLog("warn", `cxSlider migration: '${widgetName}' widget not found`);
+    cxLog("warn", "cxSlider migration: 'value' widget not found");
   }
   delete node.properties.current;
   delete node.properties.sliderProps;
@@ -106,23 +105,21 @@ function migrateSliderProps(node, info, isInteger) {
 const SLIDER_NODES = { "cxSliderInt": true, "cxSliderFloat": false };
 
 app.registerExtension({
-  name: "cxSlider",
+  name: "cx.sliders.slider",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
     const isInteger = SLIDER_NODES[nodeData.name];
     if (isInteger === undefined) return;
 
-    const widgetName = isInteger ? "int" : "float";
     const onNodeCreated = nodeType.prototype.onNodeCreated;
 
     nodeType.prototype.onNodeCreated = function() {
       onNodeCreated?.apply(this, arguments);
       try {
-        const idx = this.widgets?.findIndex(w => w.name === widgetName) ?? -1;
+        const idx = this.widgets?.findIndex(w => w.name === "value") ?? -1;
         if (idx >= 0) this.widgets.splice(idx, 1);
         this.properties = this.properties || {};
         const defaultVal = isInteger ? 1 : 1.0;
         Object.assign(this.properties, {
-          current: defaultVal,
           min: isInteger ? 0 : 0.0,
           max: isInteger ? 100 : 100.0,
           step: isInteger ? 1 : 0.5,
@@ -132,7 +129,7 @@ app.registerExtension({
           borderColor: COLORS.widget.border,
           textColor: "auto",
         });
-        const widget = new CxSliderWidget(widgetName, defaultVal, isInteger);
+        const widget = new CxSliderWidget("value", defaultVal, isInteger);
         if (idx >= 0) {
           this.widgets.splice(idx, 0, widget);
         } else {
@@ -140,7 +137,7 @@ app.registerExtension({
         }
         this.setSize(this.computeSize());
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
-        cxLog("debug", `cxSlider ${widgetName} widget created`);
+        cxLog("debug", `cxSlider value widget created`);
       } catch (err) {
         cxLog("error", "cxSlider onNodeCreated:", err);
       }
@@ -149,8 +146,8 @@ app.registerExtension({
     nodeType.prototype.onConfigure = function(info) {
       try {
         migrateSliderProps(this, info, isInteger);
-        const w = this.widgets?.find(w => w.name === widgetName);
-        if (!w) { cxLog("warn", `cxSlider onConfigure: '${widgetName}' widget not found`); return; }
+        const w = this.widgets?.find(w => w.name === "value");
+        if (!w) { cxLog("warn", "cxSlider onConfigure: 'value' widget not found"); return; }
         if (info.widgets_values) {
           const restored = Number(w.value);
           if (!isFinite(restored)) {
@@ -167,18 +164,8 @@ app.registerExtension({
     };
 
     nodeType.prototype.onPropertyChanged = function(name, value) {
-      const w = this.widgets?.find(w => w.name === widgetName);
-      if (!w) { cxLog("warn", `cxSlider onPropertyChanged: '${widgetName}' widget not found`); return; }
-      if (name === "current") {
-        const num = Number(value);
-        if (isFinite(num)) {
-          w.value = clamp(num, this.properties.min, this.properties.max);
-        } else {
-          this.properties.current = w.value; // revert
-        }
-        this.setDirtyCanvas(true, true);
-        return;
-      }
+      const w = this.widgets?.find(w => w.name === "value");
+      if (!w) { cxLog("warn", "cxSlider onPropertyChanged: 'value' widget not found"); return; }
       if (name === "min" || name === "max" || name === "step") {
         const num = Number(value);
         if (!isFinite(num)) {
@@ -199,8 +186,8 @@ app.registerExtension({
     };
 
     nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
-      const w = this.widgets?.find(w => w.name === widgetName);
-      if (!w) { cxLog("warn", `cxSlider getExtraMenuOptions: '${widgetName}' widget not found`); return; }
+      const w = this.widgets?.find(w => w.name === "value");
+      if (!w) { cxLog("warn", "cxSlider getExtraMenuOptions: 'value' widget not found"); return; }
       w._buildColorMenu(options, "Slider");
       options.push({
         content: "↺ Reset to Defaults",

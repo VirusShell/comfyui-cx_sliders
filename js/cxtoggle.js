@@ -10,7 +10,6 @@ export class CxToggleWidget extends CxBaseWidget {
 
   constructor(name, defaultValue) {
     super(name, defaultValue);
-    this._enableCurrentSync();
   }
 
   computeSize(width) {
@@ -125,7 +124,7 @@ function migrateToggleProps(node, info) {
 }
 
 app.registerExtension({
-  name: "cx.toggle",
+  name: "cx.sliders.toggle",
   async beforeRegisterNodeDef(nodeType, nodeData) {
     if (nodeData.name !== "cxToggle") return;
 
@@ -141,7 +140,6 @@ app.registerExtension({
         // Set default properties (config-only state, NOT in widget.value)
         this.properties = this.properties || {};
         Object.assign(this.properties, {
-          current: 0,
           min: 0,
           max: 1,
           labels: "Off, On",
@@ -215,16 +213,6 @@ app.registerExtension({
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === "toggle");
       if (!w) { cxLog("warn", "cxToggle onPropertyChanged: 'toggle' widget not found"); return; }
-      if (name === "current") {
-        const num = Number(value);
-        if (isFinite(num)) {
-          w.value = clamp(Math.round(num), this.properties.min ?? 0, this.properties.max ?? 1);
-        } else {
-          this.properties.current = w.value; // revert
-        }
-        this.setDirtyCanvas(true, true);
-        return;
-      }
       if (name === "min" || name === "max") {
         const num = Number(value);
         if (!isFinite(num)) {

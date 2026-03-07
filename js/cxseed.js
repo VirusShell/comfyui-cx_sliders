@@ -161,7 +161,7 @@ function _getEffectiveMax(max, maxDigits) {
 
 // --- Registration ---
 app.registerExtension({
-  name: "cxSeed",
+  name: "cx.sliders.seed",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
     if (nodeData.name !== "cxSeed") return;
 

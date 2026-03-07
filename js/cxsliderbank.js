@@ -223,7 +223,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
 const BANK_NODES = { "cxSliderBankInt": true, "cxSliderBankFloat": false };
 
 app.registerExtension({
-  name: "cxSliderBank",
+  name: "cx.sliders.sliderbank",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
     const isInteger = BANK_NODES[nodeData.name];
     if (isInteger === undefined) return;
