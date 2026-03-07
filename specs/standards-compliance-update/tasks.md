@@ -56,7 +56,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-7, AC-2.5_
   - _Design: Item 2_
 
-- [ ] 1.6 [VERIFY] Quality checkpoint: JS syntax after extension renames
+- [x] 1.6 [VERIFY] Quality checkpoint: JS syntax after extension renames
   - **Do**: Syntax-check all 5 renamed JS files
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && for f in js/cxslider.js js/cxdial.js js/cxtoggle.js js/cxseed.js js/cxsliderbank.js; do node --input-type=module --check < "$f" || exit 1; done && echo PASS`
   - **Done when**: All 5 JS files pass syntax check
@@ -138,7 +138,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-14, FR-15, AC-4.1, AC-4.2, AC-4.3_
   - _Design: Item 5_
 
-- [ ] 1.13 [VERIFY] Quality checkpoint: Python syntax after search aliases
+- [x] 1.13 [VERIFY] Quality checkpoint: Python syntax after search aliases
   - **Do**: Syntax-check all 5 Python files that were modified
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && for f in cxsliders.py cxdial.py cxtoggle.py cxseed.py cxsliderbank.py; do python -c "import ast; ast.parse(open('$f').read())" || exit 1; done && echo PASS`
   - **Done when**: All 5 Python files pass AST parse
@@ -157,7 +157,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-4, AC-1.5_
   - _Design: Item 1 - _buildColorMenu rename_
 
-- [ ] 1.15 [VERIFY] Quality checkpoint: cx_base_widget.js syntax
+- [x] 1.15 [VERIFY] Quality checkpoint: cx_base_widget.js syntax
   - **Do**: Syntax-check base widget after rename
   - **Verify**: `node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cx_base_widget.js" && echo PASS`
   - **Done when**: JS syntax valid
@@ -195,7 +195,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-1, FR-2, FR-3, AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.8_
   - _Design: Item 1 - getNodeMenuItems pattern_
 
-- [ ] 1.18 [VERIFY] Quality checkpoint: cxslider.js + cxdial.js syntax
+- [x] 1.18 [VERIFY] Quality checkpoint: cxslider.js + cxdial.js syntax
   - **Do**: Syntax-check both migrated files
   - **Verify**: `node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cxslider.js" && node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cxdial.js" && echo PASS`
   - **Done when**: Both JS files pass syntax check
@@ -230,7 +230,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-1, FR-2, FR-6, AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.6_
   - _Design: Item 1 - cxSeed pattern_
 
-- [ ] 1.21 [VERIFY] Quality checkpoint: cxtoggle.js + cxseed.js syntax
+- [x] 1.21 [VERIFY] Quality checkpoint: cxtoggle.js + cxseed.js syntax
   - **Do**: Syntax-check both migrated files
   - **Verify**: `node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cxtoggle.js" && node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cxseed.js" && echo PASS`
   - **Done when**: Both JS files pass syntax check
@@ -252,7 +252,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-1, FR-2, FR-3, AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.8_
   - _Design: Item 1 - getNodeMenuItems pattern_
 
-- [ ] 1.23 [VERIFY] Quality checkpoint: all JS files syntax after full menu migration
+- [x] 1.23 [VERIFY] Quality checkpoint: all JS files syntax after full menu migration
   - **Do**: Syntax-check all 7 JS files
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && for f in js/cx_base_widget.js js/cx_utils.js js/cxslider.js js/cxdial.js js/cxtoggle.js js/cxseed.js js/cxsliderbank.js; do node --input-type=module --check < "$f" || exit 1; done && echo PASS`
   - **Done when**: All 7 JS files pass syntax check
@@ -311,7 +311,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-9, FR-10, AC-3.1, AC-3.2, AC-3.3, AC-3.13_
   - _Design: Item 3 - V3 Python schema_
 
-- [ ] 1.28 [VERIFY] Quality checkpoint: cxsliderbank.py full syntax + no slider_N inputs
+- [x] 1.28 [VERIFY] Quality checkpoint: cxsliderbank.py full syntax + no slider_N inputs
   - **Do**: Verify Python syntax and that no old `slider_N` input patterns remain
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && python -c "import ast; ast.parse(open('cxsliderbank.py').read())" && ! grep -q 'slider_1\|slider_2\|slider_3' cxsliderbank.py && echo PASS`
   - **Done when**: Python parses, no `slider_N` references remain
@@ -355,13 +355,13 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-11, AC-3.7_
   - _Design: Item 3 - Mini-slider read/write_
 
-- [ ] 1.32 [VERIFY] Quality checkpoint: cxsliderbank.js syntax mid-restructure
+- [x] 1.32 [VERIFY] Quality checkpoint: cxsliderbank.js syntax mid-restructure
   - **Do**: Syntax-check after core widget changes
   - **Verify**: `node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cxsliderbank.js" && echo PASS`
   - **Done when**: JS syntax valid
   - **Commit**: `chore(sliderbank): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.33 Update onNodeCreated: remove hidden widget loop, use "values" widget name
+- [x] 1.33 Update onNodeCreated: remove hidden widget loop, use "values" widget name
   - **Do**:
     1. Remove the hidden widget loop (L236-243): `for (let i = 1; i <= 8; i++) { ... w.hidden = true; w.computeSize = () => [0, -4]; ... }`
     2. Replace with: find and remove framework-created `"values"` widget (STRING type), then splice custom `CxSliderBankWidget("values", isInteger)` at same index
@@ -374,7 +374,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-11, AC-3.4, AC-3.5_
   - _Design: Item 3 - onNodeCreated change_
 
-- [ ] 1.34 Update onConfigure: add v2.x migration for 8-number widgets_values
+- [x] 1.34 Update onConfigure: add v2.x migration for 8-number widgets_values
   - **Do**:
     1. Keep existing v1.x property-based migration (`info.properties?.value_1`)
     2. Add v2.x migration block: if `wv && wv.length >= 2 && typeof wv[0] === 'number'`, build migrated object from array values, set `bankWidget.value = migrated`
@@ -387,7 +387,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-13, AC-3.10, AC-3.12_
   - _Design: Item 3 - onConfigure migration_
 
-- [ ] 1.35 Update onPropertyChanged: use this.value instead of hidden widgets
+- [x] 1.35 Update onPropertyChanged: use this.value instead of hidden widgets
   - **Do**:
     1. In `onPropertyChanged` handler (L336+): replace hidden widget lookups (`this.widgets?.find(w => w.name === \`slider_${i}\`)`) with `bankWidget.value[\`s${i}\`]` access
     2. Update widget lookup from `"cx_bank_ui"` to `"values"`
@@ -399,7 +399,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-11, AC-3.7_
   - _Design: Item 3 - onPropertyChanged_
 
-- [ ] 1.36 Update getNodeMenuItems reset callback for new value pattern
+- [x] 1.36 Update getNodeMenuItems reset callback for new value pattern
   - **Do**:
     1. In the `getNodeMenuItems` reset callback (added in task 1.22): replace hidden widget reset loop (`slider_${i}`) with `bankWidget.value[\`s${i}\`] = isInteger ? 0 : 0.0` loop
     2. Update widget lookup from `"cx_bank_ui"` to `"values"`
@@ -410,7 +410,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-11, AC-3.7_
   - _Design: Item 3 - Reset callback_
 
-- [ ] 1.37 [VERIFY] Quality checkpoint: full cxsliderbank.js syntax + anti-pattern check
+- [x] 1.37 [VERIFY] Quality checkpoint: full cxsliderbank.js syntax + anti-pattern check
   - **Do**: Syntax-check and verify no anti-patterns remain
   - **Verify**: `node --input-type=module --check < "D:/ai/comfyui-cx_sliders/js/cxsliderbank.js" && ! grep -q 'w\.hidden' "D:/ai/comfyui-cx_sliders/js/cxsliderbank.js" && ! grep -q 'hiddenWidget' "D:/ai/comfyui-cx_sliders/js/cxsliderbank.js" && echo PASS`
   - **Done when**: JS syntax valid, no hidden widget references
@@ -418,7 +418,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 ### Item 6: Help Pages
 
-- [ ] 1.38 Create js/docs/ directory and cxSliderInt.md help page
+- [x] 1.38 Create js/docs/ directory and cxSliderInt.md help page
   - **Do**:
     1. Create `js/docs/` directory
     2. Create `js/docs/cxSliderInt.md` with: description, inputs table (value: INT, default 1), outputs table (INT), properties table (min, max, step, snap, padding, fillColor, borderColor, textColor), interaction patterns (drag, double-click, shift+drag, ctrl+drag), right-click menu (color pickers, reset)
@@ -429,7 +429,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.1, AC-5.2, AC-5.3_
   - _Design: Item 6_
 
-- [ ] 1.39 [P] Create cxSliderFloat.md help page
+- [x] 1.39 [P] Create cxSliderFloat.md help page
   - **Do**:
     1. Create `js/docs/cxSliderFloat.md` -- same structure as Int but with FLOAT type, default 1.0, float-specific step/padding defaults
   - **Files**: `js/docs/cxSliderFloat.md`
@@ -439,7 +439,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.2, AC-5.3_
   - _Design: Item 6_
 
-- [ ] 1.40 [P] Create cxDialInt.md help page
+- [x] 1.40 [P] Create cxDialInt.md help page
   - **Do**:
     1. Create `js/docs/cxDialInt.md` with: description (circular arc knob), inputs (value: INT), outputs (INT), properties, interaction (drag for angle, double-click to type, shift+drag snap), right-click menu
   - **Files**: `js/docs/cxDialInt.md`
@@ -449,7 +449,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.2, AC-5.3_
   - _Design: Item 6_
 
-- [ ] 1.41 [P] Create cxDialFloat.md help page
+- [x] 1.41 [P] Create cxDialFloat.md help page
   - **Do**:
     1. Create `js/docs/cxDialFloat.md` -- same structure as Int dial but FLOAT type, default 1.0
   - **Files**: `js/docs/cxDialFloat.md`
@@ -459,7 +459,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.2, AC-5.3_
   - _Design: Item 6_
 
-- [ ] 1.42 [P] Create cxToggle.md help page
+- [x] 1.42 [P] Create cxToggle.md help page
   - **Do**:
     1. Create `js/docs/cxToggle.md` with: description (discrete state button), inputs (toggle: INT, default 0), outputs (INT), properties (min, max, labels, fillColor, borderColor, textColor), interaction (click to cycle, double-click to type), right-click menu (color pickers, reset)
   - **Files**: `js/docs/cxToggle.md`
@@ -469,7 +469,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.2, AC-5.3_
   - _Design: Item 6_
 
-- [ ] 1.43 [P] Create cxSeed.md help page
+- [x] 1.43 [P] Create cxSeed.md help page
   - **Do**:
     1. Create `js/docs/cxSeed.md` with: description (seed with recall/randomize buttons), inputs (seed: INT with control_after_generate), outputs (SEED), properties (min, max, max_digits), interaction (emoji buttons), right-click menu (Randomize Seed Now, Reset)
   - **Files**: `js/docs/cxSeed.md`
@@ -479,13 +479,13 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.2, AC-5.3_
   - _Design: Item 6_
 
-- [ ] 1.44 [VERIFY] Quality checkpoint: 6 help pages exist with required sections
+- [x] 1.44 [VERIFY] Quality checkpoint: 6 help pages exist with required sections
   - **Do**: Verify all 6 non-bank help files exist and have required sections
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && for f in cxSliderInt cxSliderFloat cxDialInt cxDialFloat cxToggle cxSeed; do test -f "js/docs/${f}.md" || exit 1; grep -q 'Inputs' "js/docs/${f}.md" || exit 1; grep -q 'Outputs' "js/docs/${f}.md" || exit 1; grep -q 'Properties' "js/docs/${f}.md" || exit 1; done && echo PASS`
   - **Done when**: All 6 files exist with Inputs/Outputs/Properties sections
   - **Commit**: `chore(docs): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.45 [P] Create cxSliderBankInt.md help page (post-Item 3 schema)
+- [x] 1.45 [P] Create cxSliderBankInt.md help page (post-Item 3 schema)
   - **Do**:
     1. Create `js/docs/cxSliderBankInt.md` with: description (bank of integer sliders), inputs table showing single `values` STRING input (JSON object `{s1:N,...,s8:N}`), 8 INT outputs, properties (sliderCount, min, max, step, snap, padding, labels, fillColor, borderColor, textColor), interaction (drag row, double-click row to type, +/- buttons), right-click menu
   - **Files**: `js/docs/cxSliderBankInt.md`
@@ -495,7 +495,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-16, AC-5.2, AC-5.3, AC-5.4_
   - _Design: Item 6_
 
-- [ ] 1.46 [P] Create cxSliderBankFloat.md help page (post-Item 3 schema)
+- [x] 1.46 [P] Create cxSliderBankFloat.md help page (post-Item 3 schema)
   - **Do**:
     1. Create `js/docs/cxSliderBankFloat.md` -- same structure as Int bank but FLOAT type
   - **Files**: `js/docs/cxSliderBankFloat.md`
@@ -507,7 +507,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 ### Item 7: Version Bump
 
-- [ ] 1.47 Bump version to 3.0.0 in pyproject.toml
+- [x] 1.47 Bump version to 3.0.0 in pyproject.toml
   - **Do**:
     1. Change `version = "2.1.0"` to `version = "3.0.0"` on L3
   - **Files**: `pyproject.toml`
@@ -517,7 +517,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-18, AC-7.1_
   - _Design: Item 7_
 
-- [ ] 1.48 Bump CX_VERSION to 3.0.0 in cx_utils.js
+- [x] 1.48 Bump CX_VERSION to 3.0.0 in cx_utils.js
   - **Do**:
     1. Change `CX_VERSION = "2.1.0"` to `CX_VERSION = "3.0.0"` on L7
   - **Files**: `js/cx_utils.js`
@@ -527,7 +527,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-18, AC-7.2_
   - _Design: Item 7_
 
-- [ ] 1.49 Update README.md version header to 3.0.0
+- [x] 1.49 Update README.md version header to 3.0.0
   - **Do**:
     1. Change `**Version 2.1.0**` to `**Version 3.0.0**` on L3
   - **Files**: `README.md`
@@ -537,7 +537,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-18, AC-7.4_
   - _Design: Item 7_
 
-- [ ] 1.50 Add CHANGELOG.md v3.0.0 section
+- [x] 1.50 Add CHANGELOG.md v3.0.0 section
   - **Do**:
     1. Add `## [3.0.0] - 2026-03-06` section after `## [Unreleased]`
     2. Include subsections: `### Changed` (extension names, context menu API, slider bank schema), `### Added` (search aliases, help pages, OS classifier), `### Breaking` (slider bank: 8 separate inputs replaced with single JSON `values` input)
@@ -548,7 +548,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-18, AC-7.3, AC-7.5_
   - _Design: Item 7_
 
-- [ ] 1.51 [VERIFY] Quality checkpoint: version consistency across all 4 locations
+- [x] 1.51 [VERIFY] Quality checkpoint: version consistency across all 4 locations
   - **Do**: Verify 3.0.0 appears in all 4 locations
   - **Verify**: `grep -q 'version = "3.0.0"' "D:/ai/comfyui-cx_sliders/pyproject.toml" && grep -q 'CX_VERSION = "3.0.0"' "D:/ai/comfyui-cx_sliders/js/cx_utils.js" && grep -q 'Version 3.0.0' "D:/ai/comfyui-cx_sliders/README.md" && grep -q '\[3.0.0\]' "D:/ai/comfyui-cx_sliders/CHANGELOG.md" && echo PASS`
   - **Done when**: All 4 locations show 3.0.0
@@ -560,25 +560,25 @@ Skipped -- no test framework available. All validation is via syntax checks and 
 
 ## Phase 3: Quality Gates
 
-- [ ] V4 [VERIFY] Full syntax validation: all JS + Python files
+- [x] V4 [VERIFY] Full syntax validation: all JS + Python files
   - **Do**: Syntax-check all 7 JS files and all 6 Python files
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && for f in js/cx_base_widget.js js/cx_utils.js js/cxslider.js js/cxdial.js js/cxtoggle.js js/cxseed.js js/cxsliderbank.js; do node --input-type=module --check < "$f" || exit 1; done && for f in __init__.py cxsliders.py cxdial.py cxtoggle.py cxseed.py cxsliderbank.py; do python -c "import ast; ast.parse(open('$f').read())" || exit 1; done && echo PASS`
   - **Done when**: All 13 source files pass syntax validation
   - **Commit**: `chore(quality): pass full syntax validation` (only if fixes needed)
 
-- [ ] VE1 [VERIFY] E2E verification: anti-pattern elimination
+- [x] VE1 [VERIFY] E2E verification: anti-pattern elimination
   - **Do**: Grep-verify all anti-patterns removed and all new patterns present
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && ! grep -rq 'getExtraMenuOptions' js/ && ! grep -q 'w\.hidden.*true' js/cxsliderbank.js && ! grep -q 'computeSize.*\[0.*-4\]' js/cxsliderbank.js && ! grep -q 'hiddenWidget' js/cxsliderbank.js && echo VE1_PASS`
   - **Done when**: Zero anti-pattern matches across all JS files
   - **Commit**: None
 
-- [ ] VE2 [VERIFY] E2E verification: all new features present
+- [x] VE2 [VERIFY] E2E verification: all new features present
   - **Do**: Verify all required new patterns exist
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && grep -q 'cx.sliders.slider' js/cxslider.js && grep -q 'cx.sliders.dial' js/cxdial.js && grep -q 'cx.sliders.toggle' js/cxtoggle.js && grep -q 'cx.sliders.seed' js/cxseed.js && grep -q 'cx.sliders.sliderbank' js/cxsliderbank.js && grep -q 'getNodeMenuItems' js/cxslider.js && grep -q 'getNodeMenuItems' js/cxdial.js && grep -q 'getNodeMenuItems' js/cxtoggle.js && grep -q 'getNodeMenuItems' js/cxseed.js && grep -q 'getNodeMenuItems' js/cxsliderbank.js && grep -q 'SEARCH_ALIASES' cxsliders.py && grep -q 'SEARCH_ALIASES' cxdial.py && grep -q 'SEARCH_ALIASES' cxtoggle.py && grep -q 'SEARCH_ALIASES' cxseed.py && grep -q 'SEARCH_ALIASES' cxsliderbank.py && grep -q 'serializeValue' js/cxsliderbank.js && grep -q 'deserializeValue' js/cxsliderbank.js && ls js/docs/cxSliderInt.md js/docs/cxSliderFloat.md js/docs/cxDialInt.md js/docs/cxDialFloat.md js/docs/cxToggle.md js/docs/cxSeed.md js/docs/cxSliderBankInt.md js/docs/cxSliderBankFloat.md > /dev/null 2>&1 && echo VE2_PASS`
   - **Done when**: All new extension names, menu hooks, aliases, serialization methods, and help pages verified
   - **Commit**: None
 
-- [ ] V6 [VERIFY] AC checklist
+- [x] V6 [VERIFY] AC checklist
   - **Do**: Programmatically verify each acceptance criterion
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && echo "AC-1.1:" && ! grep -rq 'getExtraMenuOptions' js/ && echo OK && echo "AC-1.5:" && grep -q '_buildColorMenuItems' js/cx_base_widget.js && ! grep -q '_buildColorMenu[^I]' js/cx_base_widget.js && echo OK && echo "AC-2.1-2.5:" && grep -q 'cx.sliders.slider' js/cxslider.js && grep -q 'cx.sliders.dial' js/cxdial.js && grep -q 'cx.sliders.toggle' js/cxtoggle.js && grep -q 'cx.sliders.seed' js/cxseed.js && grep -q 'cx.sliders.sliderbank' js/cxsliderbank.js && echo OK && echo "AC-3.3:" && ! grep -q 'slider_1\|slider_2' cxsliderbank.py && echo OK && echo "AC-3.4:" && ! grep -q 'w\.hidden' js/cxsliderbank.js && echo OK && echo "AC-6.1:" && grep -q 'Operating System :: OS Independent' pyproject.toml && echo OK && echo "AC-7.1-7.4:" && grep -q 'version = "3.0.0"' pyproject.toml && grep -q 'CX_VERSION = "3.0.0"' js/cx_utils.js && grep -q '\[3.0.0\]' CHANGELOG.md && grep -q 'Version 3.0.0' README.md && echo OK && echo "ALL AC PASS"`
   - **Done when**: All acceptance criteria confirmed via grep
@@ -586,13 +586,13 @@ Skipped -- no test framework available. All validation is via syntax checks and 
 
 ## Phase 4: PR Lifecycle
 
-- [ ] 4.1 Local quality check
+- [x] 4.1 Local quality check
   - **Do**: Run ALL quality checks locally
   - **Verify**: `cd "D:/ai/comfyui-cx_sliders" && for f in js/cx_base_widget.js js/cx_utils.js js/cxslider.js js/cxdial.js js/cxtoggle.js js/cxseed.js js/cxsliderbank.js; do node --input-type=module --check < "$f" || exit 1; done && for f in __init__.py cxsliders.py cxdial.py cxtoggle.py cxseed.py cxsliderbank.py; do python -c "import ast; ast.parse(open('$f').read())" || exit 1; done && echo PASS`
   - **Done when**: All syntax checks pass
   - **Commit**: `fix(quality): address syntax issues` (only if fixes needed)
 
-- [ ] 4.2 Create PR and verify CI
+- [x] 4.2 Create PR and verify CI
   - **Do**:
     1. Verify current branch is feature branch: `git branch --show-current`
     2. Push branch: `git push -u origin fix/node-rendering-slot-overlap` (or current branch)
