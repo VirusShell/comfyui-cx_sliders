@@ -19,6 +19,23 @@ export class CxSliderBankWidget extends CxNumericWidget {
     super(name, defaultObj, isInteger);
   }
 
+  serializeValue(node, index) {
+    return JSON.stringify(this.value);
+  }
+
+  deserializeValue(value) {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          this.value = parsed;
+          return;
+        }
+      } catch { /* fall through */ }
+    }
+    // Fallback: keep current value (default zeros)
+  }
+
   computeSize(width) {
     const count = this._getProp("sliderCount", 3);
     const h = CxSliderBankWidget.BTN_ROW_H + CxSliderBankWidget.BTN_GAP

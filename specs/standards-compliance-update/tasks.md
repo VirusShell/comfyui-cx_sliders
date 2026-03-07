@@ -332,7 +332,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-11, AC-3.5_
   - _Design: Item 3 - Constructor change_
 
-- [ ] 1.30 Add serializeValue and deserializeValue methods
+- [x] 1.30 Add serializeValue and deserializeValue methods
   - **Do**:
     1. Add `serializeValue(node, index)` method that returns `JSON.stringify(this.value)`
     2. Add `deserializeValue(value)` method: if `typeof value === 'string'`, try `JSON.parse`, if result is non-array object set `this.value = parsed`; otherwise keep current value (default zeros)
