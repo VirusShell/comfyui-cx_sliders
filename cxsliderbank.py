@@ -26,6 +26,7 @@ if V3_AVAILABLE:
                 display_name="cxSliderBank - Int",
                 category="utils/cxSliders",
                 description="Bank of integer sliders with dynamic outputs",
+                search_aliases=["slider bank", "multi slider", "cx bank"],
                 inputs=[
                     io.Int.Input("slider_1", default=0, min=-2147483648, max=2147483647),
                     io.Int.Input("slider_2", default=0, min=-2147483648, max=2147483647),
@@ -69,6 +70,7 @@ if V3_AVAILABLE:
                 display_name="cxSliderBank - Float",
                 category="utils/cxSliders",
                 description="Bank of float sliders with dynamic outputs",
+                search_aliases=["slider bank", "multi slider", "cx bank"],
                 inputs=[
                     io.Float.Input("slider_1", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
                     io.Float.Input("slider_2", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
@@ -145,6 +147,7 @@ else:
         RETURN_NAMES = tuple(f"OUT_{i}" for i in range(1, 9))
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]
 
         def execute(self, **kwargs):
             values = []
@@ -175,6 +178,7 @@ else:
         RETURN_NAMES = tuple(f"OUT_{i}" for i in range(1, 9))
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]
 
         def execute(self, **kwargs):
             values = []

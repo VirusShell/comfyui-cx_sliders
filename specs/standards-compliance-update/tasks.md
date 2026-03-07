@@ -125,7 +125,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-14, FR-15, AC-4.1, AC-4.2, AC-4.3_
   - _Design: Item 5_
 
-- [ ] 1.12 Add SEARCH_ALIASES to cxsliderbank.py (V1 + V3)
+- [x] 1.12 Add SEARCH_ALIASES to cxsliderbank.py (V1 + V3)
   - **Do**:
     1. Add `SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]` to V1 `cxSliderBankInt` class (after CATEGORY L147)
     2. Add `SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]` to V1 `cxSliderBankFloat` class (after CATEGORY L177)
