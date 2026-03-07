@@ -299,7 +299,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-9, FR-10, AC-3.1, AC-3.2, AC-3.3, AC-3.13_
   - _Design: Item 3 - V3 Python schema_
 
-- [ ] 1.27 Replace 8 V3 slider inputs with single JSON input in cxSliderBankFloat V3
+- [x] 1.27 Replace 8 V3 slider inputs with single JSON input in cxSliderBankFloat V3
   - **Do**:
     1. Replace the 8 `io.Float.Input("slider_N", ...)` lines (L73-80) with single `io.String.Input("values", default='{"s1":0.0,...,"s8":0.0}', multiline=False)`
     2. Replace `execute` classmethod: accept `*, values: str`, parse JSON, return `io.NodeOutput(*)` with 8 float values

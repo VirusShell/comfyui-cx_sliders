@@ -69,14 +69,9 @@ if V3_AVAILABLE:
                 description="Bank of float sliders with dynamic outputs",
                 search_aliases=["slider bank", "multi slider", "cx bank"],
                 inputs=[
-                    io.Float.Input("slider_1", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_2", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_3", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_4", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_5", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_6", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_7", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_8", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
+                    io.String.Input("values",
+                        default='{"s1":0.0,"s2":0.0,"s3":0.0,"s4":0.0,"s5":0.0,"s6":0.0,"s7":0.0,"s8":0.0}',
+                        multiline=False),
                 ],
                 outputs=[
                     io.Float.Output(display_name="OUT_1"),
@@ -91,11 +86,13 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            values = []
-            for i in range(1, 9):
-                values.append(float(kwargs.get(f"slider_{i}", 0.0)))
-            return io.NodeOutput(*values)
+        def execute(cls, *, values: str) -> io.NodeOutput:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankFloat: malformed JSON: {e}") from e
+            return io.NodeOutput(*[float(data.get(f"s{i}", 0.0)) for i in range(1, 9)])
 
 
     class cxSliderBankExtension(ComfyExtension):
