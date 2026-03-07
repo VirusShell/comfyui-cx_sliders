@@ -247,13 +247,10 @@ app.registerExtension({
     nodeType.prototype.onNodeCreated = function() {
       onNodeCreated?.apply(this, arguments);
       try {
-        // Hide all 8 slider_N widgets (keep them for serialization)
-        for (let i = 1; i <= 8; i++) {
-          const w = this.widgets?.find(w => w.name === `slider_${i}`);
-          if (w) {
-            w.hidden = true;
-            w.computeSize = () => [0, -4];
-          }
+        // Remove the framework-created "values" STRING widget, replace with custom bank widget
+        const fwIdx = this.widgets?.findIndex(w => w.name === "values");
+        if (fwIdx !== undefined && fwIdx >= 0) {
+          this.widgets.splice(fwIdx, 1);
         }
 
         // Set default properties
@@ -271,8 +268,8 @@ app.registerExtension({
           textColor: "auto",
         });
 
-        // Add UI widget
-        const bankWidget = new CxSliderBankWidget("cx_bank_ui", isInteger);
+        // Add custom bank widget with name "values" to match backend input
+        const bankWidget = new CxSliderBankWidget("values", isInteger);
         this.addCustomWidget(bankWidget);
 
         // Set initial outputs to match sliderCount
