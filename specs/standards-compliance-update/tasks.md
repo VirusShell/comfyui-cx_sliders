@@ -64,7 +64,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 ### Item 8: Registry Metadata
 
-- [ ] 1.7 Add classifiers to pyproject.toml
+- [x] 1.7 Add classifiers to pyproject.toml
   - **Do**:
     1. In `pyproject.toml`, add `classifiers = ["Operating System :: OS Independent"]` under `[project]` section, after the `requires-python` line (after L6)
     2. Do NOT modify `[project.urls]` section

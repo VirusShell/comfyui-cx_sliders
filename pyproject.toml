@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-cx-sliders"
+version = "2.1.0"
+description = "Visual slider, dial, toggle, seed, and slider bank controls for ComfyUI"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+classifiers = ["Operating System :: OS Independent"]
+
+[project.urls]
+Repository = "http://192.168.1.163:3003/am_Vir/comfyui-cx_sliders"
+
+[tool.comfy]
+PublisherId = "vir"
+DisplayName = "cx Sliders"
+requires-comfyui = ">=0.3.75"
