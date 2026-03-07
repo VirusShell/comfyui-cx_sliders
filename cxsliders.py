@@ -28,9 +28,10 @@ if V3_AVAILABLE:
                 display_name="cxSlider - Int",
                 category="utils/cxSliders",
                 description="Integer slider with visual control",
+                search_aliases=["slider", "range", "integer slider", "cx slider"],
                 inputs=[
                     io.Int.Input(
-                        "int",
+                        "value",
                         default=1,
                         min=-2147483648,
                         max=2147483647,
@@ -43,8 +44,7 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("int", 1)
+        def execute(cls, value: int = 1) -> io.NodeOutput:
             return io.NodeOutput(int(round(value)))
 
     class cxSliderFloat(io.ComfyNode):
@@ -60,9 +60,10 @@ if V3_AVAILABLE:
                 display_name="cxSlider - Float",
                 category="utils/cxSliders",
                 description="Float slider with visual control and decimal precision",
+                search_aliases=["slider", "range", "float slider", "cx slider"],
                 inputs=[
                     io.Float.Input(
-                        "float",
+                        "value",
                         default=1.0,
                         min=-3.4028235e38,
                         max=3.4028235e38,
@@ -75,8 +76,7 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("float", 1.0)
+        def execute(cls, value: float = 1.0) -> io.NodeOutput:
             return io.NodeOutput(float(value))
 
     class cxSliderExtension(ComfyExtension):
@@ -113,7 +113,7 @@ else:
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "int": (
+                    "value": (
                         "INT",
                         {
                             "default": 1,
@@ -128,9 +128,9 @@ else:
         RETURN_NAMES = ("INT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["slider", "range", "integer slider", "cx slider"]
 
-        def execute(self, **kwargs):
-            value = kwargs.get("int", 1)
+        def execute(self, value: int = 1):
             return (int(round(value)),)
 
     class cxSliderFloat:
@@ -143,7 +143,7 @@ else:
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "float": (
+                    "value": (
                         "FLOAT",
                         {
                             "default": 1.0,
@@ -159,9 +159,9 @@ else:
         RETURN_NAMES = ("FLOAT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["slider", "range", "float slider", "cx slider"]
 
-        def execute(self, **kwargs):
-            value = kwargs.get("float", 1.0)
+        def execute(self, value: float = 1.0):
             return (float(value),)
 
     # V1 Node mappings

@@ -27,6 +27,7 @@ if V3_AVAILABLE:
                 display_name="cxToggle",
                 category="utils/cxSliders",
                 description="Toggle button with configurable states and labels",
+                search_aliases=["toggle", "switch", "button", "on off", "cx toggle"],
                 inputs=[
                     io.Int.Input(
                         "toggle",
@@ -41,9 +42,8 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("toggle", 0)
-            return io.NodeOutput(int(value))
+        def execute(cls, toggle: int = 0) -> io.NodeOutput:
+            return io.NodeOutput(int(toggle))
 
     class cxToggleExtension(ComfyExtension):
         """Extension class for cxToggle node."""
@@ -92,10 +92,10 @@ else:
         RETURN_NAMES = ("INT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["toggle", "switch", "button", "on off", "cx toggle"]
 
-        def execute(self, **kwargs):
-            value = kwargs.get("toggle", 0)
-            return (int(value),)
+        def execute(self, toggle: int = 0):
+            return (int(toggle),)
 
     # V1 Node mappings
     NODE_CLASS_MAPPINGS = {

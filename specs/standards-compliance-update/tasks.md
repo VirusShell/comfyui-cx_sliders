@@ -77,7 +77,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 ### Item 5: Search Aliases
 
-- [ ] 1.8 [P] Add SEARCH_ALIASES to cxsliders.py (V1 + V3)
+- [x] 1.8 [P] Add SEARCH_ALIASES to cxsliders.py (V1 + V3)
   - **Do**:
     1. Add `SEARCH_ALIASES = ["slider", "range", "integer slider", "cx slider"]` to V1 `cxSliderInt` class (after CATEGORY L128)
     2. Add `SEARCH_ALIASES = ["slider", "range", "float slider", "cx slider"]` to V1 `cxSliderFloat` class (after CATEGORY L158)
@@ -90,7 +90,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-14, FR-15, AC-4.1, AC-4.2, AC-4.3_
   - _Design: Item 5_
 
-- [ ] 1.9 [P] Add SEARCH_ALIASES to cxdial.py (V1 + V3)
+- [x] 1.9 [P] Add SEARCH_ALIASES to cxdial.py (V1 + V3)
   - **Do**:
     1. Add `SEARCH_ALIASES = ["dial", "knob", "rotary", "integer dial", "cx dial"]` to V1 `cxDialInt` class (after CATEGORY L127)
     2. Add `SEARCH_ALIASES = ["dial", "knob", "rotary", "float dial", "cx dial"]` to V1 `cxDialFloat` class (after CATEGORY L157)
@@ -103,7 +103,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-14, FR-15, AC-4.1, AC-4.2, AC-4.3_
   - _Design: Item 5_
 
-- [ ] 1.10 [P] Add SEARCH_ALIASES to cxtoggle.py (V1 + V3)
+- [x] 1.10 [P] Add SEARCH_ALIASES to cxtoggle.py (V1 + V3)
   - **Do**:
     1. Add `SEARCH_ALIASES = ["toggle", "switch", "button", "on off", "cx toggle"]` to V1 `cxToggle` class (after CATEGORY L93)
     2. Add `search_aliases=["toggle", "switch", "button", "on off", "cx toggle"]` to V3 `cxToggle.define_schema()`
@@ -114,7 +114,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-14, FR-15, AC-4.1, AC-4.2, AC-4.3_
   - _Design: Item 5_
 
-- [ ] 1.11 [P] Add SEARCH_ALIASES to cxseed.py (V1 + V3)
+- [x] 1.11 [P] Add SEARCH_ALIASES to cxseed.py (V1 + V3)
   - **Do**:
     1. Add `SEARCH_ALIASES = ["seed", "random seed", "cx seed"]` to V1 `cxSeed` class (after CATEGORY L97)
     2. Add `search_aliases=["seed", "random seed", "cx seed"]` to V3 `cxSeed.define_schema()`
