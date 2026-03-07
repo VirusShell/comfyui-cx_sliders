@@ -166,15 +166,11 @@ else:
 
         @classmethod
         def INPUT_TYPES(cls):
-            inputs = {}
-            for i in range(1, 9):
-                inputs[f"slider_{i}"] = ("FLOAT", {
-                    "default": 0.0,
-                    "min": -3.4028235e+38,
-                    "max": 3.4028235e+38,
-                    "step": 0.001,
-                })
-            return {"required": inputs}
+            return {"required": {
+                "values": ("STRING", {
+                    "default": '{"s1":0.0,"s2":0.0,"s3":0.0,"s4":0.0,"s5":0.0,"s6":0.0,"s7":0.0,"s8":0.0}',
+                }),
+            }}
 
         RETURN_TYPES = ("FLOAT",) * 8
         RETURN_NAMES = tuple(f"OUT_{i}" for i in range(1, 9))
@@ -182,11 +178,16 @@ else:
         CATEGORY = "utils/cxSliders"
         SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]
 
-        def execute(self, **kwargs):
-            values = []
+        def execute(self, *, values: str) -> tuple:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankFloat: malformed JSON in values input: {e}") from e
+            results = []
             for i in range(1, 9):
-                values.append(float(kwargs.get(f"slider_{i}", 0.0)))
-            return tuple(values)
+                results.append(float(data.get(f"s{i}", 0.0)))
+            return tuple(results)
 
 
     # V1 Node mappings

@@ -274,7 +274,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-8, FR-10, AC-3.1, AC-3.2, AC-3.3, AC-3.13_
   - _Design: Item 3 - V1 Python schema_
 
-- [ ] 1.25 Replace 8 slider inputs with single JSON input in cxSliderBankFloat V1
+- [x] 1.25 Replace 8 slider inputs with single JSON input in cxSliderBankFloat V1
   - **Do**:
     1. Replace the `INPUT_TYPES` loop (L163-172) that creates `slider_1` through `slider_8` FLOAT inputs with single `"values"` STRING input (same default JSON as Int but with 0.0 values)
     2. Replace `execute` method (L179-183): accept `*, values: str`, parse JSON, extract `s1..s8`, return 8 `float()` values
