@@ -319,7 +319,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 #### JavaScript Frontend
 
-- [ ] 1.29 Update CxSliderBankWidget constructor: name, value, serialize
+- [x] 1.29 Update CxSliderBankWidget constructor: name, value, serialize
   - **Do**:
     1. Change constructor (L16-18): widget name parameter from hardcoded to accept `name` but callers will pass `"values"`
     2. Change default value from `0` to an object: `const defaultObj = {}; for (let i = 1; i <= 8; i++) defaultObj[\`s${i}\`] = 0;`

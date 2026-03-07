@@ -14,7 +14,9 @@ export class CxSliderBankWidget extends CxNumericWidget {
   static SIDE_PAD = 6;
 
   constructor(name, isInteger) {
-    super(name, 0, isInteger, { serialize: false });
+    const defaultObj = {};
+    for (let i = 1; i <= 8; i++) defaultObj[`s${i}`] = 0;
+    super(name, defaultObj, isInteger);
   }
 
   computeSize(width) {
