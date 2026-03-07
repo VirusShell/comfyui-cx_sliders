@@ -216,7 +216,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-1, FR-2, FR-5, AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.6_
   - _Design: Item 1 - cxToggle pattern_
 
-- [ ] 1.20 Migrate cxseed.js: remove getExtraMenuOptions, add getNodeMenuItems
+- [x] 1.20 Migrate cxseed.js: remove getExtraMenuOptions, add getNodeMenuItems
   - **Do**:
     1. Remove entire `nodeType.prototype.getExtraMenuOptions = function(canvas, options) { ... };` block (L233-259) from inside `beforeRegisterNodeDef`
     2. Add `getNodeMenuItems(node)` as top-level extension property

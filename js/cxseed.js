@@ -162,6 +162,32 @@ function _getEffectiveMax(max, maxDigits) {
 // --- Registration ---
 app.registerExtension({
   name: "cx.sliders.seed",
+  getNodeMenuItems(node) {
+    if (node.comfyClass !== "cxSeed") return;
+    const btnWidget = node.widgets?.find(w => w.name === "cx_seed_buttons");
+    return [
+      null,
+      {
+        content: "Randomize Seed Now",
+        callback: () => {
+          if (btnWidget) btnWidget._doRandomize(node);
+        },
+      },
+      {
+        content: "Reset to Defaults",
+        callback: () => {
+          node.properties.min = 0;
+          node.properties.max = 0xffffffffffffffff;
+          node.properties.max_digits = 0;
+          if (btnWidget) {
+            btnWidget._lastSeed = null;
+            btnWidget._doRandomize(node);
+          }
+          node.setDirtyCanvas(true, true);
+        },
+      },
+    ];
+  },
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
     if (nodeData.name !== "cxSeed") return;
 
@@ -227,35 +253,6 @@ app.registerExtension({
       } catch (err) {
         cxLog("error", "cxSeed onConfigure:", err);
       }
-    };
-
-    // getExtraMenuOptions
-    nodeType.prototype.getExtraMenuOptions = function (canvas, options) {
-      const self = this;
-      const btnWidget = this.widgets?.find(
-        (w) => w.name === "cx_seed_buttons"
-      );
-
-      options.push(null); // separator
-      options.push({
-        content: "Randomize Seed Now",
-        callback: () => {
-          if (btnWidget) btnWidget._doRandomize(self);
-        },
-      });
-      options.push({
-        content: "Reset to Defaults",
-        callback: () => {
-          self.properties.min = 0;
-          self.properties.max = 0xffffffffffffffff;
-          self.properties.max_digits = 0;
-          if (btnWidget) {
-            btnWidget._lastSeed = null;
-            btnWidget._doRandomize(self);
-          }
-          self.setDirtyCanvas(true, true);
-        },
-      });
     };
 
     // onMouseMove — relay hover events to button widget for tooltip display
