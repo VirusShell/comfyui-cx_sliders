@@ -262,7 +262,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 #### Python Backend
 
-- [ ] 1.24 Replace 8 slider inputs with single JSON input in cxSliderBankInt V1
+- [x] 1.24 Replace 8 slider inputs with single JSON input in cxSliderBankInt V1
   - **Do**:
     1. Replace the `INPUT_TYPES` loop (L134-142) that creates `slider_1` through `slider_8` with a single `"values"` STRING input with default `'{"s1":0,"s2":0,"s3":0,"s4":0,"s5":0,"s6":0,"s7":0,"s8":0}'`
     2. Replace `execute` method (L149-153): accept `*, values: str`, parse JSON with `json.loads`, extract `s1..s8`, return 8 `int(round())` values
