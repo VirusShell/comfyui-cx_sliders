@@ -232,27 +232,31 @@ app.registerExtension({
       this.setDirtyCanvas(true, true);
     };
 
-    nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
-      const w = this.widgets?.find(w => w.name === "value");
-      if (!w) { cxLog("warn", "cxDial getExtraMenuOptions: 'value' widget not found"); return; }
-      w._buildColorMenuItems(options, "Dial");
-      options.push({
-        content: "↺ Reset to Defaults",
-        callback: () => {
-          Object.assign(this.properties, {
-            min: isInteger ? 0 : 0.0,
-            max: isInteger ? 100 : 100.0,
-            step: isInteger ? 1 : 0.5,
-            snap: true,
-            padding: isInteger ? "0" : "0.000",
-            fillColor: COLORS.dial.fill,
-            borderColor: COLORS.widget.border,
-            textColor: "auto",
-          });
-          w.value = isInteger ? 1 : 1.0;
-          this.setDirtyCanvas(true, true);
-        }
-      });
-    };
+  },
+  getNodeMenuItems(node) {
+    const isInteger = DIAL_NODES[node.comfyClass];
+    if (isInteger === undefined) return;
+    const w = node.widgets?.find(w => w.name === "value");
+    if (!w) return;
+    const items = [];
+    w._buildColorMenuItems(items, "Dial");
+    items.push({
+      content: "↺ Reset to Defaults",
+      callback: () => {
+        Object.assign(node.properties, {
+          min: isInteger ? 0 : 0.0,
+          max: isInteger ? 100 : 100.0,
+          step: isInteger ? 1 : 0.5,
+          snap: true,
+          padding: isInteger ? "0" : "0.000",
+          fillColor: COLORS.dial.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+        w.value = isInteger ? 1 : 1.0;
+        node.setDirtyCanvas(true, true);
+      }
+    });
+    return items;
   }
 });
