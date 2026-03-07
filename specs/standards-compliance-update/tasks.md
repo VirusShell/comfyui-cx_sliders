@@ -163,7 +163,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - **Done when**: JS syntax valid
   - **Commit**: `chore(base-widget): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.16 Migrate cxslider.js: remove getExtraMenuOptions, add getNodeMenuItems
+- [x] 1.16 Migrate cxslider.js: remove getExtraMenuOptions, add getNodeMenuItems
   - **Do**:
     1. Remove entire `nodeType.prototype.getExtraMenuOptions = function(canvas, options) { ... };` block (L188-209) from inside `beforeRegisterNodeDef`
     2. Add `getNodeMenuItems(node)` as top-level property on the extension object (same level as `name`, `beforeRegisterNodeDef`)
