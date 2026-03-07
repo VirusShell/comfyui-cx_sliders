@@ -235,7 +235,7 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
       const w = this.widgets?.find(w => w.name === "value");
       if (!w) { cxLog("warn", "cxDial getExtraMenuOptions: 'value' widget not found"); return; }
-      w._buildColorMenu(options, "Dial");
+      w._buildColorMenuItems(options, "Dial");
       options.push({
         content: "↺ Reset to Defaults",
         callback: () => {

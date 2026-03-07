@@ -146,7 +146,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
 
 ### Item 1: Context Menu Migration
 
-- [ ] 1.14 Rename _buildColorMenu to _buildColorMenuItems in cx_base_widget.js
+- [x] 1.14 Rename _buildColorMenu to _buildColorMenuItems in cx_base_widget.js
   - **Do**:
     1. In `js/cx_base_widget.js` L244, rename method `_buildColorMenu` to `_buildColorMenuItems`
     2. Keep signature and body identical (push-based, `options` + `labelPrefix` params)

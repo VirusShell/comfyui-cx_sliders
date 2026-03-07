@@ -276,7 +276,7 @@ app.registerExtension({
     nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
       const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
       if (bankWidget) {
-        bankWidget._buildColorMenu(options, "Slider Bank");
+        bankWidget._buildColorMenuItems(options, "Slider Bank");
         options.push({
           content: "\u21ba Reset to Defaults",
           callback: () => {
