@@ -28,14 +28,9 @@ if V3_AVAILABLE:
                 description="Bank of integer sliders with dynamic outputs",
                 search_aliases=["slider bank", "multi slider", "cx bank"],
                 inputs=[
-                    io.Int.Input("slider_1", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_2", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_3", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_4", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_5", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_6", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_7", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_8", default=0, min=-2147483648, max=2147483647),
+                    io.String.Input("values",
+                        default='{"s1":0,"s2":0,"s3":0,"s4":0,"s5":0,"s6":0,"s7":0,"s8":0}',
+                        multiline=False),
                 ],
                 outputs=[
                     io.Int.Output(display_name="OUT_1"),
@@ -50,11 +45,13 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            values = []
-            for i in range(1, 9):
-                values.append(int(round(kwargs.get(f"slider_{i}", 0))))
-            return io.NodeOutput(*values)
+        def execute(cls, *, values: str) -> io.NodeOutput:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankInt: malformed JSON: {e}") from e
+            return io.NodeOutput(*[int(round(data.get(f"s{i}", 0))) for i in range(1, 9)])
 
 
     class cxSliderBankFloat(io.ComfyNode):

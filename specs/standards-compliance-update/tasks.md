@@ -286,7 +286,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-8, FR-10, AC-3.1, AC-3.2, AC-3.3, AC-3.13_
   - _Design: Item 3 - V1 Python schema_
 
-- [ ] 1.26 Replace 8 V3 slider inputs with single JSON input in cxSliderBankInt V3
+- [x] 1.26 Replace 8 V3 slider inputs with single JSON input in cxSliderBankInt V3
   - **Do**:
     1. Replace the 8 `io.Int.Input("slider_N", ...)` lines (L30-37) with single `io.String.Input("values", default='{"s1":0,...,"s8":0}', multiline=False)`
     2. Add `search_aliases` if not already present (should be from task 1.12)
