@@ -168,47 +168,6 @@ app.registerExtension({
       }
     };
 
-    // getExtraMenuOptions -- color pickers + reset
-    nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
-      options.push(null); // separator
-      options.push({
-        content: "🎨 Fill Color",
-        callback: () => openColorPicker(this.properties.fillColor || COLORS.toggle.fill, (c) => {
-          this.properties.fillColor = c;
-          this.setDirtyCanvas(true, true);
-        })
-      });
-      options.push({
-        content: "🎨 Border Color",
-        callback: () => openColorPicker(this.properties.borderColor || COLORS.widget.border, (c) => {
-          this.properties.borderColor = c;
-          this.setDirtyCanvas(true, true);
-        })
-      });
-      options.push({
-        content: "🎨 Text Color",
-        callback: () => openColorPicker(this.properties.textColor || "auto", (c) => {
-          this.properties.textColor = c;
-          this.setDirtyCanvas(true, true);
-        })
-      });
-      options.push({
-        content: "↺ Reset to Defaults",
-        callback: () => {
-          Object.assign(this.properties, {
-            min: 0, max: 1, labels: "Off, On",
-            fillColor: COLORS.toggle.fill,
-            borderColor: COLORS.widget.border,
-            textColor: "auto",
-          });
-          const w = this.widgets?.find(w => w.name === "toggle");
-          if (w) { w.value = clamp(w.value, 0, 1); }
-          else { cxLog("warn", "cxToggle reset: 'toggle' widget not found"); }
-          this.setDirtyCanvas(true, true);
-        }
-      });
-    };
-
     // onPropertyChanged -- sync from Properties Panel
     nodeType.prototype.onPropertyChanged = function(name, value) {
       const w = this.widgets?.find(w => w.name === "toggle");
@@ -255,5 +214,48 @@ app.registerExtension({
         cxLog("error", "cxToggle onConfigure:", err);
       }
     };
+  },
+  getNodeMenuItems(node) {
+    if (node.comfyClass !== "cxToggle") return;
+    const w = node.widgets?.find(w => w.name === "toggle");
+    if (!w) return;
+    const items = [null];
+    items.push({
+      content: "🎨 Fill Color",
+      callback: () => openColorPicker(node.properties.fillColor || COLORS.toggle.fill, (c) => {
+        node.properties.fillColor = c;
+        node.setDirtyCanvas(true, true);
+      })
+    });
+    items.push({
+      content: "🎨 Border Color",
+      callback: () => openColorPicker(node.properties.borderColor || COLORS.widget.border, (c) => {
+        node.properties.borderColor = c;
+        node.setDirtyCanvas(true, true);
+      })
+    });
+    items.push({
+      content: "🎨 Text Color",
+      callback: () => openColorPicker(node.properties.textColor || "auto", (c) => {
+        node.properties.textColor = c;
+        node.setDirtyCanvas(true, true);
+      })
+    });
+    items.push({
+      content: "↺ Reset to Defaults",
+      callback: () => {
+        Object.assign(node.properties, {
+          min: 0, max: 1, labels: "Off, On",
+          fillColor: COLORS.toggle.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+        const tw = node.widgets?.find(w => w.name === "toggle");
+        if (tw) { tw.value = clamp(tw.value, 0, 1); }
+        else { cxLog("warn", "cxToggle reset: 'toggle' widget not found"); }
+        node.setDirtyCanvas(true, true);
+      }
+    });
+    return items;
   }
 });

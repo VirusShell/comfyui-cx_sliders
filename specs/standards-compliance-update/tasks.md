@@ -201,7 +201,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - **Done when**: Both JS files pass syntax check
   - **Commit**: `chore(menu-migration): pass quality checkpoint` (only if fixes needed)
 
-- [ ] 1.19 Migrate cxtoggle.js: remove getExtraMenuOptions, add getNodeMenuItems
+- [x] 1.19 Migrate cxtoggle.js: remove getExtraMenuOptions, add getNodeMenuItems
   - **Do**:
     1. Remove entire `nodeType.prototype.getExtraMenuOptions = function(canvas, options) { ... };` block (L172-210) from inside `beforeRegisterNodeDef`
     2. Add `getNodeMenuItems(node)` as top-level extension property
