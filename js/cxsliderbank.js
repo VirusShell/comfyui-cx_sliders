@@ -68,9 +68,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
     const barW = width - sp * 2 - lw - 4;
     const h = CxSliderBankWidget.MINI_H;
 
-    // Get value from hidden widget
-    const hiddenWidget = node.widgets?.find(w => w.name === `slider_${index + 1}`);
-    const val = hiddenWidget?.value ?? 0;
+    const val = this.value[`s${index + 1}`] ?? 0;
     const ratio = this._ratioFromValue(val);
 
     // Label (truncated)
@@ -125,9 +123,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
     let ratio = clamp((posX - barX) / barW, 0, 1);
     ratio = this._applySnap(ratio, event.shiftKey);
     const value = this._roundValue(clamp(this._valueFromRatio(ratio), this._min, this._max));
-    const hiddenWidget = node.widgets?.find(w => w.name === `slider_${index + 1}`);
-    if (!hiddenWidget) { cxLog("warn", `cxSliderBank: slider_${index + 1} widget not found`); return; }
-    hiddenWidget.value = value;
+    this.value[`s${index + 1}`] = value;
     node.setDirtyCanvas(true, true);
   }
 
@@ -138,13 +134,12 @@ export class CxSliderBankWidget extends CxNumericWidget {
       if (area && this._inBounds(pos, area.bounds)) {
         const labels = this._getLabels();
         const label = labels[i] || `Slider ${i + 1}`;
-        const hiddenWidget = node.widgets?.find(w => w.name === `slider_${i + 1}`);
-        if (!hiddenWidget) return false;
+        const currentVal = this.value[`s${i + 1}`] ?? 0;
         try {
-          app.canvas.prompt(label, String(hiddenWidget.value), (v) => {
+          app.canvas.prompt(label, String(currentVal), (v) => {
             const num = Number(v);
             if (!isNaN(num)) {
-              hiddenWidget.value = clamp(num, this._min, this._max);
+              this.value[`s${i + 1}`] = clamp(num, this._min, this._max);
               node.setDirtyCanvas(true, true);
             }
           }, event);
@@ -294,15 +289,15 @@ app.registerExtension({
     // onConfigure -- v1.x migration + reconcile
     nodeType.prototype.onConfigure = function(info) {
       try {
+        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
         // v1.x migration: detect old format via properties.value_1
         if (info.properties?.value_1 !== undefined) {
           const count = info.properties.sliderCount ?? info.properties.slider_count ?? 3;
           this.properties.sliderCount = count;
           for (let i = 1; i <= 8; i++) {
             const oldVal = info.properties[`value_${i}`];
-            if (oldVal !== undefined) {
-              const hw = this.widgets?.find(w => w.name === `slider_${i}`);
-              if (hw) hw.value = oldVal;
+            if (oldVal !== undefined && bankWidget) {
+              bankWidget.value[`s${i}`] = oldVal;
             }
             delete this.properties[`value_${i}`];
           }
@@ -311,7 +306,6 @@ app.registerExtension({
           cxLog("debug", "cxSliderBank: migrated v1.x properties");
         }
         // Reconcile outputs and labels
-        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
         if (bankWidget) bankWidget._reconcileOutputs(this);
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
       } catch (err) {
@@ -329,9 +323,14 @@ app.registerExtension({
         }
       }
       if (name === "min" || name === "max") {
-        for (let i = 1; i <= 8; i++) {
-          const hw = this.widgets?.find(w => w.name === `slider_${i}`);
-          if (hw) hw.value = clamp(hw.value, this.properties.min ?? 0, this.properties.max ?? 100);
+        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+        if (bankWidget) {
+          for (let i = 1; i <= 8; i++) {
+            const cur = bankWidget.value[`s${i}`];
+            if (cur !== undefined) {
+              bankWidget.value[`s${i}`] = clamp(cur, this.properties.min ?? 0, this.properties.max ?? 100);
+            }
+          }
         }
       }
       this.setDirtyCanvas(true, true);
@@ -360,8 +359,7 @@ app.registerExtension({
           textColor: "auto",
         });
         for (let i = 1; i <= 8; i++) {
-          const hw = node.widgets?.find(w => w.name === `slider_${i}`);
-          if (hw) hw.value = isInteger ? 0 : 0.0;
+          bankWidget.value[`s${i}`] = isInteger ? 0 : 0.0;
         }
         bankWidget._reconcileOutputs(node);
         node.setSize(node.computeSize());

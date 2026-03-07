@@ -343,7 +343,7 @@ Focus: File-by-file changes following dependency order (Items 2, 8, 5, 1, 3, 6, 
   - _Requirements: FR-12, AC-3.6_
   - _Design: Item 3 - Serialization_
 
-- [ ] 1.31 Update mini-slider read/write to use this.value object
+- [x] 1.31 Update mini-slider read/write to use this.value object
   - **Do**:
     1. In `_draw` method around L53-54: replace `const hiddenWidget = node.widgets?.find(w => w.name === \`slider_${index + 1}\`); const val = hiddenWidget?.value ?? 0;` with `const val = this.value[\`s${index + 1}\`] ?? 0;`
     2. In `_updateMiniSlider` L105-112: replace hidden widget lookup and assignment with `this.value[\`s${index + 1}\`] = value;`
