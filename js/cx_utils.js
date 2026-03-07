@@ -3,7 +3,8 @@
 
 // --- Constants ---
 
-export const CX_VERSION = "2.0.0";
+// NOTE: Must match version in pyproject.toml (no build step to auto-sync JS)
+export const CX_VERSION = "3.0.0";
 
 export const MARGIN = 15; // Standard ComfyUI widget margin (px)
 

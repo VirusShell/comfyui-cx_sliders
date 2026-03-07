@@ -1,6 +1,6 @@
 # ComfyUI cxSliders
 
-**Version 2.0.0**
+**Version 3.0.0**
 
 Custom slider, dial, toggle, seed, and slider bank nodes for ComfyUI with visual controls.
 
@@ -26,7 +26,7 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 
 2. Clone or copy this repository:
    ```
-   git clone <repository-url> comfyui_cxslider
+   git clone http://192.168.1.163:3003/am_Vir/comfyui-cx_sliders comfyui_cxslider
    ```
 
 3. Restart ComfyUI
@@ -149,9 +149,13 @@ All properties can be edited through ComfyUI's Properties Panel:
 
 ```
 comfyui_cxslider/
-├── __init__.py            # Package initialization
-├── cxsliders.py           # Slider node definitions (V1/V3 hybrid)
-├── cxseed.py              # Seed node definition (V1/V3 hybrid)
+├── __init__.py            # Package initialization (reads version from pyproject.toml)
+├── pyproject.toml         # Canonical version source, ComfyUI registry metadata
+├── cxsliders.py           # Slider node definitions (V1/V3 dual schema)
+├── cxdial.py              # Dial node definitions (V1/V3 dual schema)
+├── cxtoggle.py            # Toggle node definition (V1/V3 dual schema)
+├── cxseed.py              # Seed node definition (V1/V3 dual schema)
+├── cxsliderbank.py        # Slider bank node definitions (V1/V3 dual schema)
 ├── js/
 │   ├── cx_utils.js        # Shared utilities and constants
 │   ├── cx_base_widget.js  # Base widget classes (CxBaseWidget, CxNumericWidget)
@@ -160,6 +164,8 @@ comfyui_cxslider/
 │   ├── cxtoggle.js        # Toggle UI
 │   ├── cxseed.js          # Seed node UI
 │   └── cxsliderbank.js    # Slider bank UI (Int + Float)
+├── CHANGELOG.md           # Version history (Keep a Changelog format)
+├── LICENSE                # MIT License
 └── README.md              # This file
 ```
 
@@ -174,23 +180,7 @@ comfyui_cxslider/
 
 ## Changelog
 
-### 2.0.0 (Breaking)
-- **Architecture rewrite**: All nodes now use custom widgets with `draw()`/`mouse()`/`computeSize()` instead of hidden widgets + `onDrawForeground`
-- **Shared base classes**: `CxBaseWidget` and `CxNumericWidget` in `cx_base_widget.js`
-- **Shared utilities**: `cx_utils.js` with common functions and color constants
-- **Merged int/float files**: Each node type is a single JS file (was separate int/float files)
-- **New nodes**: cxDial (Int/Float), cxToggle, cxSliderBank (Int/Float)
-- **Removed**: cxRangeSlider (deprecated)
-- **Removed**: `value_override` input on slider nodes (use ComfyUI's built-in widget-to-input conversion instead)
-- **Color customization**: Right-click color pickers for fill, border, and text
-- **v1.x migration**: Automatic migration of old-format workflow files
-- **Error resilience**: Defensive null checks, NaN guards, structured logging
-
-### 1.0.0
-- Initial release
-- cxSlider - Int: Integer slider with visual control
-- cxSlider - Float: Float slider with decimal precision control
-- cxSeed: Seed node with last-seed tracking and quick buttons
+See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
 ## License
 
