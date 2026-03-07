@@ -106,7 +106,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
     // Hit area per mini-slider row.
     // _activeDragArea in CxBaseWidget ensures only the initiating slider
     // receives onMove/onUp events -- no index guard needed.
-    this._hitAreas[`slider_${index}`] = {
+    this._hitAreas[`row_${index}`] = {
       bounds: [barX, y, barW, h],
       onDown: (event, pos, node) => {
         this._updateMiniSlider(node, index, pos[0], barX, barW, event);
@@ -130,7 +130,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
   _onDblClick(event, pos, node) {
     const count = this._getProp("sliderCount", 3);
     for (let i = 0; i < count; i++) {
-      const area = this._hitAreas[`slider_${i}`];
+      const area = this._hitAreas[`row_${i}`];
       if (area && this._inBounds(pos, area.bounds)) {
         const labels = this._getLabels();
         const label = labels[i] || `Slider ${i + 1}`;
@@ -283,10 +283,10 @@ app.registerExtension({
       }
     };
 
-    // onConfigure -- v1.x migration + reconcile
+    // onConfigure -- v1.x migration, v2.x migration + reconcile
     nodeType.prototype.onConfigure = function(info) {
       try {
-        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+        const bankWidget = this.widgets?.find(w => w.name === "values");
         // v1.x migration: detect old format via properties.value_1
         if (info.properties?.value_1 !== undefined) {
           const count = info.properties.sliderCount ?? info.properties.slider_count ?? 3;
@@ -302,6 +302,16 @@ app.registerExtension({
           delete this.properties.ver;
           cxLog("debug", "cxSliderBank: migrated v1.x properties");
         }
+        // v2.x migration: detect old 8-number widgets_values format
+        const wv = info.widgets_values;
+        if (wv && wv.length >= 2 && typeof wv[0] === 'number' && bankWidget) {
+          const migrated = {};
+          for (let i = 0; i < 8; i++) {
+            migrated[`s${i + 1}`] = (i < wv.length) ? wv[i] : 0;
+          }
+          bankWidget.value = migrated;
+          cxLog("debug", "cxSliderBank: migrated v2.x widgets_values");
+        }
         // Reconcile outputs and labels
         if (bankWidget) bankWidget._reconcileOutputs(this);
         this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
@@ -313,14 +323,14 @@ app.registerExtension({
     // onPropertyChanged -- reconcile on sliderCount change, clamp on min/max change
     nodeType.prototype.onPropertyChanged = function(name, value) {
       if (name === "sliderCount") {
-        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+        const bankWidget = this.widgets?.find(w => w.name === "values");
         if (bankWidget) {
           bankWidget._reconcileOutputs(this);
           this.setSize(this.computeSize());
         }
       }
       if (name === "min" || name === "max") {
-        const bankWidget = this.widgets?.find(w => w.name === "cx_bank_ui");
+        const bankWidget = this.widgets?.find(w => w.name === "values");
         if (bankWidget) {
           for (let i = 1; i <= 8; i++) {
             const cur = bankWidget.value[`s${i}`];
@@ -336,7 +346,7 @@ app.registerExtension({
   getNodeMenuItems(node) {
     const isInteger = BANK_NODES[node.comfyClass];
     if (isInteger === undefined) return;
-    const bankWidget = node.widgets?.find(w => w.name === "cx_bank_ui");
+    const bankWidget = node.widgets?.find(w => w.name === "values");
     if (!bankWidget) return;
     const items = [];
     bankWidget._buildColorMenuItems(items, "Slider Bank");
