@@ -345,9 +345,9 @@ app.registerExtension({
   },
   getNodeMenuItems(node) {
     const isInteger = BANK_NODES[node.comfyClass];
-    if (isInteger === undefined) return;
+    if (isInteger === undefined) return [];
     const bankWidget = node.widgets?.find(w => w.name === "values");
-    if (!bankWidget) return;
+    if (!bankWidget) return [];
     const items = [];
     bankWidget._buildColorMenuItems(items, "Slider Bank");
     items.push({

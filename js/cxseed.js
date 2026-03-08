@@ -163,7 +163,7 @@ function _getEffectiveMax(max, maxDigits) {
 app.registerExtension({
   name: "cx.sliders.seed",
   getNodeMenuItems(node) {
-    if (node.comfyClass !== "cxSeed") return;
+    if (node.comfyClass !== "cxSeed") return [];
     const btnWidget = node.widgets?.find(w => w.name === "cx_seed_buttons");
     return [
       null,

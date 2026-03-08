@@ -235,9 +235,9 @@ app.registerExtension({
   },
   getNodeMenuItems(node) {
     const isInteger = DIAL_NODES[node.comfyClass];
-    if (isInteger === undefined) return;
+    if (isInteger === undefined) return [];
     const w = node.widgets?.find(w => w.name === "value");
-    if (!w) return;
+    if (!w) return [];
     const items = [];
     w._buildColorMenuItems(items, "Dial");
     items.push({

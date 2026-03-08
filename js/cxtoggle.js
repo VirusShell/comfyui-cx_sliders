@@ -216,9 +216,9 @@ app.registerExtension({
     };
   },
   getNodeMenuItems(node) {
-    if (node.comfyClass !== "cxToggle") return;
+    if (node.comfyClass !== "cxToggle") return [];
     const w = node.widgets?.find(w => w.name === "toggle");
-    if (!w) return;
+    if (!w) return [];
     const items = [null];
     items.push({
       content: "🎨 Fill Color",
