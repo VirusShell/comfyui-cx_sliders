@@ -15,7 +15,8 @@ export class CxSliderBankWidget extends CxNumericWidget {
 
   constructor(name, isInteger) {
     const defaultObj = {};
-    for (let i = 1; i <= 8; i++) defaultObj[`s${i}`] = 0;
+    const zero = isInteger ? 0 : 0.0;
+    for (let i = 1; i <= 8; i++) defaultObj[`s${i}`] = zero;
     super(name, defaultObj, isInteger);
   }
 
@@ -31,7 +32,9 @@ export class CxSliderBankWidget extends CxNumericWidget {
           this.value = parsed;
           return;
         }
-      } catch { /* fall through */ }
+      } catch (e) {
+        cxLog("warn", "cxSliderBank: deserializeValue JSON parse failed:", e);
+      }
     }
     // Fallback: keep current value (default zeros)
   }
@@ -238,7 +241,7 @@ const BANK_NODES = { "cxSliderBankInt": true, "cxSliderBankFloat": false };
 
 app.registerExtension({
   name: "cx.sliders.sliderbank",
-  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+  async beforeRegisterNodeDef(nodeType, nodeData) {
     const isInteger = BANK_NODES[nodeData.name];
     if (isInteger === undefined) return;
 
@@ -283,8 +286,9 @@ app.registerExtension({
       }
     };
 
-    // onConfigure -- v1.x migration, v2.x migration + reconcile
+    const onConfigure = nodeType.prototype.onConfigure;
     nodeType.prototype.onConfigure = function(info) {
+      onConfigure?.apply(this, arguments);
       try {
         const bankWidget = this.widgets?.find(w => w.name === "values");
         // v1.x migration: detect old format via properties.value_1
@@ -304,7 +308,7 @@ app.registerExtension({
         }
         // v2.x migration: detect old 8-number widgets_values format
         const wv = info.widgets_values;
-        if (wv && wv.length >= 2 && typeof wv[0] === 'number' && bankWidget) {
+        if (Array.isArray(wv) && wv.length >= 2 && typeof wv[0] === "number" && bankWidget) {
           const migrated = {};
           for (let i = 0; i < 8; i++) {
             migrated[`s${i + 1}`] = (i < wv.length) ? wv[i] : 0;

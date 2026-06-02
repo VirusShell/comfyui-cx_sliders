@@ -38,3 +38,7 @@ jobs:
           ! grep -q 'w\.hidden' js/cxsliderbank.js || (echo 'hidden widget in bank' && exit 1)
           ! grep -q 'computeSize.*\[0.*-4\]' js/cxsliderbank.js || (echo 'zero-size hack in bank' && exit 1)
           ! grep -q 'slider_1' cxsliderbank.py || (echo 'legacy slider_N inputs' && exit 1)
+
+      - name: getNodeMenuItems must return arrays
+        run: |
+          ! grep -Pzo 'getNodeMenuItems\([^)]*\)\s*\{[^}]*\n\s*return;\s*\n' js/ || (echo 'getNodeMenuItems bare return' && exit 1)

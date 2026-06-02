@@ -166,7 +166,7 @@ const DIAL_NODES = { "cxDialInt": true, "cxDialFloat": false };
 
 app.registerExtension({
   name: "cx.sliders.dial",
-  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+  async beforeRegisterNodeDef(nodeType, nodeData) {
     const isInteger = DIAL_NODES[nodeData.name];
     if (isInteger === undefined) return;
 
@@ -203,7 +203,9 @@ app.registerExtension({
       }
     };
 
+    const onConfigure = nodeType.prototype.onConfigure;
     nodeType.prototype.onConfigure = function(info) {
+      onConfigure?.apply(this, arguments);
       try {
         migrateDialProps(this, info, isInteger);
         const w = this.widgets?.find(w => w.name === "value");

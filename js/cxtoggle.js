@@ -192,8 +192,9 @@ app.registerExtension({
       this.setDirtyCanvas(true, true);
     };
 
-    // onConfigure -- migration + restore
+    const onConfigure = nodeType.prototype.onConfigure;
     nodeType.prototype.onConfigure = function(info) {
+      onConfigure?.apply(this, arguments);
       try {
         migrateToggleProps(this, info);
         const w = this.widgets?.find(w => w.name === "toggle");

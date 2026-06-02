@@ -2,6 +2,7 @@
 // Framework contract: draw(), mouse(), computeSize(), serializeValue(), onPointerDown()
 // Subclasses override _draw() and _mouse(), NOT the framework methods.
 
+import { app } from "../../scripts/app.js";
 import { cxLog, getContrastColor, MARGIN, COLORS, clamp, getDecimalPlaces, formatValue, openColorPicker } from "./cx_utils.js";
 
 export class CxBaseWidget {

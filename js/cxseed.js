@@ -149,9 +149,37 @@ function _findControlWidget(node) {
 }
 
 function _randomSeed(min, max) {
-  const range = BigInt(max) - BigInt(min) + 1n;
-  const randomBig = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-  return Number(BigInt(min) + (randomBig % range));
+  const minB = BigInt(min);
+  const maxB = BigInt(max);
+  if (minB > maxB) return Number(min);
+  const span = maxB - minB + 1n;
+  if (span <= 1n) return Number(minB);
+
+  // Safe integer range: uniform via Math.random
+  if (span <= BigInt(Number.MAX_SAFE_INTEGER)) {
+    const offset = BigInt(Math.floor(Math.random() * Number(span)));
+    return Number(minB + offset);
+  }
+
+  // Full 64-bit range: rejection sampling with crypto (ComfyUI seed convention)
+  const cryptoObj = globalThis.crypto;
+  if (!cryptoObj?.getRandomValues) {
+    cxLog("warn", "cxSeed: crypto unavailable, falling back to MAX_SAFE_INTEGER range");
+    const safeMax = BigInt(Number.MAX_SAFE_INTEGER);
+    const cappedMax = maxB > safeMax ? safeMax : maxB;
+    const cappedSpan = cappedMax - minB + 1n;
+    const offset = BigInt(Math.floor(Math.random() * Number(cappedSpan)));
+    return Number(minB + offset);
+  }
+
+  const maxUint = (1n << 64n) - 1n;
+  const limit = maxUint - (maxUint % span);
+  while (true) {
+    const buf = new Uint32Array(2);
+    cryptoObj.getRandomValues(buf);
+    const r = (BigInt(buf[0]) << 32n) | BigInt(buf[1]);
+    if (r < limit) return Number(minB + (r % span));
+  }
 }
 
 function _getEffectiveMax(max, maxDigits) {
@@ -188,7 +216,7 @@ app.registerExtension({
       },
     ];
   },
-  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+  async beforeRegisterNodeDef(nodeType, nodeData) {
     if (nodeData.name !== "cxSeed") return;
 
     const onNodeCreated = nodeType.prototype.onNodeCreated;

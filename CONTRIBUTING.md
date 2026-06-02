@@ -41,6 +41,7 @@ Thanks for helping improve **comfyui-cx_sliders**.
 |-----|---------|
 | [CODEBASE.MD](CODEBASE.MD) | Repository map |
 | [CLAUDE.md](CLAUDE.md) | Agent-oriented framework notes |
+| [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI standards compliance review |
 | [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Known gaps tracker |
 
 ## Releases

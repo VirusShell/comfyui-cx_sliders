@@ -106,7 +106,7 @@ const SLIDER_NODES = { "cxSliderInt": true, "cxSliderFloat": false };
 
 app.registerExtension({
   name: "cx.sliders.slider",
-  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+  async beforeRegisterNodeDef(nodeType, nodeData) {
     const isInteger = SLIDER_NODES[nodeData.name];
     if (isInteger === undefined) return;
 
@@ -143,7 +143,9 @@ app.registerExtension({
       }
     };
 
+    const onConfigure = nodeType.prototype.onConfigure;
     nodeType.prototype.onConfigure = function(info) {
+      onConfigure?.apply(this, arguments);
       try {
         migrateSliderProps(this, info, isInteger);
         const w = this.widgets?.find(w => w.name === "value");
