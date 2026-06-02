@@ -1,7 +1,24 @@
 # ComfyUI - cxSlider Custom Nodes
 # Package initialization - supports both V1 and V3 schema
 
-__version__ = "2.0.0"
+import os
+
+def _read_version():
+    """Read version from pyproject.toml (single source of truth)."""
+    pyproject_path = os.path.join(os.path.dirname(__file__), "pyproject.toml")
+    try:
+        # Line scan: [project] version = "X.Y.Z" (no TOML parser dependency)
+        with open(pyproject_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("version"):
+                    # Parse: version = "X.Y.Z"
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+    except (OSError, IndexError):
+        pass
+    return "0.0.0"
+
+__version__ = _read_version()
 
 from .cxsliders import NODE_CLASS_MAPPINGS as SLIDER_MAPPINGS
 from .cxsliders import NODE_DISPLAY_NAME_MAPPINGS as SLIDER_DISPLAY_MAPPINGS

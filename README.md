@@ -26,8 +26,10 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 
 2. Clone or copy this repository:
    ```
-   git clone http://192.168.1.163:3003/am_Vir/comfyui-cx_sliders comfyui_cxslider
+   git clone https://github.com/am_Vir/comfyui-cx_sliders.git comfyui_cxslider
    ```
+
+   Or install via [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager) once listed (search **cx Sliders**).
 
 3. Restart ComfyUI
 
@@ -96,10 +98,13 @@ Seed generation node with configurable after-generation behavior.
 
 ### cxSliderBank - Int / Float
 
-Multi-slider bank with configurable number of rows (1-8).
+Multi-slider bank with configurable number of visible rows (1-8).
+
+**Input (backend):**
+- `values` - JSON string `{"s1":…,"s2":…,…,"s8":…}` (serialized automatically from the custom UI)
 
 **Properties (via Properties Panel):**
-- `sliderCount` - Number of slider rows (1-8)
+- `sliderCount` - Number of visible slider rows and outputs (1-8)
 - `min` / `max` - Value bounds for all sliders
 - `step` - Step increment
 - `snap` - Enable/disable step snapping
@@ -107,7 +112,9 @@ Multi-slider bank with configurable number of rows (1-8).
 - `fillColor` / `borderColor` / `textColor` - Visual customization
 
 **Outputs:**
-- `slider_1` through `slider_8` - Individual values per row
+- `OUT_1` through `OUT_8` - One value per row (unused rows still return 0 from Python)
+
+Old workflows with eight separate `slider_N` inputs are migrated on load (see CHANGELOG 3.0.0).
 
 ## Usage
 
@@ -163,11 +170,26 @@ comfyui_cxslider/
 │   ├── cxdial.js          # Dial UI (Int + Float)
 │   ├── cxtoggle.js        # Toggle UI
 │   ├── cxseed.js          # Seed node UI
-│   └── cxsliderbank.js    # Slider bank UI (Int + Float)
+│   ├── cxsliderbank.js    # Slider bank UI (Int + Float)
+│   └── docs/              # Per-node help (ComfyUI tooltip)
+├── example_workflows/     # Sample graphs for the template browser
 ├── CHANGELOG.md           # Version history (Keep a Changelog format)
+├── CODEBASE.MD            # Contributor architecture map
+├── CONTRIBUTING.md        # How to contribute and test
 ├── LICENSE                # MIT License
 └── README.md              # This file
 ```
+
+## Example workflows
+
+Load from ComfyUI's workflow/template UI (if enabled) or **Load** these files:
+
+- [example_workflows/cx_sliders_demo.json](example_workflows/cx_sliders_demo.json) — slider, dial, toggle, and seed
+- [example_workflows/cx_slider_bank_demo.json](example_workflows/cx_slider_bank_demo.json) — three-row integer bank
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, CI checks, and the manual testing checklist.
 
 ## Compatibility
 

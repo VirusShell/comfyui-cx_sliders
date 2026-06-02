@@ -1,0 +1,42 @@
+{
+  "last_node_id": 1,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "cxSliderBankInt",
+      "pos": [100, 100],
+      "size": [320, 200],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {"name": "OUT_1", "type": "INT", "slot_index": 0, "links": null},
+        {"name": "OUT_2", "type": "INT", "slot_index": 1, "links": null},
+        {"name": "OUT_3", "type": "INT", "slot_index": 2, "links": null}
+      ],
+      "properties": {
+        "sliderCount": 3,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "snap": true,
+        "labels": "Low,Mid,High"
+      },
+      "widgets_values": [
+        "{\"s1\":10,\"s2\":50,\"s3\":90,\"s4\":0,\"s5\":0,\"s6\":0,\"s7\":0,\"s8\":0}"
+      ]
+    }
+  ],
+  "links": [],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4
+}

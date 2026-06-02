@@ -1,6 +1,8 @@
-# Ralph spec state files
-specs/
+# Ralph spec state files (specs/ is tracked; these ignore transient state)
 specs/.current-spec
+specs/.index/
+specs/**/.ralph-state.json
+specs/**/.tasks.lock
 **/.progress.md
 
 # Python
@@ -40,6 +42,7 @@ ENV/
 *.swo
 
 # Testing
+troubleshooting_images/
 .pytest_cache/
 .coverage
 htmlcov/
@@ -59,4 +62,5 @@ htmlcov/
 *.zip
 archives/
 
-ts_issue-001.png
+# Shortcuts
+*.lnk

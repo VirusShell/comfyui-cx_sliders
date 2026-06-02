@@ -745,7 +745,7 @@ Since this project has no automated test framework, testing consists of structur
 
 ## Phase 5: PR Lifecycle
 
-- [ ] 5.1 [VERIFY] Post-push validation
+- [x] 5.1 [VERIFY] Post-push validation
   - **Do**:
     1. Verify all files pushed correctly: `git status` shows clean working tree
     2. Verify PR is open: `gh pr view --json state`
@@ -754,7 +754,7 @@ Since this project has no automated test framework, testing consists of structur
   - **Done when**: PR is open with correct diff
   - **Commit**: None
 
-- [ ] 5.2 [VERIFY] AC checklist verification
+- [x] 5.2 [VERIFY] AC checklist verification
   - **Do**: Programmatically verify each acceptance criteria is satisfied by checking code/tests/behavior:
     1. AC-1.1: `grep -c "export function" D:/ai/comfyui-cx_sliders/js/cx_utils.js` shows all 6 utility exports
     2. AC-1.4: No `getContentStartY` or `cleanProperties` in any file

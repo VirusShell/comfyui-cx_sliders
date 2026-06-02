@@ -1,5 +1,7 @@
 # Manual Testing Checklist: Custom Widget Rewrite (v2.0.0)
 
+> **Deprecated** — Use [TESTING_CHECKLIST.md](TESTING_CHECKLIST.md) for current v3.0.0 testing. This file is kept as historical reference from the v2 rewrite.
+
 This checklist is used at key implementation checkpoints to verify nodes work correctly in a live ComfyUI environment. The tester loads ComfyUI, adds/interacts with nodes, and checks off each item.
 
 **Setup**: ComfyUI must be running with the dev version of comfyui-cx_sliders installed (symlinked or copied to `custom_nodes/`). Open the browser console (F12) to watch for errors.

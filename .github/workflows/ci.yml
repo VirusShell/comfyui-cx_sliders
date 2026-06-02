@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "fix/**", "feat/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax check
+        run: |
+          python -c "
+          import ast, pathlib
+          for p in pathlib.Path('.').glob('*.py'):
+              ast.parse(p.read_text(encoding='utf-8'))
+              print('OK', p)
+          "
+
+      - name: Version consistency
+        run: |
+          grep -q 'version = "3.0.0"' pyproject.toml
+          grep -q 'CX_VERSION = "3.0.0"' js/cx_utils.js
+          grep -q 'Version 3.0.0' README.md
+          grep -q '\[3.0.0\]' CHANGELOG.md
+
+      - name: Ban deprecated widget patterns
+        run: |
+          ! grep -rq 'getExtraMenuOptions' js/ || (echo 'getExtraMenuOptions found' && exit 1)
+          ! grep -q 'w\.hidden' js/cxsliderbank.js || (echo 'hidden widget in bank' && exit 1)
+          ! grep -q 'computeSize.*\[0.*-4\]' js/cxsliderbank.js || (echo 'zero-size hack in bank' && exit 1)
+          ! grep -q 'slider_1' cxsliderbank.py || (echo 'legacy slider_N inputs' && exit 1)
