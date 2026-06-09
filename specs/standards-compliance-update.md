@@ -18,7 +18,7 @@
 | 3 | Eliminate slider bank hidden widget anti-pattern | Medium | High | `cxsliderbank.py` + `cxsliderbank.js` |
 | 4 | Fix `pyproject.toml` for registry publishing | Medium | Low | `pyproject.toml` |
 | 5 | Add `SEARCH_ALIASES` to all nodes | Low | Low | 5 Python |
-| 6 | Add node help pages | Low | Medium | New `web/docs/` directory |
+| 6 | Add node help pages | Low | Medium | New `js/docs/` directory (WEB_DIRECTORY is `./js`) |
 | 7 | Add example workflows | Low | Medium | New `example_workflows/` directory |
 | 8 | Add `pyproject.toml` classifiers | Low | Low | `pyproject.toml` |
 
@@ -348,7 +348,7 @@ class cxSliderInt_V1:
 
 ### Problem
 
-No per-node help documentation exists. ComfyUI auto-discovers markdown files in `web/docs/` and shows them in the node tooltip UI. Per `08-node-docs-templates-subgraphs.md`.
+No per-node help documentation exists. ComfyUI auto-discovers markdown files in `<WEB_DIRECTORY>/docs/` and shows them in the node tooltip UI. Per `08-node-docs-templates-subgraphs.md`. **Correction (impl):** this pack's `WEB_DIRECTORY = "./js"`, so the help files live in `js/docs/`, not `web/docs/` — the references to `web/docs/` below are the original (incorrect) plan path.
 
 ### Directory Structure
 

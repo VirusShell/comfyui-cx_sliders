@@ -1,5 +1,7 @@
 # Project issues tracker
 
+> **Superseded 2026-06-09 by [RELEASE_READINESS.md](RELEASE_READINESS.md).** That file holds the current, independently-verified release tracker (open P0–P2 items). The "0 open issues" below reflects the 2026-06-02 pass only.
+
 Last audit: **2026-06-02** · Cleanup pass: **2026-06-02**
 
 Use this file to track gaps before treating the repo as a public GitHub / ComfyUI Registry release.
