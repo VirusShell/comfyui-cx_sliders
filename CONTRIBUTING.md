@@ -48,6 +48,18 @@ Thanks for helping improve **comfyui-cx_sliders**.
 
 Optional versioned zips can be placed in `archives/` (gitignored). Tag releases on GitHub to match `CHANGELOG.md` sections.
 
+### Comfy Registry
+
+When the repo is on GitHub under `am_Vir`:
+
+1. Add a [Registry access token](https://docs.comfy.org/registry/publishing) as repo secret `REGISTRY_ACCESS_TOKEN`.
+2. Bump `version` in `pyproject.toml` on `main` — `.github/workflows/publish.yml` runs `Comfy-Org/publish-node-action`.
+3. Optional: add `[tool.comfy] Icon = "https://…"` in `pyproject.toml` (raw GitHub URL to a square PNG), following patterns from mature packs like ComfyUI-Lora-Manager.
+
+## Patterns from other packs
+
+Large nodes (e.g. **comfyui-lora-manager**) use pytest/Vitest, `web/` layout, and Settings API — useful references, but overkill for this canvas widget pack. Worth borrowing: registry publish workflow, issue templates, path-filtered CI (already added). See comparison notes in commit history / agent docs if you audited lora-manager locally.
+
 ## Remotes
 
 This repo may also exist on a private Gitea instance. After forking or mirroring to GitHub, add a second remote if needed:

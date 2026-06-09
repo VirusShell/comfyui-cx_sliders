@@ -39,16 +39,23 @@ comfyui-cx_sliders/          # repo root = package root
 │   ├── cxseed.js            # CxSeedWidget + extension hook
 │   ├── cxsliderbank.js      # CxSliderBankWidget + extension hook
 │   └── docs/                # Per-node help markdown (ComfyUI help tooltip)
-├── specs/                   # Spec-driven development artifacts (Ralph)
+├── example_workflows/       # Sample JSON for ComfyUI template browser (package root)
+├── specs/                   # Spec-driven development artifacts (Ralph); not loaded at runtime
+├── .github/workflows/       # CI (syntax + standards grep); not loaded at runtime
 ├── CHANGELOG.md
 ├── LICENSE                  # MIT
 ├── README.md
-├── CLAUDE.md                # AI/agent guidance (mirror key facts here)
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── CLAUDE.md                # AI/agent guidance (keep at root for tooling)
 ├── CODEBASE.MD              # This file
-└── PROJECT_ISSUES.md        # Tracked gaps and risks
+├── STANDARDS_AUDIT.md       # ComfyUI compliance review
+└── PROJECT_ISSUES.md        # Tracked gaps (resolved / follow-ups)
 ```
 
-**Not in repo** (by design or pending): `archives/*.zip` (gitignored), `example_workflows/`, automated tests, `.github/` CI.
+**Gitignored / local only:** `archives/*.zip`, `specs/.index/`, Ralph transient state (`.ralph-state.json`, `.progress.md`), Python/IDE caches.
+
+**Not shipped as runtime code:** everything except `__init__.py`, `*.py` node modules, `pyproject.toml`, and `js/`. Extra markdown and `specs/` only add disk use when cloned into `custom_nodes/` — they do not affect ComfyUI load.
 
 ---
 
@@ -182,10 +189,9 @@ Bump all four user-visible places on release.
 
 **Install**: Symlink repo → `ComfyUI/custom_nodes/comfyui_cxslider`, restart ComfyUI.
 
-**No automated test suite** in-repo. Manual verification:
+**No browser/UI test suite.** CI (`.github/workflows/ci.yml`) runs Python syntax, version consistency, and banned-pattern grep. Manual verification:
 
-- Primary: [specs/custom-widget-rewrite/TESTING_CHECKLIST.md](specs/custom-widget-rewrite/TESTING_CHECKLIST.md)
-- Legacy duplicate: [specs/custom-widget-rewrite/manual-testing-checklist.md](specs/custom-widget-rewrite/manual-testing-checklist.md)
+- [specs/custom-widget-rewrite/TESTING_CHECKLIST.md](specs/custom-widget-rewrite/TESTING_CHECKLIST.md)
 
 **Syntax check (Python)**:
 

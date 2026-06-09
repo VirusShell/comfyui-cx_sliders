@@ -1,5 +1,7 @@
 # Manual Testing Checklist — cx Sliders (v3.0.0+)
 
+Canonical manual QA checklist (replaces deprecated `manual-testing-checklist.md`).
+
 All nodes are under **Add Node > utils > cxSliders**.
 
 ---

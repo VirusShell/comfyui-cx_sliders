@@ -154,6 +154,8 @@ All properties can be edited through ComfyUI's Properties Panel:
 
 ## File Structure
 
+Runtime package files are at the repo root (ComfyUI loads this folder as a custom node). Contributor docs, specs, and CI are also at root but are not executed by ComfyUI. See [CODEBASE.MD](CODEBASE.MD) for the full map.
+
 ```
 comfyui_cxslider/
 ├── __init__.py            # Package initialization (reads version from pyproject.toml)
