@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Slider bank: typing a value via double-click now rounds to the configured integer/decimal precision, matching drag behavior (previously stored the raw entered float).
+
 ## [3.0.0] - 2026-03-07
 
 ### Breaking

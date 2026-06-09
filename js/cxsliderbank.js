@@ -142,7 +142,7 @@ export class CxSliderBankWidget extends CxNumericWidget {
           app.canvas.prompt(label, String(currentVal), (v) => {
             const num = Number(v);
             if (!isNaN(num)) {
-              this.value[`s${i + 1}`] = clamp(num, this._min, this._max);
+              this.value[`s${i + 1}`] = this._roundValue(clamp(num, this._min, this._max));
               node.setDirtyCanvas(true, true);
             }
           }, event);
