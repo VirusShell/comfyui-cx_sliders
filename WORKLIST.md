@@ -17,7 +17,7 @@ Legend: ☐ todo · ☑ done · ⊘ deferred (intentionally out of scope now)
 ## Before going public (GitHub + ComfyUI Registry)
 
 - ☑ **GitHub owner set to `xVir`** (2026-06-09) — fixed `github.com/am_Vir`→`github.com/xVir` in `pyproject.toml`, `README.md`, `CONTRIBUTING.md`, `publish.yml`. Gitea URLs left as `am_Vir` (real Gitea path).
-- ☐ **Confirm/register ComfyUI registry publisher `@vir`** (`pyproject.toml` `[tool.comfy] PublisherId`) and add the `REGISTRY_ACCESS_TOKEN` secret on the GitHub repo. *(P0)*
+- ☐ **Register ComfyUI registry publisher `@amvir`** at registry.comfy.org (`pyproject.toml` `[tool.comfy] PublisherId = "amvir"` is set), create an API key, and add it as a **Repository** secret `REGISTRY_ACCESS_TOKEN` on the GitHub repo (not an Environment secret — `publish.yml` declares no `environment:`). *(P0)*
 - ☐ Create the GitHub repo, push the branch, open PR into `main` with a descriptive title (branch name is historical). *(P0)*
 - ☐ Finalize the version: move CHANGELOG `[Unreleased]` (the rounding fix) into a tagged release entry and bump per SemVer when you cut the release.
 
