@@ -7,6 +7,7 @@ import { CxNumericWidget } from "./cx_base_widget.js";
 
 class CxDialWidget extends CxNumericWidget {
   static MIN_HEIGHT = 70;
+  static MAX_RADIUS = 50;  // Cap so widening the node doesn't inflate the dial past its bounds
   static TEXT_SPACE = 20;  // Space below dial for value text
   static TOP_PAD = 4;
   static START_ANGLE = 0.75 * Math.PI;   // 135 degrees (bottom-left)
@@ -25,7 +26,7 @@ class CxDialWidget extends CxNumericWidget {
 
   _calcRadius(width) {
     const availW = width - MARGIN * 2;
-    return Math.max(20, availW * 0.3);
+    return clamp(availW * 0.3, 20, CxDialWidget.MAX_RADIUS);
   }
 
   _draw(ctx, node, width, y, height) {
@@ -75,10 +76,13 @@ class CxDialWidget extends CxNumericWidget {
       ctx.fillText(this._formatValue(this.value), geo.cx, geo.cy + geo.radius + 6);
     }
 
-    // Update hit area -- circular with 30% expansion
+    // Update hit area -- square centred on the dial centre, sized to the arc
+    // (+30%). Anchored to geometry, NOT the `height` param: the framework passes
+    // NODE_WIDGET_HEIGHT (~20px) here, but the dial is drawn ~radius px lower, so
+    // a height-based box would only cover a thin strip above the actual dial.
     const hitRadius = geo.radius * 1.3;
     this._hitAreas.dial = {
-      bounds: [geo.cx - hitRadius, y, hitRadius * 2, height],
+      bounds: [geo.cx - hitRadius, geo.cy - hitRadius, hitRadius * 2, hitRadius * 2],
       onDown: (event, pos, node) => {
         this._updateFromAngle(pos, geo, event);
         return true;

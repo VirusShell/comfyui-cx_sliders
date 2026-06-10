@@ -33,3 +33,4 @@ Legend: ☐ todo · ☑ done · ⊘ deferred (intentionally out of scope now)
 - ⊘ Remove `CxBaseWidget` base class → standalone widgets — scoped to a separate spec.
 - ⊘ Automated browser/E2E tests, keyboard nav, touch/mobile, global theme, undo/redo.
 - ⊘ Dial Ctrl+drag out-of-range parity with slider.
+- ⊘ **Decide the cxDial nodes' future** (deferred 2026-06-10): interaction + resize bugs are fixed, but dials duplicate slider output and the click-the-angle UX is fiddly. Options when revisited: improve (vertical drag-to-adjust knob) or remove `cxDialInt`/`cxDialFloat` entirely.
