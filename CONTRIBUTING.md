@@ -8,7 +8,7 @@ Thanks for helping improve **comfyui-cx_sliders**.
 
    ```bash
    cd ComfyUI/custom_nodes
-   git clone https://github.com/xVir/comfyui-cx_sliders.git comfyui_cxslider
+   git clone https://github.com/VirusShell/comfyui-cx_sliders.git comfyui_cxslider
    ```
 
 2. Restart ComfyUI. Nodes appear under **Add Node → utils → cxSliders**.
@@ -50,7 +50,7 @@ Optional versioned zips can be placed in `archives/` (gitignored). Tag releases 
 
 ### Comfy Registry
 
-When the repo is on GitHub under `xVir`:
+When the repo is on GitHub under `VirusShell`:
 
 1. Add a [Registry access token](https://docs.comfy.org/registry/publishing) as repo secret `REGISTRY_ACCESS_TOKEN`.
 2. Bump `version` in `pyproject.toml` on `main` — `.github/workflows/publish.yml` runs `Comfy-Org/publish-node-action`.
@@ -65,7 +65,7 @@ Large nodes (e.g. **comfyui-lora-manager**) use pytest/Vitest, `web/` layout, an
 This repo may also exist on a private Gitea instance. After forking or mirroring to GitHub, add a second remote if needed:
 
 ```bash
-git remote add github https://github.com/xVir/comfyui-cx_sliders.git
+git remote add github https://github.com/VirusShell/comfyui-cx_sliders.git
 ```
 
 Update `pyproject.toml` `[project.urls]` if your fork uses a different org or repo name.

@@ -21,9 +21,9 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 
 | ID | Item | Detail | Owner decision needed? |
 |----|------|--------|------------------------|
-| B-1 | ✅ RESOLVED 2026-06-09 — GitHub owner set to **`xVir`** | Was: GitHub URLs copied the local-Gitea username `am_Vir` (invalid on GitHub — underscores). Fixed `github.com/am_Vir`→`github.com/xVir` in `pyproject.toml:17-19`, `README.md:29`, `CONTRIBUTING.md`, and the `publish.yml:22` owner guard. Real Gitea URLs (`192.168.1.163/am_Vir`) intentionally left as-is. | Done |
+| B-1 | ✅ RESOLVED 2026-06-09 — GitHub owner set to **`VirusShell`** | Was: GitHub URLs copied the local-Gitea username `am_Vir` (invalid on GitHub — underscores). Fixed `github.com/am_Vir`→`github.com/VirusShell` in `pyproject.toml:17-19`, `README.md:29`, `CONTRIBUTING.md`, and the `publish.yml:22` owner guard. Real Gitea URLs (`192.168.1.163/am_Vir`) intentionally left as-is. | Done |
 | B-2 | **Create + push the public GitHub repo** | All release work is unpushed (branch is 15 ahead of origin/Gitea; `main` is far behind). Nothing exists on GitHub yet. | Yes |
-| B-3 | **Registry publisher must be registered** | `pyproject.toml` `[tool.comfy] PublisherId = "amvir"` (set 2026-06-10). Publishing hard-fails until the `@amvir` publisher is registered at registry.comfy.org **and** an API key is added as a **Repository** secret `REGISTRY_ACCESS_TOKEN` on the GitHub repo (`publish.yml` has no `environment:`, so an Environment secret would not resolve). Publisher ID, GitHub owner (`xVir`), and Gitea username (`am_Vir`) are three separate namespaces. | Yes — register + add secret |
+| B-3 | **Registry publisher must be registered** | `pyproject.toml` `[tool.comfy] PublisherId = "amvir"` (set 2026-06-10). Publishing hard-fails until the `@amvir` publisher is registered at registry.comfy.org **and** an API key is added as a **Repository** secret `REGISTRY_ACCESS_TOKEN` on the GitHub repo (`publish.yml` has no `environment:`, so an Environment secret would not resolve). Publisher ID, GitHub owner (`VirusShell`), and Gitea username (`am_Vir`) are three separate namespaces. | Yes — register + add secret |
 
 **B-1 fix touches:** `pyproject.toml:17-19`, `README.md:29`, `.github/workflows/publish.yml:21-22`. Once the real owner is known these are one-line edits.
 
@@ -73,7 +73,7 @@ Independently re-verified against actual code (not the prior audit). All core cl
 | `onNodeCreated` / `onConfigure` chaining | **PASS** | All save+`?.apply(this, arguments)`. One exception: cxSeed `onMouseMove` (`:288`) unchained — low severity, no competing consumer. |
 | Version consistency (4 user-visible locations + `__init__`) | **PASS** | `3.0.0` in `pyproject.toml:3`, `cx_utils.js:7`, `README.md:3`, `CHANGELOG.md:10`; `__init__.py` reads from pyproject. CI greps all four. CHANGELOG `[Unreleased]` empty. |
 | CI workflow | **PASS** | `ci.yml`: Python `ast.parse`, version-consistency grep, banned-pattern grep, `getNodeMenuItems` bare-return check. |
-| Publish workflow | **PASS** (inert until B-3) | `publish.yml` uses `Comfy-Org/publish-node-action@v1` + `secrets.REGISTRY_ACCESS_TOKEN` (Repository secret), triggers on pyproject change to main — correct per registry docs. Owner-guarded to `xVir`. |
+| Publish workflow | **PASS** (inert until B-3) | `publish.yml` uses `Comfy-Org/publish-node-action@v1` + `secrets.REGISTRY_ACCESS_TOKEN` (Repository secret), triggers on pyproject change to main — correct per registry docs. Owner-guarded to `VirusShell`. |
 | Repo hygiene (LICENSE, README install, CONTRIBUTING, CODE_OF_CONDUCT, issue templates, .gitignore) | **PASS** | All present; `.gitignore` ignores `archives/`, `*.zip`, ralph transient state. |
 
 ### Minor code notes (not blockers, informational)
