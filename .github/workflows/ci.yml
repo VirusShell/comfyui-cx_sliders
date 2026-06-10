@@ -30,6 +30,10 @@ jobs:
         with:
           python-version: "3.11"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Python syntax check
         run: |
           python -c "
@@ -38,6 +42,13 @@ jobs:
               ast.parse(p.read_text(encoding='utf-8'))
               print('OK', p)
           "
+
+      - name: JS syntax check
+        run: |
+          # ES modules: must use --input-type=module (plain --check treats them as CommonJS and fails on import)
+          for f in js/*.js; do
+            node --input-type=module --check < "$f" && echo "OK $f" || { echo "SYNTAX ERROR $f"; exit 1; }
+          done
 
       - name: Version consistency
         run: |

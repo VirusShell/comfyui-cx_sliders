@@ -18,8 +18,8 @@ jobs:
   publish-node:
     name: Publish custom node to registry
     runs-on: ubuntu-latest
-    # Skip on forks or wrong owner until repo is under am_Vir on GitHub
-    if: ${{ github.repository_owner == 'am_Vir' }}
+    # Skip on forks or wrong owner until repo is under xVir on GitHub
+    if: ${{ github.repository_owner == 'xVir' }}
     steps:
       - uses: actions/checkout@v4
 

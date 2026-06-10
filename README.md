@@ -26,7 +26,7 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 
 2. Clone or copy this repository:
    ```
-   git clone https://github.com/am_Vir/comfyui-cx_sliders.git comfyui_cxslider
+   git clone https://github.com/xVir/comfyui-cx_sliders.git comfyui_cxslider
    ```
 
    Or install via [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager) once listed (search **cx Sliders**).

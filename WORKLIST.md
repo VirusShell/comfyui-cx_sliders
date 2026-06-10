@@ -11,12 +11,12 @@ Legend: ☐ todo · ☑ done · ⊘ deferred (intentionally out of scope now)
 - ☑ Fix cxSliderBank double-click rounding bug (`js/cxsliderbank.js:145`) — *done 2026-06-09*
 - ☑ Remove stray `.tasks.lock`; tidy stale spec frontmatter + `web/docs`→`js/docs` doc error — *done 2026-06-09*
 - ☑ Stage & commit the above + GitHub-readiness docs to Gitea — *done 2026-06-09*
-- ☐ **Manual smoke test in ComfyUI** — the one thing CI can't cover. Run `specs/custom-widget-rewrite/TESTING_CHECKLIST.md` §0/§7/§8, load both `example_workflows/*.json`, confirm no `[cx_sliders]` console errors with debug on. *(Highest-value remaining check — validates the v3 rewrite actually renders.)*
-- ☐ Add JS syntax check to CI (`node --input-type=module --check` over `js/*.js`) — CI parses Python but not JS. Low effort. *(RELEASE_READINESS R-5)*
+- ☑ **Manual smoke test in ComfyUI** — renders fine (confirmed by user, 2026-06-09). Nodes render correctly in the v3 rewrite.
+- ☑ Add JS syntax check to CI (`node --input-type=module --check` over `js/*.js`) — *done 2026-06-09*
 
 ## Before going public (GitHub + ComfyUI Registry)
 
-- ☐ **Decide the real GitHub owner/org** — `am_Vir` is a Gitea username, invalid on GitHub (underscore). Update `pyproject.toml:17-19`, `README.md:29`, `.github/workflows/publish.yml:21-22`. *(P0 — needs your decision)*
+- ☑ **GitHub owner set to `xVir`** (2026-06-09) — fixed `github.com/am_Vir`→`github.com/xVir` in `pyproject.toml`, `README.md`, `CONTRIBUTING.md`, `publish.yml`. Gitea URLs left as `am_Vir` (real Gitea path).
 - ☐ **Confirm/register ComfyUI registry publisher `@vir`** (`pyproject.toml` `[tool.comfy] PublisherId`) and add the `REGISTRY_ACCESS_TOKEN` secret on the GitHub repo. *(P0)*
 - ☐ Create the GitHub repo, push the branch, open PR into `main` with a descriptive title (branch name is historical). *(P0)*
 - ☐ Finalize the version: move CHANGELOG `[Unreleased]` (the rounding fix) into a tagged release entry and bump per SemVer when you cut the release.

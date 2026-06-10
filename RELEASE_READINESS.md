@@ -21,7 +21,7 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 
 | ID | Item | Detail | Owner decision needed? |
 |----|------|--------|------------------------|
-| B-1 | **Invalid GitHub owner `am_Vir`** | `origin` is a **local Gitea** server (`http://192.168.1.163:3003/am_Vir/...`). The GitHub URLs were copied from that Gitea username. **GitHub usernames cannot contain underscores**, so `https://github.com/am_Vir/...` cannot exist. Appears in `pyproject.toml:17-19`, `README.md:29`, and the `publish.yml:22` owner guard (`repository_owner == 'am_Vir'`). | **Yes** — need the real GitHub owner/org slug. |
+| B-1 | ✅ RESOLVED 2026-06-09 — GitHub owner set to **`xVir`** | Was: GitHub URLs copied the local-Gitea username `am_Vir` (invalid on GitHub — underscores). Fixed `github.com/am_Vir`→`github.com/xVir` in `pyproject.toml:17-19`, `README.md:29`, `CONTRIBUTING.md`, and the `publish.yml:22` owner guard. Real Gitea URLs (`192.168.1.163/am_Vir`) intentionally left as-is. | Done |
 | B-2 | **Create + push the public GitHub repo** | All release work is unpushed (branch is 15 ahead of origin/Gitea; `main` is far behind). Nothing exists on GitHub yet. | Yes |
 | B-3 | **Registry publisher identity unverified** | `pyproject.toml` `[tool.comfy] PublisherId = "vir"`. Publishing hard-fails unless the `@vir` publisher is registered at registry.comfy.org **and** a `REGISTRY_ACCESS_TOKEN` secret (matching that publisher) is set on the GitHub repo. `PublisherId` (`vir`) and GitHub owner (`am_Vir`) are different namespaces — both must be real. | Yes — confirm/register |
 
@@ -37,7 +37,7 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 | R-2 | **cxSliderBank double-click skips rounding** *(real code bug)* | `js/cxsliderbank.js:145` | ✅ FIXED 2026-06-09 — `_onDblClick` now applies `_roundValue` to the typed entry, matching drag (`:128`). Logged under CHANGELOG `[Unreleased] / Fixed`. Syntax-checked. |
 | R-3 | **Add `example_workflows/` preview thumbnails** | `example_workflows/` | OPEN — only the two `.json` demos exist (both verified to use correct v3 `values` JSON schema). Registry listings show `.jpg`/`.png` previews. Requires running the workflows in ComfyUI to capture; deferred to manual step. |
 | R-4 | **Remove stray empty lock file** | `specs/custom-widget-rewrite/.tasks.lock` (0 bytes) | ✅ DONE 2026-06-09 — deleted (was untracked/gitignored). |
-| R-5 | **CI validates Python syntax but not JS syntax** | `.github/workflows/ci.yml` | OPEN (low) — CI runs `ast.parse` on `*.py` and greps JS for banned patterns, but never parses the JS. Adding a `node --input-type=module --check` loop over `js/*.js` would catch syntax regressions. Note: must use `--input-type=module` (plain `node --check` falsely fails — these are ES modules). |
+| R-5 | **CI validates Python syntax but not JS syntax** | `.github/workflows/ci.yml` | ✅ DONE 2026-06-09 — added `setup-node` + a `JS syntax check` step running `node --input-type=module --check` over `js/*.js`. |
 
 ---
 
