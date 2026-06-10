@@ -1,7 +1,7 @@
 # CODEBASE — comfyui-cx_sliders
 
 **Package**: ComfyUI custom nodes (`comfyui-cx-sliders` on PyPI/registry naming)  
-**Version**: 3.0.0 (see [Versioning](#versioning))  
+**Version**: 1.0.0 — first public release (see [Versioning](#versioning))  
 **Category**: `utils/cxSliders`  
 **ComfyUI**: ≥ 0.3.75 (V1 + V3 schema)
 
@@ -15,7 +15,7 @@ A **ComfyUI custom node pack** that replaces default numeric widgets with canvas
 
 The repo root **is** the installable package (copy or symlink into `ComfyUI/custom_nodes/`, typically as `comfyui_cxslider`).
 
-**Lineage**: Slider interaction patterns derive from [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit). v2.0.0 (2026-02) rewrote v1.x anti-patterns; v2.1.0 renamed inputs; v3.0.0 simplified slider-bank schema and migrated context menus.
+**Lineage**: Slider interaction patterns derive from [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit). Pre-public internal iterations (numbered 1.0.0 → 3.0.0, never published — see CHANGELOG history) rewrote the v1.x anti-patterns, renamed inputs, and simplified the slider-bank schema / migrated context menus. All of that is folded into the **1.0.0** public release.
 
 ---
 
@@ -169,7 +169,7 @@ No heavy computation; validation is minimal (bank JSON parse raises `ValueError`
 | `cxseed.js` | Seed | Recall/random emoji buttons |
 | `cxsliderbank.js` | Bank | Largest file; row +/- , JSON `values`, output add/remove |
 
-**Hooks**: Each node file registers `beforeRegisterNodeDef` to swap the auto widget, plus top-level `getNodeMenuItems(node)` for colors and reset (v3.0.0 migration away from `getExtraMenuOptions`).
+**Hooks**: Each node file registers `beforeRegisterNodeDef` to swap the auto widget, plus top-level `getNodeMenuItems(node)` for colors and reset (migrated away from the deprecated `getExtraMenuOptions`).
 
 **Debug**: Set `window.CX_SLIDERS_DEBUG = true` in browser console for `[cx_sliders]` logs.
 

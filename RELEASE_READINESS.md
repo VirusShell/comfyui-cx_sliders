@@ -1,7 +1,7 @@
 # Release-Readiness Assessment — comfyui-cx_sliders
 
 **Assessment date:** 2026-06-09
-**Assessed version:** 3.0.0
+**Assessed version:** 3.0.0 (internal) — **reset to `1.0.0` for the first public release on 2026-06-10**; prior 2.x/3.x numbers were unpublished internal milestones.
 **Branch:** `fix/node-rendering-slot-overlap` (name is historical; holds the entire v3.0.0 effort — 15 commits ahead of origin, far ahead of `main`)
 **Method:** Independent code-level verification (3 parallel audits) — did *not* rely on the prior optimistic `STANDARDS_AUDIT.md` / `PROJECT_ISSUES.md` (both dated 2026-06-02, largely auto-generated).
 
@@ -71,7 +71,7 @@ Independently re-verified against actual code (not the prior audit). All core cl
 | No Python builtin shadowing in input names | **PASS** | Inputs are `value`/`toggle`/`seed`/`values` (old `int`/`float` gone since v2.1.0). |
 | `pyproject.toml` registry metadata `[tool.comfy]` | **PASS** (identity unverified — see B-1/B-3) | `PublisherId`/`DisplayName`/`requires-comfyui >=0.3.75` present. |
 | `onNodeCreated` / `onConfigure` chaining | **PASS** | All save+`?.apply(this, arguments)`. One exception: cxSeed `onMouseMove` (`:288`) unchained — low severity, no competing consumer. |
-| Version consistency (4 user-visible locations + `__init__`) | **PASS** | `3.0.0` in `pyproject.toml:3`, `cx_utils.js:7`, `README.md:3`, `CHANGELOG.md:10`; `__init__.py` reads from pyproject. CI greps all four. CHANGELOG `[Unreleased]` empty. |
+| Version consistency (4 user-visible locations + `__init__`) | **PASS** | `1.0.0` (reset 2026-06-10) in `pyproject.toml:3`, `cx_utils.js:7`, `README.md:3`, `CHANGELOG.md`; `__init__.py` reads from pyproject (SSOT). CI greps all four. |
 | CI workflow | **PASS** | `ci.yml`: Python `ast.parse`, version-consistency grep, banned-pattern grep, `getNodeMenuItems` bare-return check. |
 | Publish workflow | **PASS** (inert until B-3) | `publish.yml` uses `Comfy-Org/publish-node-action@v1` + `secrets.REGISTRY_ACCESS_TOKEN` (Repository secret), triggers on pyproject change to main — correct per registry docs. Owner-guarded to `VirusShell`. |
 | Repo hygiene (LICENSE, README install, CONTRIBUTING, CODE_OF_CONDUCT, issue templates, .gitignore) | **PASS** | All present; `.gitignore` ignores `archives/`, `*.zip`, ralph transient state. |
@@ -100,7 +100,7 @@ Standards spec **items 4 & 7** (repo URL fix; example workflows) were intentiona
 
 1. **Decide the real GitHub owner/org** and update `pyproject.toml:17-19`, `README.md:29`, `publish.yml:21-22` (B-1).
 2. **Register registry publisher `@amvir`** at registry.comfy.org; add the API key as a Repository secret `REGISTRY_ACCESS_TOKEN` on the GitHub repo (B-3).
-3. **Quick code fix:** add `_roundValue` to cxSliderBank `_onDblClick` (R-2). Bump to **3.0.1** (patch) per SemVer if this ships.
+3. **Quick code fix:** add `_roundValue` to cxSliderBank `_onDblClick` (R-2). ✅ done; folded into the `1.0.0` public release.
 4. **Tidy:** delete `.tasks.lock` (R-4); optionally fix stale doc states D-2/D-3/D-4; add thumbnails (R-3).
 5. **Commit** the staged GitHub-readiness changes + untracked files (R-1) — single "GitHub/registry readiness" commit.
 6. **Create the GitHub repo**, push the branch, open a PR into `main` with a descriptive title (branch name is historical) (B-2).

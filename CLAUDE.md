@@ -8,7 +8,7 @@ Release status & open items: [RELEASE_READINESS.md](RELEASE_READINESS.md) (asses
 
 ## Project overview
 
-ComfyUI custom-node pack (`comfyui-cx_sliders`, **v3.0.0**): canvas-drawn sliders, toggles, a seed helper, and multi-row slider banks, under category `utils/cxSliders`. (The dial nodes are temporarily disabled in `__init__.py` — code retained; see CODEBASE.MD.) The repo root **is** the installable package. Logic lives in JavaScript (`js/`); Python declares types and passes values through. Slider interaction lineage: [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit).
+ComfyUI custom-node pack (`comfyui-cx_sliders`, **v1.0.0** — first public release), under category `utils/cxSliders`: canvas-drawn sliders, toggles, a seed helper, and multi-row slider banks. (The dial nodes are temporarily disabled in `__init__.py` — code retained; see CODEBASE.MD.) The repo root **is** the installable package. Logic lives in JavaScript (`js/`); Python declares types and passes values through. Slider interaction lineage: [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit).
 
 ## Research & reference — READ THESE FIRST
 

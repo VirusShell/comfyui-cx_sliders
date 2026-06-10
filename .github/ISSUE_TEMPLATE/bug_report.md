@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ### Package version
-- cx Sliders: (from `pyproject.toml` or node pack version, e.g. `3.0.0`)
+- cx Sliders: (from `pyproject.toml` or node pack version, e.g. `1.0.0`)
 
 ### Environment
 - **OS**:

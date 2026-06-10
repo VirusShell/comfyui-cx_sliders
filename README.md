@@ -1,6 +1,6 @@
 # ComfyUI cxSliders
 
-**Version 3.0.0**
+**Version 1.0.0**
 
 Custom slider, toggle, seed, and slider bank nodes for ComfyUI with visual controls. (Dial nodes are temporarily disabled — see below.)
 
@@ -116,7 +116,7 @@ Multi-slider bank with configurable number of visible rows (1-8).
 **Outputs:**
 - `OUT_1` through `OUT_8` - One value per row (unused rows still return 0 from Python)
 
-Old workflows with eight separate `slider_N` inputs are migrated on load (see CHANGELOG 3.0.0).
+Old workflows with eight separate `slider_N` inputs are migrated on load (see the slider-bank entry in the CHANGELOG's pre-public history).
 
 ## Usage
 
