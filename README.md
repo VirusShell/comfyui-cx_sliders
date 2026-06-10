@@ -2,7 +2,7 @@
 
 **Version 3.0.0**
 
-Custom slider, dial, toggle, seed, and slider bank nodes for ComfyUI with visual controls.
+Custom slider, toggle, seed, and slider bank nodes for ComfyUI with visual controls. (Dial nodes are temporarily disabled — see below.)
 
 Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit) by Max Smirnov.
 
@@ -10,7 +10,7 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 
 - **V3 Schema Support**: Automatically uses V3 schema when available, with V1 fallback for compatibility
 - **Custom Widget Architecture**: All nodes use proper custom widgets with `draw()`/`mouse()`/`computeSize()` — framework-managed layout, no manual Y calculations
-- **Visual Controls**: Interactive sliders, dials, toggles, and seed buttons
+- **Visual Controls**: Interactive sliders, toggles, and seed buttons
 - **Double-click Editing**: Built-in value editing dialog on all numeric nodes
 - **Properties Panel Integration**: Edit all parameters through ComfyUI's Properties Panel
 - **Customizable Colors**: Right-click color pickers for fill, border, and text colors
@@ -50,7 +50,9 @@ Slider nodes for controlling integer or floating-point values.
 **Output:**
 - `INT` or `FLOAT`
 
-### cxDial - Int / Float
+### cxDial - Int / Float *(temporarily disabled)*
+
+> **Note:** The dial nodes are currently disabled and will not appear in ComfyUI. The code is retained; their future (improve interaction or remove) is undecided. Re-enable by uncommenting the dial entries in `__init__.py`.
 
 Rotary dial nodes for controlling integer or floating-point values.
 
@@ -120,7 +122,7 @@ Old workflows with eight separate `slider_N` inputs are migrated on load (see CH
 
 ### Basic Interaction
 
-- **Click and drag** on sliders/dials to adjust values
+- **Click and drag** on sliders to adjust values
 - **Double-click** to manually enter a value via dialog
 - Values are automatically clamped to the min/max range
 
@@ -186,7 +188,7 @@ comfyui_cxslider/
 
 Load from ComfyUI's workflow/template UI (if enabled) or **Load** these files:
 
-- [example_workflows/cx_sliders_demo.json](example_workflows/cx_sliders_demo.json) — slider, dial, toggle, and seed
+- [example_workflows/cx_sliders_demo.json](example_workflows/cx_sliders_demo.json) — slider, toggle, and seed
 - [example_workflows/cx_slider_bank_demo.json](example_workflows/cx_slider_bank_demo.json) — three-row integer bank
 
 ## Contributing

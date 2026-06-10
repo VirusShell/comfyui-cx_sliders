@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Temporarily disabled the `cxDialInt` / `cxDialFloat` nodes (removed from the node registry; code, JS, and help pages retained) pending a decision on the dial's design — see WORKLIST.md. Re-enable by uncommenting the dial entries in `__init__.py`.
+
 ### Fixed
 
 - Slider bank: typing a value via double-click now rounds to the configured integer/decimal precision, matching drag behavior (previously stored the raw entered float).

@@ -26,8 +26,9 @@ from .cxseed import NODE_CLASS_MAPPINGS as SEED_MAPPINGS
 from .cxseed import NODE_DISPLAY_NAME_MAPPINGS as SEED_DISPLAY_MAPPINGS
 from .cxtoggle import NODE_CLASS_MAPPINGS as TOGGLE_MAPPINGS
 from .cxtoggle import NODE_DISPLAY_NAME_MAPPINGS as TOGGLE_DISPLAY_MAPPINGS
-from .cxdial import NODE_CLASS_MAPPINGS as DIAL_MAPPINGS
-from .cxdial import NODE_DISPLAY_NAME_MAPPINGS as DIAL_DISPLAY_MAPPINGS
+# cxDial temporarily disabled (2026-06-10) — code retained; future decided in WORKLIST.md
+# from .cxdial import NODE_CLASS_MAPPINGS as DIAL_MAPPINGS
+# from .cxdial import NODE_DISPLAY_NAME_MAPPINGS as DIAL_DISPLAY_MAPPINGS
 from .cxsliderbank import NODE_CLASS_MAPPINGS as BANK_MAPPINGS
 from .cxsliderbank import NODE_DISPLAY_NAME_MAPPINGS as BANK_DISPLAY_MAPPINGS
 
@@ -36,14 +37,14 @@ NODE_CLASS_MAPPINGS = {
     **SLIDER_MAPPINGS,
     **SEED_MAPPINGS,
     **TOGGLE_MAPPINGS,
-    **DIAL_MAPPINGS,
+    # **DIAL_MAPPINGS,  # cxDial disabled (2026-06-10)
     **BANK_MAPPINGS,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     **SLIDER_DISPLAY_MAPPINGS,
     **SEED_DISPLAY_MAPPINGS,
     **TOGGLE_DISPLAY_MAPPINGS,
-    **DIAL_DISPLAY_MAPPINGS,
+    # **DIAL_DISPLAY_MAPPINGS,  # cxDial disabled (2026-06-10)
     **BANK_DISPLAY_MAPPINGS,
 }
 
@@ -52,7 +53,7 @@ try:
     from .cxsliders import comfy_entrypoint as slider_entrypoint
     from .cxseed import comfy_entrypoint as seed_entrypoint
     from .cxtoggle import comfy_entrypoint as toggle_entrypoint
-    from .cxdial import comfy_entrypoint as dial_entrypoint
+    # from .cxdial import comfy_entrypoint as dial_entrypoint  # cxDial disabled (2026-06-10)
     from .cxsliderbank import comfy_entrypoint as bank_entrypoint
 
     # Check if V3 is available (all entrypoints must be non-None)
@@ -60,7 +61,7 @@ try:
         slider_entrypoint,
         seed_entrypoint,
         toggle_entrypoint,
-        dial_entrypoint,
+        # dial_entrypoint,  # cxDial disabled (2026-06-10)
         bank_entrypoint,
     ]
     if all(ep is not None for ep in _entrypoints):
@@ -70,7 +71,7 @@ try:
         from .cxsliders import cxSliderInt, cxSliderFloat
         from .cxseed import cxSeed
         from .cxtoggle import cxToggle
-        from .cxdial import cxDialInt, cxDialFloat
+        # from .cxdial import cxDialInt, cxDialFloat  # cxDial disabled (2026-06-10)
         from .cxsliderbank import cxSliderBankInt, cxSliderBankFloat
 
         class cxSliderExtensionCombined(ComfyExtension):
@@ -82,8 +83,7 @@ try:
                     cxSliderFloat,
                     cxSeed,
                     cxToggle,
-                    cxDialInt,
-                    cxDialFloat,
+                    # cxDialInt, cxDialFloat,  # cxDial disabled (2026-06-10)
                     cxSliderBankInt,
                     cxSliderBankFloat,
                 ]

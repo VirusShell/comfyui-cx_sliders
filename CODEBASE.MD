@@ -61,14 +61,16 @@ comfyui-cx_sliders/          # repo root = package root
 
 ---
 
-## Nodes (8 types)
+## Nodes (8 defined — 6 active, 2 disabled)
+
+> `cxDialInt` / `cxDialFloat` are **temporarily disabled** (2026-06-10): commented out of `__init__.py` mappings and the V3 node list. Code, JS, and help pages are retained; re-enable by uncommenting the dial entries in `__init__.py`. Their future is tracked in [WORKLIST.md](WORKLIST.md).
 
 | Node ID | Display name | Python module | JS file | Primary widget name |
 |---------|--------------|---------------|---------|---------------------|
 | `cxSliderInt` | cxSlider - Int | `cxsliders.py` | `cxslider.js` | `value` |
 | `cxSliderFloat` | cxSlider - Float | `cxsliders.py` | `cxslider.js` | `value` |
-| `cxDialInt` | cxDial - Int | `cxdial.py` | `cxdial.js` | `value` |
-| `cxDialFloat` | cxDial - Float | `cxdial.py` | `cxdial.js` | `value` |
+| `cxDialInt` | cxDial - Int _(disabled)_ | `cxdial.py` | `cxdial.js` | `value` |
+| `cxDialFloat` | cxDial - Float _(disabled)_ | `cxdial.py` | `cxdial.js` | `value` |
 | `cxToggle` | cxToggle | `cxtoggle.py` | `cxtoggle.js` | `toggle` |
 | `cxSeed` | cxSeed | `cxseed.py` | `cxseed.js` | `seed` |
 | `cxSliderBankInt` | cxSliderBank - Int | `cxsliderbank.py` | `cxsliderbank.js` | `values` |
@@ -89,7 +91,7 @@ Every `*.py` node module follows the same pattern:
 3. Else: classic `INPUT_TYPES`, `RETURN_TYPES`, `FUNCTION`, `CATEGORY`
 4. Export `NODE_CLASS_MAPPINGS`, `NODE_DISPLAY_NAME_MAPPINGS`, `comfy_entrypoint` (or `None`)
 
-`__init__.py` merges all mappings and, when every submodule exposes a non-`None` entrypoint, defines `cxSliderExtensionCombined` returning all eight node classes.
+`__init__.py` merges all mappings and, when every submodule exposes a non-`None` entrypoint, defines `cxSliderExtensionCombined` returning the active node classes (the two dial classes are currently commented out — see the note under [Nodes](#nodes-8-defined--6-active-2-disabled)).
 
 ### Custom widget pattern (v2+)
 
