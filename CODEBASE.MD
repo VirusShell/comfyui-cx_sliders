@@ -5,7 +5,7 @@
 **Category**: `utils/cxSliders`  
 **ComfyUI**: ≥ 0.3.75 (V1 + V3 schema)
 
-This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). Agent-oriented detail also lives in [CLAUDE.md](CLAUDE.md) (should stay in sync with this file).
+This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [CLAUDE.md](CLAUDE.md) is a lean agent-guidance file that defers here for layout and architecture.
 
 ---
 
@@ -36,12 +36,12 @@ comfyui-cx_sliders/          # repo root = package root
 │   ├── cxslider.js          # CxSliderWidget + extension hook
 │   ├── cxdial.js            # CxDialWidget + extension hook
 │   ├── cxtoggle.js          # CxToggleWidget + extension hook
-│   ├── cxseed.js            # CxSeedWidget + extension hook
+│   ├── cxseed.js            # CxSeedButtonWidget + extension hook
 │   ├── cxsliderbank.js      # CxSliderBankWidget + extension hook
 │   └── docs/                # Per-node help markdown (ComfyUI help tooltip)
 ├── example_workflows/       # Sample JSON for ComfyUI template browser (package root)
 ├── specs/                   # Spec-driven development artifacts (Ralph); not loaded at runtime
-├── .github/workflows/       # CI (syntax + standards grep); not loaded at runtime
+├── .github/workflows/       # CI (Python+JS syntax + standards grep) + registry publish; not loaded at runtime
 ├── CHANGELOG.md
 ├── LICENSE                  # MIT
 ├── README.md
@@ -49,8 +49,10 @@ comfyui-cx_sliders/          # repo root = package root
 ├── CODE_OF_CONDUCT.md
 ├── CLAUDE.md                # AI/agent guidance (keep at root for tooling)
 ├── CODEBASE.MD              # This file
-├── STANDARDS_AUDIT.md       # ComfyUI compliance review
-└── PROJECT_ISSUES.md        # Tracked gaps (resolved / follow-ups)
+├── STANDARDS_AUDIT.md       # ComfyUI compliance review (2026-06-02)
+├── RELEASE_READINESS.md     # Current release tracker (supersedes PROJECT_ISSUES.md)
+├── WORKLIST.md              # Ordered action queue
+└── PROJECT_ISSUES.md        # Historical gap tracker (superseded by RELEASE_READINESS.md)
 ```
 
 **Gitignored / local only:** `archives/*.zip`, `specs/.index/`, Ralph transient state (`.ralph-state.json`, `.progress.md`), Python/IDE caches.
@@ -104,12 +106,12 @@ flowchart LR
 
 ```
 CxBaseWidget (cx_base_widget.js)
- └── CxNumericWidget
-      ├── CxSliderWidget (cxslider.js)
-      ├── CxDialWidget (cxdial.js)
-      └── CxSliderBankWidget (cxsliderbank.js)
- CxToggleWidget (cxtoggle.js)
- CxSeedWidget (cxseed.js)
+ ├── CxNumericWidget (cx_base_widget.js)
+ │    ├── CxSliderWidget (cxslider.js)
+ │    ├── CxDialWidget (cxdial.js)
+ │    └── CxSliderBankWidget (cxsliderbank.js)
+ ├── CxToggleWidget (cxtoggle.js)        — extends CxBaseWidget directly
+ └── CxSeedButtonWidget (cxseed.js)      — extends CxBaseWidget directly
 ```
 
 **Contract** (framework calls these; subclasses override `_draw` / `_mouse`):
@@ -134,7 +136,7 @@ CxBaseWidget (cx_base_widget.js)
 
 Relevant framework order: node shape → `onDrawForeground` → layout → slots → `drawNodeWidgets` → per-widget `draw()`. Widget hit testing runs before node double-click/title edit.
 
-**Do not reintroduce v1 anti-patterns** (hidden widgets with `computeSize [0,-4]`, `getContentStartY`, `onDrawForeground` painting, three-way sync). See [CLAUDE.md](CLAUDE.md) and [PROJECT_ISSUES.md](PROJECT_ISSUES.md).
+**Do not reintroduce v1 anti-patterns** (hidden widgets with `computeSize [0,-4]`, `getContentStartY`, `onDrawForeground` painting, three-way sync, `getExtraMenuOptions` patching). CI greps for these; see [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) for the compliance review.
 
 ---
 
@@ -189,7 +191,7 @@ Bump all four user-visible places on release.
 
 **Install**: Symlink repo → `ComfyUI/custom_nodes/comfyui_cxslider`, restart ComfyUI.
 
-**No browser/UI test suite.** CI (`.github/workflows/ci.yml`) runs Python syntax, version consistency, and banned-pattern grep. Manual verification:
+**No browser/UI test suite.** CI (`.github/workflows/ci.yml`) runs Python and JS syntax checks, version consistency, and banned-pattern grep. Manual verification:
 
 - [specs/custom-widget-rewrite/TESTING_CHECKLIST.md](specs/custom-widget-rewrite/TESTING_CHECKLIST.md)
 
@@ -197,6 +199,12 @@ Bump all four user-visible places on release.
 
 ```bash
 python -c "import ast; ast.parse(open('__init__.py').read())"
+```
+
+**Syntax check (JS — ES modules, must use `--input-type=module`)**:
+
+```bash
+for f in js/*.js; do node --input-type=module --check < "$f" && echo "OK $f"; done
 ```
 
 **Local ComfyUI paths** (for source diving): see [CLAUDE.md](CLAUDE.md) — portable install at `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\`, rgthree reference under `custom_nodes/rgthree-comfy/`.
@@ -212,7 +220,7 @@ python -c "import ast; ast.parse(open('__init__.py').read())"
 | `custom-widget-rewrite/` | Complete (v2.0.0) |
 | `standards-compliance-update/` | Complete (v3.0.0) |
 
-Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.current-spec`. Progress markdown may exist but `**/.progress.md` is in `.gitignore` while some copies remain tracked historically.
+Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.current-spec`, and `**/.progress.md` (no progress files are tracked).
 
 ---
 
@@ -231,7 +239,7 @@ Verified research (read before spelunking ComfyUI installs):
 
 - **Registry**: `[tool.comfy]` in `pyproject.toml` (`PublisherId`, `DisplayName`, `requires-comfyui`)
 - **Archives**: Optional zips in `archives/` (gitignored)
-- **ComfyUI Manager**: Typically lists repo URL; ensure public Git URL before publishing (see [PROJECT_ISSUES.md](PROJECT_ISSUES.md))
+- **ComfyUI Manager**: Typically lists repo URL; ensure public Git URL before publishing (see [RELEASE_READINESS.md](RELEASE_READINESS.md) / [WORKLIST.md](WORKLIST.md))
 
 ---
 
@@ -252,5 +260,8 @@ Verified research (read before spelunking ComfyUI installs):
 | [README.md](README.md) | End users |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [CLAUDE.md](CLAUDE.md) | AI coding agents |
-| [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Known gaps / GitHub readiness |
+| [RELEASE_READINESS.md](RELEASE_READINESS.md) | Current release tracker / readiness assessment |
+| [WORKLIST.md](WORKLIST.md) | Ordered action queue |
+| [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI compliance review |
+| [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Historical gap tracker (superseded) |
 | [LICENSE](LICENSE) | MIT terms |
