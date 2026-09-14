@@ -34,14 +34,14 @@ Thanks for helping improve **comfyui-cx_sliders**.
 
 - **Python**: Dual V1/V3 schema per node file; backend stays pass-through.
 - **JavaScript**: Custom widgets via `addCustomWidget()`; override `_draw` / `_mouse`, not `draw` / `mouse`.
-- **Do not** reintroduce hidden widgets, `getExtraMenuOptions`, or manual slot Y math — see [CLAUDE.md](CLAUDE.md) and [CODEBASE.MD](CODEBASE.MD).
+- **Do not** reintroduce hidden widgets, `getExtraMenuOptions`, or manual slot Y math — see [CODEBASE.MD](CODEBASE.MD).
 
 ## Architecture docs
 
 | Doc | Purpose |
 |-----|---------|
 | [CODEBASE.MD](CODEBASE.MD) | Repository map |
-| [CLAUDE.md](CLAUDE.md) | Agent-oriented framework notes |
+| [CLAUDE.md](CLAUDE.md) | Short pointer to CODEBASE / README |
 | [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI standards compliance review |
 | [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Known gaps tracker |
 
@@ -60,7 +60,7 @@ Repo is on GitHub under `VirusShell`; publisher id `amvir`. Publish workflow:
 
 ## Patterns from other packs
 
-Large nodes (e.g. **comfyui-lora-manager**) use pytest/Vitest, `web/` layout, and Settings API — useful references, but overkill for this canvas widget pack. Worth borrowing: registry publish workflow, issue templates, path-filtered CI (already added). See comparison notes in commit history / agent docs if you audited lora-manager locally.
+Large nodes (e.g. **comfyui-lora-manager**) use pytest/Vitest, `web/` layout, and Settings API — useful references, but overkill for this canvas widget pack. Worth borrowing: registry publish workflow, issue templates, path-filtered CI (already added). See comparison notes in commit history if you audited lora-manager locally.
 
 ## Remotes
 

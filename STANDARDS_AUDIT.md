@@ -2,7 +2,7 @@
 
 **Date**: 2026-06-02  
 **Scope**: Production `*.py`, `js/*.js` (excluding `specs/`)  
-**Reference**: Project memory docs, v2/v3 specs, ComfyUI custom-node conventions
+**Reference**: CODEBASE, archived specs under `.archive/specs/`, ComfyUI custom-node conventions
 
 ---
 

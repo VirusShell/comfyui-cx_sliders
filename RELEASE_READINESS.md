@@ -49,10 +49,10 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 
 | ID | Item | Location | Status |
 |----|------|----------|--------|
-| D-1 | `MEMORY.md` "Pending Next Steps" is stale — claims `lessons-learned.md` is missing post-implementation content, but that content **is present**. Only the CxBaseWidget-removal step is genuinely still open. *(MEMORY.md lives in `~/.claude/` — propose changes, do not edit directly.)* | `~/.claude/projects/.../MEMORY.md` | OPEN — propose-only; left for user. |
+| D-1 | Stale out-of-repo agent memory notes (not in this repo). | (removed / not tracked) | ✅ DONE 2026-09-14 — dropped; in-repo docs are SSOT. |
 | D-2 | `.progress.md` frontmatter read `phase: requirements / task: 0/0 / "Awaiting next task"` despite all 31 tasks `[x]` and shipped. | `specs/standards-compliance-update/.progress.md` | ✅ DONE 2026-06-09 — frontmatter → `phase: complete / 31/31`; current-task line updated. |
-| D-3 | Spec doc said help pages go in `web/docs/`; correct path is `js/docs/` (WEB_DIRECTORY is `./js`). | `specs/standards-compliance-update.md:21,351` | ✅ DONE 2026-06-09 — corrected with an explicit impl note. |
-| D-4 | `specs/custom-widget-rewrite/tasks.md` has 23 unchecked `[ ]` boxes — **all `[VERIFY]` checkpoints**; every implementation task is `[x]` and shipped. Process boxes, not missing work. | `specs/custom-widget-rewrite/tasks.md` | OPEN — cosmetic; left as-is (historical spec record). |
+| D-3 | Spec doc said help pages go in `web/docs/`; correct path is `js/docs/` (WEB_DIRECTORY is `./js`). | `.archive/specs/standards-compliance-update.md` (historical) | ✅ DONE 2026-06-09 — corrected with an explicit impl note. |
+| D-4 | `.archive/specs/custom-widget-rewrite/tasks.md` has 23 unchecked `[ ]` boxes — **all `[VERIFY]` checkpoints**; every implementation task is `[x]` and shipped. Process boxes, not missing work. | `.archive/specs/custom-widget-rewrite/tasks.md` | OPEN — cosmetic; left as-is (historical spec record). |
 | D-5 | `PROJECT_ISSUES.md` ISSUE-012 says the old `manual-testing-checklist.md` was "marked deprecated; points to TESTING_CHECKLIST" — it was actually **deleted** (staged `D`). Note is inaccurate; no lingering references. | `PROJECT_ISSUES.md:41` | OPEN — minor; superseded by this file. |
 
 ---
@@ -78,7 +78,7 @@ Independently re-verified against actual code (not the prior audit). All core cl
 | Version consistency (4 user-visible locations + `__init__`) | **PASS** | `1.0.0` (reset 2026-06-10) in `pyproject.toml:3`, `cx_utils.js:7`, `README.md:3`, `CHANGELOG.md`; `__init__.py` reads from pyproject (SSOT). CI greps all four. |
 | CI workflow | **PASS** | `ci.yml`: Python `ast.parse`, version-consistency grep, banned-pattern grep, `getNodeMenuItems` bare-return check. |
 | Publish workflow | **PASS** (inert until B-3) | `publish.yml` uses `Comfy-Org/publish-node-action@v1` + `secrets.REGISTRY_ACCESS_TOKEN` (Repository secret), triggers on pyproject change to main — correct per registry docs. Owner-guarded to `VirusShell`. |
-| Repo hygiene (LICENSE, README install, CONTRIBUTING, CODE_OF_CONDUCT, issue templates, .gitignore) | **PASS** | All present; `.gitignore` ignores `archives/`, `*.zip`, ralph transient state. |
+| Repo hygiene (LICENSE, README install, CONTRIBUTING, CODE_OF_CONDUCT, issue templates, .gitignore) | **PASS** | All present; `.gitignore` ignores `archives/`, `*.zip`, local progress / agent tooling dirs. |
 
 ### Minor code notes (not blockers, informational)
 - cxSeed `max` default `0xffffffffffffffff` exceeds `Number.MAX_SAFE_INTEGER`; randomizer correctly uses BigInt + crypto rejection sampling. Value sent to backend can lose precision at the extreme top — matches ComfyUI's own seed convention.
@@ -90,7 +90,7 @@ Independently re-verified against actual code (not the prior audit). All core cl
 
 | Item | Source | Status |
 |------|--------|--------|
-| Remove `CxBaseWidget` base class → standalone widgets | MEMORY Pending step 3; `standards-compliance-update/requirements.md:166` | Scoped to a **separate future spec**. Not a blocker. |
+| Remove `CxBaseWidget` base class → standalone widgets | `.archive/specs/standards-compliance-update/requirements.md` | Scoped to a **separate future spec**. Not a blocker. |
 | Automated browser/E2E tests | `STANDARDS_AUDIT.md`; tasks "Production TODOs" | Deferred — ComfyUI UI needs manual checklist; CI covers Python + grep. |
 | Keyboard nav, touch/mobile, global theme, undo/redo | `tasks.md:782` | Deferred enhancements. |
 | `[tool.comfy] Icon` for listing polish | registry docs (optional) | Nice-to-have. |

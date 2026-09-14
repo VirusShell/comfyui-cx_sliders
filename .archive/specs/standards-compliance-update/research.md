@@ -427,7 +427,7 @@ No automated E2E tooling detected. Manual testing only.
 - `D:\ai\comfyui-cx_sliders\specs\standards-compliance-update.md` -- original spec document
 - `D:\ai\tmp\comfyui-custom-nodes-research\11-i18n-and-context-menu-migration.md` -- context menu migration guide
 - `D:\ai\tmp\comfyui-custom-nodes-research\08-node-docs-templates-subgraphs.md` -- help pages spec
-- `C:\Users\Vir\.claude\projects\D--ai-comfyui-cx-sliders\memory\widget-serialization-finding.md` -- serialization constraints
+- (archived) serialization constraints notes were machine-local; see CODEBASE / STANDARDS_AUDIT
 - `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\comfy_api\latest\_io.py` L1393 -- V3 search_aliases
 - `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\server.py` L689 -- V1 SEARCH_ALIASES
 - `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\nodes.py` L73 -- SEARCH_ALIASES example usage
