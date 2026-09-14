@@ -5,7 +5,7 @@
 **Category**: `utils/cxSliders`  
 **ComfyUI**: ≥ 0.3.75 (V1 + V3 schema)
 
-This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [CLAUDE.md](CLAUDE.md) is a lean agent-guidance file that defers here for layout and architecture.
+This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [CLAUDE.md](CLAUDE.md) is only a short pointer here.
 
 ---
 
@@ -38,14 +38,14 @@ comfyui-cx_sliders/          # repo root = package root
 │   ├── cxsliderbank.js      # CxSliderBankWidget + extension hook
 │   └── docs/                # Per-node help markdown (ComfyUI help tooltip)
 ├── example_workflows/       # Sample JSON for ComfyUI template browser (package root)
-├── specs/                   # Spec-driven development artifacts (Ralph); not loaded at runtime
+├── specs/                   # Manual test checklist (+ archived planning docs); not loaded at runtime
 ├── .github/workflows/       # CI (Python+JS syntax + standards grep) + registry publish; not loaded at runtime
 ├── CHANGELOG.md
 ├── LICENSE                  # MIT
 ├── README.md
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
-├── CLAUDE.md                # AI/agent guidance (keep at root for tooling)
+├── CLAUDE.md                # Short pointer to real docs (tooling may look for this name)
 ├── CODEBASE.MD              # This file
 ├── STANDARDS_AUDIT.md       # ComfyUI compliance review (2026-06-02)
 ├── RELEASE_READINESS.md     # Current release tracker (supersedes PROJECT_ISSUES.md)
@@ -53,7 +53,7 @@ comfyui-cx_sliders/          # repo root = package root
 └── PROJECT_ISSUES.md        # Historical gap tracker (superseded by RELEASE_READINESS.md)
 ```
 
-**Gitignored / local only:** `archives/*.zip`, `specs/.index/`, Ralph transient state (`.ralph-state.json`, `.progress.md`), Python/IDE caches.
+**Gitignored / local only:** `archives/*.zip`, `specs/.index/`, local progress files (`.ralph-state.json`, `.progress.md`), `.claude/`, Python/IDE caches.
 
 **Not shipped as runtime code:** everything except `__init__.py`, `*.py` node modules, `pyproject.toml`, and `js/`. Extra markdown and `specs/` only add disk use when cloned into `custom_nodes/` — they do not affect ComfyUI load.
 
@@ -201,31 +201,21 @@ python -c "import ast; ast.parse(open('__init__.py').read())"
 for f in js/*.js; do node --input-type=module --check < "$f" && echo "OK $f"; done
 ```
 
-**Local ComfyUI paths** (for source diving): see [CLAUDE.md](CLAUDE.md) — portable install at `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\`, rgthree reference under `custom_nodes/rgthree-comfy/`.
+****Local ComfyUI paths** (optional source diving on this machine): portable install at `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\`; rgthree reference under `custom_nodes/rgthree-comfy/`.
 
 ---
 
 ## Specs directory
 
-`specs/` holds Ralph/spec-driven artifacts from the v2 rewrite and v3 standards pass:
+`specs/` holds the live manual UI checklist. Older planning docs from the widget rewrite and standards pass live under [`.archive/specs/`](.archive/specs/) (history only).
 
-| Spec | Status (per tasks.md) |
-|------|------------------------|
-| `custom-widget-rewrite/` | Complete (v2.0.0) |
-| `standards-compliance-update/` | Complete (v3.0.0) |
+| Path | Role |
+|------|------|
+| `specs/custom-widget-rewrite/TESTING_CHECKLIST.md` | Manual ComfyUI smoke checklist |
+| `.archive/specs/custom-widget-rewrite/` | Historical rewrite planning (complete) |
+| `.archive/specs/standards-compliance-update/` | Historical standards planning (complete) |
 
-Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.current-spec`, and `**/.progress.md` (no progress files are tracked).
-
----
-
-## External reference corpus
-
-Verified research (read before spelunking ComfyUI installs):
-
-| Location | Contents |
-|----------|----------|
-| `C:\Users\Vir\.claude\projects\D--ai-comfyui-cx-sliders\memory\` | Widget API, rgthree patterns, serialization proof, dblclick research, codebase audit |
-| `D:\ai\tmp\comfyui-custom-nodes-research\` | Full official docs corpus + `LEDGER.md` |
+Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.current-spec`, `**/.progress.md`, `.claude/`.
 
 ---
 
@@ -253,7 +243,7 @@ Verified research (read before spelunking ComfyUI installs):
 |----------|----------|
 | [README.md](README.md) | End users |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
-| [CLAUDE.md](CLAUDE.md) | AI coding agents |
+| [CLAUDE.md](CLAUDE.md) | Short pointer to the docs above |
 | [RELEASE_READINESS.md](RELEASE_READINESS.md) | Current release tracker / readiness assessment |
 | [WORKLIST.md](WORKLIST.md) | Ordered action queue |
 | [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI compliance review |
