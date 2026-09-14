@@ -59,7 +59,7 @@ comfyui-cx_sliders/          # repo root = package root
 
 ---
 
-## Nodes (8 defined — 6 active, 2 disabled)
+## Nodes (6)
 
 | Node ID | Display name | Python module | JS file | Primary widget name |
 |---------|--------------|---------------|---------|---------------------|

@@ -1,5 +1,9 @@
 # Release-Readiness Assessment — comfyui-cx_sliders
 
+> **Status update 2026-09-14:** Public GitHub (`VirusShell/comfyui-cx_sliders`) and Comfy Registry publisher `@amvir` are live. **`1.0.0`** (2026-06-10) and **`1.1.0`** (2026-09-14: dial removal, dual-color text, packaging hygiene, publish-version gate) both published green. Remaining items are polish (thumbnails, optional Icon) and optional Vir GUI smoke for dual-color — not publish blockers. Historical tables below retained for provenance; prefer [WORKLIST.md](WORKLIST.md) for the live queue.
+
+---
+
 **Assessment date:** 2026-06-09
 **Assessed version:** 3.0.0 (internal) — **reset to `1.0.0` for the first public release on 2026-06-10**; prior 2.x/3.x numbers were unpublished internal milestones.
 **Branch:** `fix/node-rendering-slot-overlap` (name is historical; holds the entire v3.0.0 effort — 15 commits ahead of origin, far ahead of `main`)
@@ -11,7 +15,7 @@
 
 ## Verdict
 
-**The code is shippable. Publishing is blocked only by repo identity (GitHub owner/URLs) and a few polish items — not by code quality.**
+**Shipped.** Historical note (2026-06-09): code was shippable; blockers were repo identity / registry token. Those are closed as of 1.1.0.
 
 ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrite and v3.0.0 standards pass hold up under independent scrutiny. No critical bugs. The blockers are mechanical (where the repo lives + registry identity), not architectural.
 
@@ -22,8 +26,8 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 | ID | Item | Detail | Owner decision needed? |
 |----|------|--------|------------------------|
 | B-1 | ✅ RESOLVED 2026-06-09 — GitHub owner set to **`VirusShell`** | Was: GitHub URLs copied the local-Gitea username `am_Vir` (invalid on GitHub — underscores). Fixed `github.com/am_Vir`→`github.com/VirusShell` in `pyproject.toml:17-19`, `README.md:29`, `CONTRIBUTING.md`, and the `publish.yml:22` owner guard. Real Gitea URLs (`192.168.1.163/am_Vir`) intentionally left as-is. | Done |
-| B-2 | **Create + push the public GitHub repo** | All release work is unpushed (branch is 15 ahead of origin/Gitea; `main` is far behind). Nothing exists on GitHub yet. | Yes |
-| B-3 | **Registry publisher must be registered** | `pyproject.toml` `[tool.comfy] PublisherId = "amvir"` (set 2026-06-10). Publishing hard-fails until the `@amvir` publisher is registered at registry.comfy.org **and** an API key is added as a **Repository** secret `REGISTRY_ACCESS_TOKEN` on the GitHub repo (`publish.yml` has no `environment:`, so an Environment secret would not resolve). Publisher ID, GitHub owner (`VirusShell`), and Gitea username (`am_Vir`) are three separate namespaces. | Yes — register + add secret |
+| B-2 | Create + push the public GitHub repo | RESOLVED 2026-06-10 — GitHub repo `VirusShell/comfyui-cx_sliders` public; mains synced with Gitea | Done |
+| B-3 | Registry publisher registration | RESOLVED — `@amvir` registered; `REGISTRY_ACCESS_TOKEN` set; `1.0.0` + `1.1.0` published green | Done |
 
 **B-1 fix touches:** `pyproject.toml:17-19`, `README.md:29`, `.github/workflows/publish.yml:21-22`. Once the real owner is known these are one-line edits.
 
@@ -33,7 +37,7 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 
 | ID | Item | Location | Status |
 |----|------|----------|--------|
-| R-1 | **Commit the staged GitHub-readiness changes** | working tree | OPEN — `+48/−544`, thematically coherent: `ci.yml` path filters, `.gitignore` (Thumbs.db/.DS_Store), `CODEBASE.MD` map refresh, `CONTRIBUTING.md` registry steps, `README.md` structure note, delete duplicate `manual-testing-checklist.md`. Plus untracked `.github/ISSUE_TEMPLATE/` and `.github/workflows/publish.yml`. Docs/CI only. *(Held — user wants more cleanup before any push; commit when ready.)* |
+| R-1 | Commit the staged GitHub-readiness changes | working tree | RESOLVED — landed with public release |
 | R-2 | **cxSliderBank double-click skips rounding** *(real code bug)* | `js/cxsliderbank.js:145` | ✅ FIXED 2026-06-09 — `_onDblClick` now applies `_roundValue` to the typed entry, matching drag (`:128`). Logged under CHANGELOG `[Unreleased] / Fixed`. Syntax-checked. |
 | R-3 | **Add `example_workflows/` preview thumbnails** | `example_workflows/` | OPEN — only the two `.json` demos exist (both verified to use correct v3 `values` JSON schema). Registry listings show `.jpg`/`.png` previews. Requires running the workflows in ComfyUI to capture; deferred to manual step. |
 | R-4 | **Remove stray empty lock file** | `specs/custom-widget-rewrite/.tasks.lock` (0 bytes) | ✅ DONE 2026-06-09 — deleted (was untracked/gitignored). |

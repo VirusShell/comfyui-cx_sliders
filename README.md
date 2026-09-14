@@ -20,17 +20,19 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 
 ## Installation
 
+**Preferred (ComfyUI Manager / Registry):** search **cx Sliders** (publisher `amvir`) and install. Works under Manager `security_level=normal`.
+
+**From GitHub:**
+
 1. Navigate to your ComfyUI custom nodes directory:
    ```
    cd ComfyUI/custom_nodes/
    ```
 
-2. Clone or copy this repository:
+2. Clone this repository:
    ```
    git clone https://github.com/VirusShell/comfyui-cx_sliders.git comfyui_cxslider
    ```
-
-   Or install via [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager) once listed (search **cx Sliders**).
 
 3. Restart ComfyUI
 

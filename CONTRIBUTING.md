@@ -20,7 +20,8 @@ Thanks for helping improve **comfyui-cx_sliders**.
 1. Run local checks (same as CI):
 
    ```bash
-   python -c "import ast, pathlib; [ast.parse(p.read_text()) for p in pathlib.Path('.').glob('*.py')]"
+   python -c "import ast, pathlib; [ast.parse(p.read_text(encoding='utf-8')) for p in pathlib.Path('.').glob('*.py')]"
+   for f in js/*.js; do node --input-type=module --check < "$f"; done
    ```
 
 2. Complete the manual testing checklist: [specs/custom-widget-rewrite/TESTING_CHECKLIST.md](specs/custom-widget-rewrite/TESTING_CHECKLIST.md).
@@ -50,11 +51,12 @@ Optional versioned zips can be placed in `archives/` (gitignored). Tag releases 
 
 ### Comfy Registry
 
-When the repo is on GitHub under `VirusShell`:
+Repo is on GitHub under `VirusShell`; publisher id `amvir`. Publish workflow:
 
-1. Add a [Registry access token](https://docs.comfy.org/registry/publishing) as repo secret `REGISTRY_ACCESS_TOKEN`.
-2. Bump `version` in `pyproject.toml` on `main` — `.github/workflows/publish.yml` runs `Comfy-Org/publish-node-action`.
-3. Optional: add `[tool.comfy] Icon = "https://…"` in `pyproject.toml` (raw GitHub URL to a square PNG), following patterns from mature packs like ComfyUI-Lora-Manager.
+1. Keep [Registry access token](https://docs.comfy.org/registry/publishing) as repo secret `REGISTRY_ACCESS_TOKEN` (Repository secret, not Environment).
+2. Bump `[project].version` in `pyproject.toml` on `main` **only when shipping a real Registry release** — also sync `js/cx_utils.js` (`CX_VERSION`), README header, and CHANGELOG. `.github/workflows/publish.yml` runs `Comfy-Org/publish-node-action` when the version string changes; metadata-only `pyproject.toml` edits skip publish (avoids Registry 400 "already exists").
+3. Manual `workflow_dispatch` still publishes the current version if needed.
+4. Optional: add `[tool.comfy] Icon = "https://..."` in `pyproject.toml` (raw GitHub URL to a square PNG).
 
 ## Patterns from other packs
 
