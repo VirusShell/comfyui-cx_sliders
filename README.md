@@ -1,6 +1,6 @@
 # ComfyUI cxSliders
 
-**Version 1.0.0**
+**Version 1.1.0**
 
 Custom slider, toggle, seed, and slider bank nodes for ComfyUI with visual controls.
 

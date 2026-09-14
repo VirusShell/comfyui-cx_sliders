@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-cx-sliders"
-version = "1.0.0"
+version = "1.1.0"
 description = "Visual slider, toggle, seed, and slider bank controls for ComfyUI with a lot of customization for controlling things like the min and max values of each node."
 readme = "README.md"
 license = {file = "LICENSE"}

@@ -1,7 +1,7 @@
 # CODEBASE — comfyui-cx_sliders
 
 **Package**: ComfyUI custom nodes (`comfyui-cx-sliders` on PyPI/registry naming)  
-**Version**: 1.0.0 — first public release (see [Versioning](#versioning))  
+**Version**: 1.1.0 — current public release (first public was 1.0.0; see [Versioning](#versioning))  
 **Category**: `utils/cxSliders`  
 **ComfyUI**: ≥ 0.3.75 (V1 + V3 schema)
 
