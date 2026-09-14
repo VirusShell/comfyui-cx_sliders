@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **cxDial** (`cxDialInt` / `cxDialFloat`): removed Python nodes, JS widget, help pages, and all registration stubs. Dial was previously disabled-in-place; it is now gone entirely.
+
+### Added
+- **Dual-color slider text** (adopted from PoC): when `textColor` is `auto`, value text on cxSlider and cxSliderBank mini-sliders is drawn with separate contrast colors over the filled vs unfilled bar regions so labels stay readable at any fill ratio.
+
+
 ## [1.0.0] - 2026-06-10
 
 First public release — published to GitHub and the ComfyUI Registry.
@@ -15,7 +22,7 @@ First public release — published to GitHub and the ComfyUI Registry.
 
 ### Included
 
-- **Nodes**: cxSlider (Int/Float), cxToggle, cxSeed, cxSliderBank (Int/Float), under category `utils/cxSliders`. (cxDial Int/Float exist in the codebase but are **temporarily disabled** — see Changed.)
+- **Nodes**: cxSlider (Int/Float), cxToggle, cxSeed, cxSliderBank (Int/Float), under category `utils/cxSliders`. (cxDial Int/Float were later removed entirely; see Unreleased.)
 - **Custom-widget architecture**: framework-correct widgets (`draw()`/`mouse()`/`computeSize()`), V1/V3 dual schema, automatic value serialization — no hidden backend widgets.
 - **Interaction**: click-drag, double-click value entry (framework `CanvasPointer` API), Shift/Ctrl modifiers, Properties Panel editing, right-click color pickers.
 - **Slider bank**: 1–8 rows driven by a single JSON `values` input; per-row outputs `OUT_1`–`OUT_8`.
@@ -24,12 +31,12 @@ First public release — published to GitHub and the ComfyUI Registry.
 
 ### Changed
 
-- Temporarily disabled the `cxDialInt` / `cxDialFloat` nodes (removed from the node registry; code, JS, and help pages retained) pending a decision on the dial's design — see WORKLIST.md. Re-enable by uncommenting the dial entries in `__init__.py`.
+- Temporarily disabled the `cxDialInt` / `cxDialFloat` nodes pending design decision (superseded: nodes removed entirely — see Unreleased).
 
 ### Fixed
 
 - Slider bank: typing a value via double-click now rounds to the configured integer/decimal precision, matching drag behavior (previously stored the raw entered float).
-- Dial: clicking/dragging the dial now registers. Its hit area was keyed off the framework's `NODE_WIDGET_HEIGHT` (~20px) while the dial is drawn ~radius px lower, so the clickable region missed the visible dial entirely. *(Fix retained even though dials are currently disabled.)*
+- Dial: clicking/dragging the dial now registers. Its hit area was keyed off the framework's `NODE_WIDGET_HEIGHT` (~20px) while the dial is drawn ~radius px lower, so the clickable region missed the visible dial entirely. *(Historical; dials later removed — see Unreleased.)*
 - Dial: capped the radius (`MAX_RADIUS = 50`) so widening the node no longer inflates the dial and value text past the node's bounds.
 
 ---

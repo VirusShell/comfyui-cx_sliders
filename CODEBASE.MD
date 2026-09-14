@@ -11,7 +11,7 @@ This document is the canonical map of the repository for contributors and toolin
 
 ## What this project is
 
-A **ComfyUI custom node pack** that replaces default numeric widgets with canvas-drawn controls: horizontal sliders, arc dials, toggles, a seed helper, and multi-row slider banks. Logic lives almost entirely in **JavaScript**; Python declares types, defaults, and pass-through `execute()` handlers.
+A **ComfyUI custom node pack** that replaces default numeric widgets with canvas-drawn controls: horizontal sliders, toggles, a seed helper, and multi-row slider banks. Logic lives almost entirely in **JavaScript**; Python declares types, defaults, and pass-through `execute()` handlers.
 
 The repo root **is** the installable package (copy or symlink into `ComfyUI/custom_nodes/`, typically as `comfyui_cxslider`).
 
@@ -26,7 +26,6 @@ comfyui-cx_sliders/          # repo root = package root
 ├── __init__.py              # Merges NODE_* mappings, V3 comfy_entrypoint, WEB_DIRECTORY
 ├── pyproject.toml           # Version SSOT, ComfyUI registry [tool.comfy]
 ├── cxsliders.py             # cxSliderInt, cxSliderFloat
-├── cxdial.py                # cxDialInt, cxDialFloat
 ├── cxtoggle.py              # cxToggle
 ├── cxseed.py                # cxSeed
 ├── cxsliderbank.py          # cxSliderBankInt, cxSliderBankFloat
@@ -34,7 +33,6 @@ comfyui-cx_sliders/          # repo root = package root
 │   ├── cx_utils.js          # Constants, colors, clamp/format, logging
 │   ├── cx_base_widget.js    # CxBaseWidget, CxNumericWidget
 │   ├── cxslider.js          # CxSliderWidget + extension hook
-│   ├── cxdial.js            # CxDialWidget + extension hook
 │   ├── cxtoggle.js          # CxToggleWidget + extension hook
 │   ├── cxseed.js            # CxSeedButtonWidget + extension hook
 │   ├── cxsliderbank.js      # CxSliderBankWidget + extension hook
@@ -63,20 +61,16 @@ comfyui-cx_sliders/          # repo root = package root
 
 ## Nodes (8 defined — 6 active, 2 disabled)
 
-> `cxDialInt` / `cxDialFloat` are **temporarily disabled** (2026-06-10): commented out of `__init__.py` mappings and the V3 node list. Code, JS, and help pages are retained; re-enable by uncommenting the dial entries in `__init__.py`. Their future is tracked in [WORKLIST.md](WORKLIST.md).
-
 | Node ID | Display name | Python module | JS file | Primary widget name |
 |---------|--------------|---------------|---------|---------------------|
 | `cxSliderInt` | cxSlider - Int | `cxsliders.py` | `cxslider.js` | `value` |
 | `cxSliderFloat` | cxSlider - Float | `cxsliders.py` | `cxslider.js` | `value` |
-| `cxDialInt` | cxDial - Int _(disabled)_ | `cxdial.py` | `cxdial.js` | `value` |
-| `cxDialFloat` | cxDial - Float _(disabled)_ | `cxdial.py` | `cxdial.js` | `value` |
 | `cxToggle` | cxToggle | `cxtoggle.py` | `cxtoggle.js` | `toggle` |
 | `cxSeed` | cxSeed | `cxseed.py` | `cxseed.js` | `seed` |
 | `cxSliderBankInt` | cxSliderBank - Int | `cxsliderbank.py` | `cxsliderbank.js` | `values` |
 | `cxSliderBankFloat` | cxSliderBank - Float | `cxsliderbank.py` | `cxsliderbank.js` | `values` |
 
-**Extension names** (ComfyUI `app.registerExtension`): `cx.sliders.slider`, `cx.sliders.dial`, `cx.sliders.toggle`, `cx.sliders.seed`, `cx.sliders.sliderbank`.
+**Extension names** (ComfyUI `app.registerExtension`): `cx.sliders.slider`, `cx.sliders.toggle`, `cx.sliders.seed`, `cx.sliders.sliderbank`.
 
 ---
 
@@ -91,7 +85,7 @@ Every `*.py` node module follows the same pattern:
 3. Else: classic `INPUT_TYPES`, `RETURN_TYPES`, `FUNCTION`, `CATEGORY`
 4. Export `NODE_CLASS_MAPPINGS`, `NODE_DISPLAY_NAME_MAPPINGS`, `comfy_entrypoint` (or `None`)
 
-`__init__.py` merges all mappings and, when every submodule exposes a non-`None` entrypoint, defines `cxSliderExtensionCombined` returning the active node classes (the two dial classes are currently commented out — see the note under [Nodes](#nodes-8-defined--6-active-2-disabled)).
+`__init__.py` merges all mappings and, when every submodule exposes a non-`None` entrypoint, defines `cxSliderExtensionCombined` returning the active node classes .
 
 ### Custom widget pattern (v2+)
 
@@ -110,7 +104,6 @@ flowchart LR
 CxBaseWidget (cx_base_widget.js)
  ├── CxNumericWidget (cx_base_widget.js)
  │    ├── CxSliderWidget (cxslider.js)
- │    ├── CxDialWidget (cxdial.js)
  │    └── CxSliderBankWidget (cxsliderbank.js)
  ├── CxToggleWidget (cxtoggle.js)        — extends CxBaseWidget directly
  └── CxSeedButtonWidget (cxseed.js)      — extends CxBaseWidget directly
@@ -125,6 +118,7 @@ CxBaseWidget (cx_base_widget.js)
 | `computeSize()` | Widget height (often 20 or 28px) |
 | `serializeValue()` / `deserializeValue()` | Bank uses JSON round-trip on `values` |
 | `onPointerDown()` | `CanvasPointer` double-click → value dialog |
+| `_drawDualColorText()` | Auto text: clip fill vs bg contrast colors on slider/bank bars |
 
 **Config vs value**: `node.properties` holds colors, min/max, step, labels, `sliderCount` (bank). `widget.value` is the execution value sent to Python.
 
@@ -148,7 +142,6 @@ Relevant framework order: node shape → `onDrawForeground` → layout → slots
 |------|----------------|
 | `__init__.py` | Version from `pyproject.toml`, merge mappings, `WEB_DIRECTORY = "./js"`, combined V3 extension |
 | `cxsliders.py` | Round int / pass float for `value` |
-| `cxdial.py` | Same pass-through for dial nodes |
 | `cxtoggle.py` | Discrete 0/1 style output |
 | `cxseed.py` | Seed + `control_after_generate` integration |
 | `cxsliderbank.py` | `json.loads(values)` → 8 tuple outputs |
@@ -164,7 +157,6 @@ No heavy computation; validation is minimal (bank JSON parse raises `ValueError`
 | `cx_utils.js` | Shared | `CX_VERSION`, `MARGIN`, `COLORS`, `cxLog`, color picker |
 | `cx_base_widget.js` | Base | Hit areas, drag, `_buildColorMenuItems`, numeric helpers on `CxNumericWidget` |
 | `cxslider.js` | Slider | `isInteger` flag; v1 widget rename migration |
-| `cxdial.js` | Dial | Arc knob; same numeric behavior as slider |
 | `cxtoggle.js` | Toggle | Discrete states + labels |
 | `cxseed.js` | Seed | Recall/random emoji buttons |
 | `cxsliderbank.js` | Bank | Largest file; row +/- , JSON `values`, output add/remove |

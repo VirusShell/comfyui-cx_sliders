@@ -33,7 +33,7 @@
 | `serializeValue` / `deserializeValue` (bank) | Pass | JSON round-trip |
 | UI-only widget `{serialize: false}` | Pass | `cx_seed_buttons` |
 | Chain `onNodeCreated` | Pass | All nodes |
-| Chain `onConfigure` | **Fixed** | Slider, dial, toggle, bank now call parent (seed already did) |
+| Chain `onConfigure` | **Fixed** | Slider, toggle, bank now call parent (seed already did); dial later removed |
 
 ---
 
@@ -69,7 +69,7 @@ cleanProperties         — none
 
 | Topic | Rationale |
 |-------|-----------|
-| Dial has no Ctrl+drag out-of-range | Slider-only feature from mxToolkit lineage; dial clamps to arc range |
+| Dial Ctrl+drag / dial nodes | N/A — cxDial removed entirely (2026-09-14) |
 | Toggle V3 input `max=100` vs UI default 0/1 | Allows multi-state toggles via Properties Panel |
 | Invalid bank JSON raises `ValueError` in Python | Correct per v3 design — ComfyUI shows error vs silent zeros |
 | `openColorPicker` fires on `input` + `change` | Live preview while dragging color picker |
@@ -80,7 +80,7 @@ cleanProperties         — none
 
 | Topic | Suggestion |
 |-------|------------|
-| Dial Ctrl+unlock parity with slider | Optional enhancement if users request extended range on dials |
+| Dial Ctrl+unlock parity with slider | Obsolete — cxDial removed (2026-09-14) |
 | Consolidate toggle color menu with `_buildColorMenuItems` | Cosmetic DRY only |
 | `example_workflows` preview `.jpg` files | Registry polish |
 

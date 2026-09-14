@@ -31,11 +31,11 @@ class CxSliderWidget extends CxNumericWidget {
     this._drawBorder(ctx, m, y, barW, barH, this._borderColor);
 
     if (!this._isLowQuality()) {
-      ctx.fillStyle = this._resolveTextColor();
       ctx.font = "bold 12px Arial";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(this._formatValue(this.value), width / 2, y + barH / 2);
+      this._drawDualColorText(ctx, this._formatValue(this.value),
+        width / 2, y + barH / 2, m, y, barW, barH, fillW);
     }
 
     this._hitAreas.slider = {
