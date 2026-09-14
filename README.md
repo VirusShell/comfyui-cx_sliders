@@ -161,7 +161,8 @@ comfyui_cxslider/
 │   ├── cxseed.js          # Seed node UI
 │   ├── cxsliderbank.js    # Slider bank UI (Int + Float)
 │   └── docs/              # Per-node help (ComfyUI tooltip)
-├── example_workflows/     # Sample graphs for the template browser
+├── example_workflows/     # Sample graphs + same-name .jpg template thumbnails
+├── media/                 # Registry/Manager Icon (icon.png)
 ├── CHANGELOG.md           # Version history (Keep a Changelog format)
 ├── CODEBASE.MD            # Contributor architecture map
 ├── CONTRIBUTING.md        # How to contribute and test
@@ -171,10 +172,14 @@ comfyui_cxslider/
 
 ## Example workflows
 
-Load from ComfyUI's workflow/template UI (if enabled) or **Load** these files:
+Load from ComfyUI **Workflow → Browse Templates** (pack category) or **Load** these files. Same-name .jpg previews sit beside each JSON for the template browser (ComfyUI workflow_templates convention).
 
-- [example_workflows/cx_sliders_demo.json](example_workflows/cx_sliders_demo.json) — slider, toggle, and seed
-- [example_workflows/cx_slider_bank_demo.json](example_workflows/cx_slider_bank_demo.json) — three-row integer bank
+- [example_workflows/cx_sliders_demo.json](example_workflows/cx_sliders_demo.json) (+ [.jpg](example_workflows/cx_sliders_demo.jpg)) — cxSlider Int/Float, cxToggle, cxSeed
+- [example_workflows/cx_slider_bank_demo.json](example_workflows/cx_slider_bank_demo.json) (+ [.jpg](example_workflows/cx_slider_bank_demo.jpg)) — cxSliderBank Int/Float
+
+Current JPGs are clean diagram placeholders (ComfyUI was not reachable for live captures). Vir can replace them with real UI screenshots later; keep the same basenames.
+
+Pack listing icon: [media/icon.png](media/icon.png) wired as [tool.comfy] Icon (Registry/Manager show it after the next Registry publish).
 
 ## Contributing
 
