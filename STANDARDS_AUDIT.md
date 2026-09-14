@@ -82,7 +82,7 @@ cleanProperties         — none
 |-------|------------|
 | Dial Ctrl+unlock parity with slider | Obsolete — cxDial removed (2026-09-14) |
 | Consolidate toggle color menu with `_buildColorMenuItems` | Cosmetic DRY only |
-| `example_workflows` preview `.jpg` files | Registry polish |
+| `example_workflows` preview `.jpg` files | Done (placeholders 2026-09-14) |
 
 ---
 

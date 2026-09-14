@@ -21,7 +21,7 @@ Legend: `[ ]` todo · `[x]` done · `[~]` deferred (intentionally out of scope n
 ## Open / polish
 
 - [ ] **Manual ComfyUI visual smoke** for dual-color `textColor=auto` across fill ratios (needs Vir / GUI host) — code landed; no further JS polish owed without smoke findings
-- [ ] Example workflow preview thumbnails (`.jpg`/`.png`) for Registry listings — *(R-3; needs ComfyUI capture)*
+- [x] Example workflow preview thumbnails (.jpg) for template browser — *(R-3 done 2026-09-14: diagram placeholders; Vir may replace with live ComfyUI captures)*
 - [~] Optional `[tool.comfy] Icon` for Registry listing polish
 - [~] Check off 23 `[VERIFY]` boxes in `specs/custom-widget-rewrite/tasks.md` (cosmetic historical)
 - [~] Propose refresh of `~/.claude/.../MEMORY.md` "Pending Next Steps" (propose-only)

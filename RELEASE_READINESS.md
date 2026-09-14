@@ -1,6 +1,6 @@
 # Release-Readiness Assessment — comfyui-cx_sliders
 
-> **Status update 2026-09-14:** Public GitHub (`VirusShell/comfyui-cx_sliders`) and Comfy Registry publisher `@amvir` are live. **`1.0.0`** (2026-06-10) and **`1.1.0`** (2026-09-14: dial removal, dual-color text, packaging hygiene, publish-version gate) both published green. Remaining items are polish (thumbnails, optional Icon) and optional Vir GUI smoke for dual-color — not publish blockers. Historical tables below retained for provenance; prefer [WORKLIST.md](WORKLIST.md) for the live queue.
+> **Status update 2026-09-14:** Public GitHub (`VirusShell/comfyui-cx_sliders`) and Comfy Registry publisher `@amvir` are live. **`1.0.0`** (2026-06-10) and **`1.1.0`** (2026-09-14: dial removal, dual-color text, packaging hygiene, publish-version gate) both published green. R-3 thumbnails + optional Icon landed (placeholders). Remaining: optional Vir GUI smoke for dual-color + optional real UI screenshot swap for JPGs — not publish blockers. Historical tables below retained for provenance; prefer [WORKLIST.md](WORKLIST.md) for the live queue.
 
 ---
 
@@ -39,7 +39,7 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 |----|------|----------|--------|
 | R-1 | Commit the staged GitHub-readiness changes | working tree | RESOLVED — landed with public release |
 | R-2 | **cxSliderBank double-click skips rounding** *(real code bug)* | `js/cxsliderbank.js:145` | ✅ FIXED 2026-06-09 — `_onDblClick` now applies `_roundValue` to the typed entry, matching drag (`:128`). Logged under CHANGELOG `[Unreleased] / Fixed`. Syntax-checked. |
-| R-3 | **Add `example_workflows/` preview thumbnails** | `example_workflows/` | OPEN — only the two `.json` demos exist (both verified to use correct v3 `values` JSON schema). Registry listings show `.jpg`/`.png` previews. Requires running the workflows in ComfyUI to capture; deferred to manual step. |
+| R-3 | **Add xample_workflows/ preview thumbnails** | xample_workflows/ | DONE 2026-09-14 — same-name .jpg next to both demos (diagram placeholders; replaceable with live captures). Demos cover all 6 post-cxDial nodes. Optional Icon at media/icon.png wired in pyproject (no version bump). |
 | R-4 | **Remove stray empty lock file** | `specs/custom-widget-rewrite/.tasks.lock` (0 bytes) | ✅ DONE 2026-06-09 — deleted (was untracked/gitignored). |
 | R-5 | **CI validates Python syntax but not JS syntax** | `.github/workflows/ci.yml` | ✅ DONE 2026-06-09 — added `setup-node` + a `JS syntax check` step running `node --input-type=module --check` over `js/*.js`. |
 
