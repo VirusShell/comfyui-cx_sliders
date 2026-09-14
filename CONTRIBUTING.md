@@ -41,7 +41,7 @@ Thanks for helping improve **comfyui-cx_sliders**.
 | Doc | Purpose |
 |-----|---------|
 | [CODEBASE.MD](CODEBASE.MD) | Repository map |
-| [CLAUDE.md](CLAUDE.md) | Short pointer to CODEBASE / README |
+| [AGENTS.md](AGENTS.md) | Short pointer to CODEBASE / README |
 | [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI standards compliance review |
 | [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Known gaps tracker |
 
