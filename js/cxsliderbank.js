@@ -100,10 +100,11 @@ export class CxSliderBankWidget extends CxNumericWidget {
 
     // Value text
     if (!this._isLowQuality()) {
-      ctx.fillStyle = this._resolveTextColor();
       ctx.font = "bold 10px Arial";
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(this._formatValue(val), barX + barW/2, y + h/2);
+      const fillW = barW * ratio;
+      this._drawDualColorText(ctx, this._formatValue(val),
+        barX + barW/2, y + h/2, barX, y, barW, h, fillW);
     }
 
     // Hit area per mini-slider row.
