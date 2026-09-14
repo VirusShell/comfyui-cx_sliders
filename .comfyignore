@@ -1,0 +1,25 @@
+# Keep Registry/CNR archives lean — exclude authoring/agent noise.
+# Layers on top of git tracking (see packaging-registry standards).
+
+# Spec / agent / local tooling
+specs/
+.claude/
+archives/
+troubleshooting_images/
+*.lnk
+
+# Internal authoring docs (not needed at install time)
+CLAUDE.md
+CODEBASE.MD
+PROJECT_ISSUES.md
+STANDARDS_AUDIT.md
+WORKLIST.md
+RELEASE_READINESS.md
+
+# Tests / caches if added later
+tests/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/

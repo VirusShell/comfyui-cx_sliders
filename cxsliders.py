@@ -6,6 +6,7 @@
 # Try V3 schema first, fall back to V1
 try:
     from comfy_api.latest import io, ComfyExtension
+
     V3_AVAILABLE = True
 except ImportError:
     V3_AVAILABLE = False
@@ -13,13 +14,13 @@ except ImportError:
 
 if V3_AVAILABLE:
     # V3 Schema Implementation
-    
+
     class cxSliderInt(io.ComfyNode):
         """
         Integer slider node with adjustable range and step values.
         Provides a visual slider interface for controlling integer values.
         """
-        
+
         @classmethod
         def define_schema(cls) -> io.Schema:
             return io.Schema(
@@ -27,40 +28,31 @@ if V3_AVAILABLE:
                 display_name="cxSlider - Int",
                 category="utils/cxSliders",
                 description="Integer slider with visual control",
+                search_aliases=["slider", "range", "integer slider", "cx slider"],
                 inputs=[
                     io.Int.Input(
-                        "int",
+                        "value",
                         default=1,
                         min=-2147483648,
                         max=2147483647,
                         step=1,
-                    ),
-                    io.Int.Input(
-                        "value_override",
-                        optional=True,
-                        force_input=True,
                     ),
                 ],
                 outputs=[
                     io.Int.Output(display_name="INT"),
                 ],
             )
-        
-        @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("int", 1)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
-            return io.NodeOutput(int(round(value)))
 
+        @classmethod
+        def execute(cls, value: int = 1) -> io.NodeOutput:
+            return io.NodeOutput(int(round(value)))
 
     class cxSliderFloat(io.ComfyNode):
         """
         Float slider node with adjustable range, step, and decimal precision.
         Provides a visual slider interface for controlling floating-point values.
         """
-        
+
         @classmethod
         def define_schema(cls) -> io.Schema:
             return io.Schema(
@@ -68,45 +60,35 @@ if V3_AVAILABLE:
                 display_name="cxSlider - Float",
                 category="utils/cxSliders",
                 description="Float slider with visual control and decimal precision",
+                search_aliases=["slider", "range", "float slider", "cx slider"],
                 inputs=[
                     io.Float.Input(
-                        "float",
+                        "value",
                         default=1.0,
-                        min=-3.4028235e+38,
-                        max=3.4028235e+38,
+                        min=-3.4028235e38,
+                        max=3.4028235e38,
                         step=0.001,
-                    ),
-                    io.Float.Input(
-                        "value_override",
-                        optional=True,
-                        force_input=True,
                     ),
                 ],
                 outputs=[
                     io.Float.Output(display_name="FLOAT"),
                 ],
             )
-        
-        @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("float", 1.0)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
-            return io.NodeOutput(float(value))
 
+        @classmethod
+        def execute(cls, value: float = 1.0) -> io.NodeOutput:
+            return io.NodeOutput(float(value))
 
     class cxSliderExtension(ComfyExtension):
         """Extension class for cxSlider nodes."""
-        
+
         async def get_node_list(self) -> list[type[io.ComfyNode]]:
             return [cxSliderInt, cxSliderFloat]
-
 
     async def comfy_entrypoint() -> cxSliderExtension:
         """ComfyUI calls this to load the extension and its nodes."""
         return cxSliderExtension()
-    
+
     # V1 compatibility mappings (may still be needed for some ComfyUI features)
     NODE_CLASS_MAPPINGS = {
         "cxSliderInt": cxSliderInt,
@@ -120,27 +102,25 @@ if V3_AVAILABLE:
 
 else:
     # V1 Schema Implementation (Fallback)
-    
+
     class cxSliderInt:
         """
         Integer slider node with adjustable range and step values.
         Provides a visual slider interface for controlling integer values.
         """
-        
+
         @classmethod
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "int": ("INT", {
-                        "default": 1,
-                        "min": -2147483648,
-                        "max": 2147483647,
-                    }),
-                },
-                "optional": {
-                    "value_override": ("INT", {
-                        "forceInput": True,
-                    }),
+                    "value": (
+                        "INT",
+                        {
+                            "default": 1,
+                            "min": -2147483648,
+                            "max": 2147483647,
+                        },
+                    ),
                 },
             }
 
@@ -148,36 +128,30 @@ else:
         RETURN_NAMES = ("INT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
-        
-        def execute(self, **kwargs):
-            value = kwargs.get("int", 1)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
-            return (int(round(value)),)
+        SEARCH_ALIASES = ["slider", "range", "integer slider", "cx slider"]
 
+        def execute(self, value: int = 1):
+            return (int(round(value)),)
 
     class cxSliderFloat:
         """
         Float slider node with adjustable range, step, and decimal precision.
         Provides a visual slider interface for controlling floating-point values.
         """
-        
+
         @classmethod
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "float": ("FLOAT", {
-                        "default": 1.0,
-                        "min": -3.4028235e+38,
-                        "max": 3.4028235e+38,
-                        "step": 0.001,
-                    }),
-                },
-                "optional": {
-                    "value_override": ("FLOAT", {
-                        "forceInput": True,
-                    }),
+                    "value": (
+                        "FLOAT",
+                        {
+                            "default": 1.0,
+                            "min": -3.4028235e38,
+                            "max": 3.4028235e38,
+                            "step": 0.001,
+                        },
+                    ),
                 },
             }
 
@@ -185,14 +159,10 @@ else:
         RETURN_NAMES = ("FLOAT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
-        
-        def execute(self, **kwargs):
-            value = kwargs.get("float", 1.0)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
-            return (float(value),)
+        SEARCH_ALIASES = ["slider", "range", "float slider", "cx slider"]
 
+        def execute(self, value: float = 1.0):
+            return (float(value),)
 
     # V1 Node mappings
     NODE_CLASS_MAPPINGS = {
@@ -204,6 +174,6 @@ else:
         "cxSliderInt": "cxSlider - Int",
         "cxSliderFloat": "cxSlider - Float",
     }
-    
+
     # Placeholder for V3 entrypoint (not used in V1 mode)
     comfy_entrypoint = None

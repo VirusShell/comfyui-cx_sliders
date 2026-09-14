@@ -1,0 +1,25 @@
+[project]
+name = "comfyui-cx-sliders"
+version = "1.0.0"
+description = "Visual slider, toggle, seed, and slider bank controls for ComfyUI"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dependencies = []
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+keywords = ["comfyui", "custom-nodes", "slider", "widgets", "ui"]
+authors = [{name = "Vir"}]
+
+[project.urls]
+Homepage = "https://github.com/VirusShell/comfyui-cx_sliders"
+Repository = "https://github.com/VirusShell/comfyui-cx_sliders"
+Issues = "https://github.com/VirusShell/comfyui-cx_sliders/issues"
+
+[tool.comfy]
+PublisherId = "amvir"
+DisplayName = "cx Sliders"
+requires-comfyui = ">=0.3.75"

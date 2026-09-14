@@ -26,6 +26,7 @@ if V3_AVAILABLE:
                 display_name="cxSeed",
                 category="utils/cxSliders",
                 description="Seed generator with control options",
+                search_aliases=["seed", "random seed", "cx seed"],
                 inputs=[
                     io.Int.Input(
                         "seed",
@@ -45,7 +46,7 @@ if V3_AVAILABLE:
             return io.NodeOutput(seed)
 
         @classmethod
-        def IS_CHANGED(cls, seed: int) -> float:
+        def fingerprint_inputs(cls, seed: int) -> float:
             return float("NaN")
 
 
@@ -95,6 +96,7 @@ else:
         RETURN_NAMES = ("SEED",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["seed", "random seed", "cx seed"]
         
         def execute(self, seed: int):
             return (seed,)

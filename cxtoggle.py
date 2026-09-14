@@ -5,6 +5,7 @@
 # Try V3 schema first, fall back to V1
 try:
     from comfy_api.latest import io, ComfyExtension
+
     V3_AVAILABLE = True
 except ImportError:
     V3_AVAILABLE = False
@@ -26,12 +27,13 @@ if V3_AVAILABLE:
                 display_name="cxToggle",
                 category="utils/cxSliders",
                 description="Toggle button with configurable states and labels",
+                search_aliases=["toggle", "switch", "button", "on off", "cx toggle"],
                 inputs=[
                     io.Int.Input(
                         "toggle",
                         default=0,
-                        min=-2147483648,
-                        max=2147483647,
+                        min=0,
+                        max=100,
                     ),
                 ],
                 outputs=[
@@ -40,17 +42,14 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("toggle", 0)
-            return io.NodeOutput(int(value))
-
+        def execute(cls, toggle: int = 0) -> io.NodeOutput:
+            return io.NodeOutput(int(toggle))
 
     class cxToggleExtension(ComfyExtension):
         """Extension class for cxToggle node."""
 
         async def get_node_list(self) -> list[type[io.ComfyNode]]:
             return [cxToggle]
-
 
     async def comfy_entrypoint() -> cxToggleExtension:
         """ComfyUI calls this to load the extension and its nodes."""
@@ -78,11 +77,14 @@ else:
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "toggle": ("INT", {
-                        "default": 0,
-                        "min": -2147483648,
-                        "max": 2147483647,
-                    }),
+                    "toggle": (
+                        "INT",
+                        {
+                            "default": 0,
+                            "min": 0,
+                            "max": 100,
+                        },
+                    ),
                 },
             }
 
@@ -90,11 +92,10 @@ else:
         RETURN_NAMES = ("INT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["toggle", "switch", "button", "on off", "cx toggle"]
 
-        def execute(self, **kwargs):
-            value = kwargs.get("toggle", 0)
-            return (int(value),)
-
+        def execute(self, toggle: int = 0):
+            return (int(toggle),)
 
     # V1 Node mappings
     NODE_CLASS_MAPPINGS = {

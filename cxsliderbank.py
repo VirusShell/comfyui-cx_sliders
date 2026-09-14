@@ -26,15 +26,11 @@ if V3_AVAILABLE:
                 display_name="cxSliderBank - Int",
                 category="utils/cxSliders",
                 description="Bank of integer sliders with dynamic outputs",
+                search_aliases=["slider bank", "multi slider", "cx bank"],
                 inputs=[
-                    io.Int.Input("slider_1", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_2", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_3", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_4", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_5", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_6", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_7", default=0, min=-2147483648, max=2147483647),
-                    io.Int.Input("slider_8", default=0, min=-2147483648, max=2147483647),
+                    io.String.Input("values",
+                        default='{"s1":0,"s2":0,"s3":0,"s4":0,"s5":0,"s6":0,"s7":0,"s8":0}',
+                        multiline=False),
                 ],
                 outputs=[
                     io.Int.Output(display_name="OUT_1"),
@@ -49,11 +45,13 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            values = []
-            for i in range(1, 9):
-                values.append(int(round(kwargs.get(f"slider_{i}", 0))))
-            return io.NodeOutput(*values)
+        def execute(cls, *, values: str) -> io.NodeOutput:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankInt: malformed JSON: {e}") from e
+            return io.NodeOutput(*[int(round(data.get(f"s{i}", 0))) for i in range(1, 9)])
 
 
     class cxSliderBankFloat(io.ComfyNode):
@@ -69,15 +67,11 @@ if V3_AVAILABLE:
                 display_name="cxSliderBank - Float",
                 category="utils/cxSliders",
                 description="Bank of float sliders with dynamic outputs",
+                search_aliases=["slider bank", "multi slider", "cx bank"],
                 inputs=[
-                    io.Float.Input("slider_1", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_2", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_3", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_4", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_5", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_6", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_7", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
-                    io.Float.Input("slider_8", default=0.0, min=-3.4028235e+38, max=3.4028235e+38, step=0.001),
+                    io.String.Input("values",
+                        default='{"s1":0.0,"s2":0.0,"s3":0.0,"s4":0.0,"s5":0.0,"s6":0.0,"s7":0.0,"s8":0.0}',
+                        multiline=False),
                 ],
                 outputs=[
                     io.Float.Output(display_name="OUT_1"),
@@ -92,11 +86,13 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            values = []
-            for i in range(1, 9):
-                values.append(float(kwargs.get(f"slider_{i}", 0.0)))
-            return io.NodeOutput(*values)
+        def execute(cls, *, values: str) -> io.NodeOutput:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankFloat: malformed JSON: {e}") from e
+            return io.NodeOutput(*[float(data.get(f"s{i}", 0.0)) for i in range(1, 9)])
 
 
     class cxSliderBankExtension(ComfyExtension):
@@ -132,25 +128,28 @@ else:
 
         @classmethod
         def INPUT_TYPES(cls):
-            inputs = {}
-            for i in range(1, 9):
-                inputs[f"slider_{i}"] = ("INT", {
-                    "default": 0,
-                    "min": -2147483648,
-                    "max": 2147483647,
-                })
-            return {"required": inputs}
+            return {"required": {
+                "values": ("STRING", {
+                    "default": '{"s1":0,"s2":0,"s3":0,"s4":0,"s5":0,"s6":0,"s7":0,"s8":0}',
+                }),
+            }}
 
         RETURN_TYPES = ("INT",) * 8
         RETURN_NAMES = tuple(f"OUT_{i}" for i in range(1, 9))
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]
 
-        def execute(self, **kwargs):
-            values = []
+        def execute(self, *, values: str) -> tuple:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankInt: malformed JSON in values input: {e}") from e
+            results = []
             for i in range(1, 9):
-                values.append(int(round(kwargs.get(f"slider_{i}", 0))))
-            return tuple(values)
+                results.append(int(round(data.get(f"s{i}", 0))))
+            return tuple(results)
 
 
     class cxSliderBankFloat:
@@ -161,26 +160,28 @@ else:
 
         @classmethod
         def INPUT_TYPES(cls):
-            inputs = {}
-            for i in range(1, 9):
-                inputs[f"slider_{i}"] = ("FLOAT", {
-                    "default": 0.0,
-                    "min": -3.4028235e+38,
-                    "max": 3.4028235e+38,
-                    "step": 0.001,
-                })
-            return {"required": inputs}
+            return {"required": {
+                "values": ("STRING", {
+                    "default": '{"s1":0.0,"s2":0.0,"s3":0.0,"s4":0.0,"s5":0.0,"s6":0.0,"s7":0.0,"s8":0.0}',
+                }),
+            }}
 
         RETURN_TYPES = ("FLOAT",) * 8
         RETURN_NAMES = tuple(f"OUT_{i}" for i in range(1, 9))
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["slider bank", "multi slider", "cx bank"]
 
-        def execute(self, **kwargs):
-            values = []
+        def execute(self, *, values: str) -> tuple:
+            import json
+            try:
+                data = json.loads(values)
+            except (json.JSONDecodeError, TypeError) as e:
+                raise ValueError(f"cxSliderBankFloat: malformed JSON in values input: {e}") from e
+            results = []
             for i in range(1, 9):
-                values.append(float(kwargs.get(f"slider_{i}", 0.0)))
-            return tuple(values)
+                results.append(float(data.get(f"s{i}", 0.0)))
+            return tuple(results)
 
 
     # V1 Node mappings

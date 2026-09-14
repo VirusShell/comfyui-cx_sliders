@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "fix/**", "feat/**"]
+    paths:
+      - "**.py"
+      - "js/**"
+      - "pyproject.toml"
+      - "README.md"
+      - "CHANGELOG.md"
+      - ".github/workflows/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "**.py"
+      - "js/**"
+      - "pyproject.toml"
+      - "README.md"
+      - "CHANGELOG.md"
+      - ".github/workflows/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Python syntax check
+        run: |
+          python -c "
+          import ast, pathlib
+          for p in pathlib.Path('.').glob('*.py'):
+              ast.parse(p.read_text(encoding='utf-8'))
+              print('OK', p)
+          "
+
+      - name: JS syntax check
+        run: |
+          # ES modules: must use --input-type=module (plain --check treats them as CommonJS and fails on import)
+          for f in js/*.js; do
+            node --input-type=module --check < "$f" && echo "OK $f" || { echo "SYNTAX ERROR $f"; exit 1; }
+          done
+
+      - name: Version consistency
+        run: |
+          grep -q 'version = "1.0.0"' pyproject.toml
+          grep -q 'CX_VERSION = "1.0.0"' js/cx_utils.js
+          grep -q 'Version 1.0.0' README.md
+          grep -q '\[1.0.0\]' CHANGELOG.md
+
+      - name: Ban deprecated widget patterns
+        run: |
+          ! grep -rq 'getExtraMenuOptions' js/ || (echo 'getExtraMenuOptions found' && exit 1)
+          ! grep -q 'w\.hidden' js/cxsliderbank.js || (echo 'hidden widget in bank' && exit 1)
+          ! grep -q 'computeSize.*\[0.*-4\]' js/cxsliderbank.js || (echo 'zero-size hack in bank' && exit 1)
+          ! grep -q 'slider_1' cxsliderbank.py || (echo 'legacy slider_N inputs' && exit 1)
+
+      - name: getNodeMenuItems must return arrays
+        run: |
+          ! grep -Pzo 'getNodeMenuItems\([^)]*\)\s*\{[^}]*\n\s*return;\s*\n' js/ || (echo 'getNodeMenuItems bare return' && exit 1)

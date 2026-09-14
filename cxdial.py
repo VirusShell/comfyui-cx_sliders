@@ -5,6 +5,7 @@
 # Try V3 schema first, fall back to V1
 try:
     from comfy_api.latest import io, ComfyExtension
+
     V3_AVAILABLE = True
 except ImportError:
     V3_AVAILABLE = False
@@ -26,18 +27,14 @@ if V3_AVAILABLE:
                 display_name="cxDial - Int",
                 category="utils/cxSliders",
                 description="Integer dial with visual rotary control",
+                search_aliases=["dial", "knob", "rotary", "integer dial", "cx dial"],
                 inputs=[
                     io.Int.Input(
-                        "int",
+                        "value",
                         default=1,
                         min=-2147483648,
                         max=2147483647,
                         step=1,
-                    ),
-                    io.Int.Input(
-                        "value_override",
-                        optional=True,
-                        force_input=True,
                     ),
                 ],
                 outputs=[
@@ -46,13 +43,8 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("int", 1)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
+        def execute(cls, value: int = 1) -> io.NodeOutput:
             return io.NodeOutput(int(round(value)))
-
 
     class cxDialFloat(io.ComfyNode):
         """
@@ -67,18 +59,14 @@ if V3_AVAILABLE:
                 display_name="cxDial - Float",
                 category="utils/cxSliders",
                 description="Float dial with visual rotary control and decimal precision",
+                search_aliases=["dial", "knob", "rotary", "float dial", "cx dial"],
                 inputs=[
                     io.Float.Input(
-                        "float",
+                        "value",
                         default=1.0,
-                        min=-3.4028235e+38,
-                        max=3.4028235e+38,
+                        min=-3.4028235e38,
+                        max=3.4028235e38,
                         step=0.001,
-                    ),
-                    io.Float.Input(
-                        "value_override",
-                        optional=True,
-                        force_input=True,
                     ),
                 ],
                 outputs=[
@@ -87,20 +75,14 @@ if V3_AVAILABLE:
             )
 
         @classmethod
-        def execute(cls, **kwargs) -> io.NodeOutput:
-            value = kwargs.get("float", 1.0)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
+        def execute(cls, value: float = 1.0) -> io.NodeOutput:
             return io.NodeOutput(float(value))
-
 
     class cxDialExtension(ComfyExtension):
         """Extension class for cxDial nodes."""
 
         async def get_node_list(self) -> list[type[io.ComfyNode]]:
             return [cxDialInt, cxDialFloat]
-
 
     async def comfy_entrypoint() -> cxDialExtension:
         """ComfyUI calls this to load the extension and its nodes."""
@@ -130,16 +112,14 @@ else:
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "int": ("INT", {
-                        "default": 1,
-                        "min": -2147483648,
-                        "max": 2147483647,
-                    }),
-                },
-                "optional": {
-                    "value_override": ("INT", {
-                        "forceInput": True,
-                    }),
+                    "value": (
+                        "INT",
+                        {
+                            "default": 1,
+                            "min": -2147483648,
+                            "max": 2147483647,
+                        },
+                    ),
                 },
             }
 
@@ -147,14 +127,10 @@ else:
         RETURN_NAMES = ("INT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["dial", "knob", "rotary", "integer dial", "cx dial"]
 
-        def execute(self, **kwargs):
-            value = kwargs.get("int", 1)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
+        def execute(self, value: int = 1):
             return (int(round(value)),)
-
 
     class cxDialFloat:
         """
@@ -166,17 +142,15 @@ else:
         def INPUT_TYPES(cls):
             return {
                 "required": {
-                    "float": ("FLOAT", {
-                        "default": 1.0,
-                        "min": -3.4028235e+38,
-                        "max": 3.4028235e+38,
-                        "step": 0.001,
-                    }),
-                },
-                "optional": {
-                    "value_override": ("FLOAT", {
-                        "forceInput": True,
-                    }),
+                    "value": (
+                        "FLOAT",
+                        {
+                            "default": 1.0,
+                            "min": -3.4028235e38,
+                            "max": 3.4028235e38,
+                            "step": 0.001,
+                        },
+                    ),
                 },
             }
 
@@ -184,14 +158,10 @@ else:
         RETURN_NAMES = ("FLOAT",)
         FUNCTION = "execute"
         CATEGORY = "utils/cxSliders"
+        SEARCH_ALIASES = ["dial", "knob", "rotary", "float dial", "cx dial"]
 
-        def execute(self, **kwargs):
-            value = kwargs.get("float", 1.0)
-            override = kwargs.get("value_override", None)
-            if override is not None:
-                value = override
+        def execute(self, value: float = 1.0):
             return (float(value),)
-
 
     # V1 Node mappings
     NODE_CLASS_MAPPINGS = {

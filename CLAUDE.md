@@ -1,85 +1,56 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code working in this repo.
 
-## Project Overview
+**The canonical repository map and architecture reference is [CODEBASE.MD](CODEBASE.MD)** — read it for the file layout, the 8-node table, the widget class hierarchy, dual-schema (V1/V3) details, the draw/event order, and the "add a node" checklist. This file holds only what's *agent-specific*: where the verified research lives, local ComfyUI source paths, and the non-obvious rules that aren't visible in the code.
 
-ComfyUI custom node package (`comfyui-cx_sliders`) providing visual slider controls and a seed node. Part of the "cx" family of custom nodes.
+Release status & open items: [RELEASE_READINESS.md](RELEASE_READINESS.md) (assessment) and [WORKLIST.md](WORKLIST.md) (ordered action queue).
 
-## Repository Layout
+## Project overview
 
-The repo root **is** the ComfyUI package (loaded as a custom node directly):
+ComfyUI custom-node pack (`comfyui-cx_sliders`, **v1.0.0** — first public release), under category `utils/cxSliders`: canvas-drawn sliders, toggles, a seed helper, and multi-row slider banks. (The dial nodes are temporarily disabled in `__init__.py` — code retained; see CODEBASE.MD.) The repo root **is** the installable package. Logic lives in JavaScript (`js/`); Python declares types and passes values through. Slider interaction lineage: [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit).
 
-- `__init__.py` — Package entry point. Merges node mappings from all modules, creates combined V3 `ComfyExtension`.
-- `cxsliders.py` — `cxSliderInt` and `cxSliderFloat` node definitions (V1/V3 dual schema).
-- `cxseed.py` — `cxSeed` node definition (V1/V3 dual schema).
-- `js/` — Frontend JavaScript extensions (one per node). This is where the real logic lives.
-- `archives/` — Versioned zip snapshots for distribution (gitignored).
+## Research & reference — READ THESE FIRST
 
-## Deployment & Testing
+Before searching the ComfyUI install or running web searches, consult the verified research in the memory directory:
+`C:\Users\Vir\.claude\projects\D--ai-comfyui-cx-sliders\memory\`
 
-No automated tests. Manual testing workflow:
+| File | Contents | Verified |
+|------|----------|----------|
+| `comfyui-docs-reference.md` | Rendering pipeline, layout constants, widget API, correct custom-widget patterns, V1/V3 backend, anti-patterns | 2026-02-21 |
+| `rgthree-widget-pattern-verified.md` | Exact `draw()`/`mouse()`/`computeSize()` signatures, coordinate systems, hit areas, serialization — from rgthree source | 2026-02-21 |
+| `codebase-audit.md` | Pre-rewrite per-file audit: node specifics, features to preserve, anti-patterns | 2026-02-21 |
+| `widget-serialization-finding.md` | Custom widget values ARE auto-serialized to Python — no hidden widgets needed | 2026-02-21 |
+| `widget-dblclick-research.md` | LiteGraph click dispatch, `CanvasPointer` API, `onPointerDown` vs `mouse()` | 2026-02-26 |
 
-1. Symlink or copy this repo into `ComfyUI/custom_nodes/` (e.g., as `comfyui_cxslider`)
-2. Restart ComfyUI
-3. Add nodes from the `utils/cxSliders` category
+Full official-docs corpus (11 docs + `LEDGER.md`) at `D:\ai\tmp\comfyui-custom-nodes-research\` — for topics **not** in the memory files: V3 schema reference (`07-v3-migration.md`), JS UI APIs (`06-javascript-extensions.md`), registry publishing (`09-registry-publishing.md`), context menus (`10-snippets-examples.md`), i18n (`11-i18n-and-context-menu-migration.md`), advanced backend (`05-backend-advanced.md`). **Verified 2026-02-26.**
 
-## Architecture
+## Local ComfyUI source paths (for source diving)
 
-### Dual Schema Pattern (V1/V3)
+- ComfyUI install: `D:\ComfyUI\ComfyUI_windows_portable\ComfyUI\`
+- Frontend bundle (minified, has source maps): `web_custom_versions/Comfy-Org_ComfyUI_frontend/1.38.13/`
+- rgthree-comfy (best readable widget reference): `custom_nodes/rgthree-comfy/src_web/comfyui/`
+- LiteGraph TypeScript (in source map): `src/lib/litegraph/src/`
 
-Every Python node file uses the same pattern:
+## Critical rules & gotchas
 
-```python
-try:
-    from comfy_api.latest import io, ComfyExtension
-    V3_AVAILABLE = True
-except ImportError:
-    V3_AVAILABLE = False
+Non-obvious facts that cost time to rediscover. Full architecture rationale (draw order, why each anti-pattern breaks, class hierarchy) is in [CODEBASE.MD](CODEBASE.MD#architecture).
 
-if V3_AVAILABLE:
-    # V3 class (inherits io.ComfyNode, uses define_schema/execute classmethods)
-else:
-    # V1 class (uses INPUT_TYPES classmethod, RETURN_TYPES/FUNCTION constants)
-```
+- **Override `_draw()` / `_mouse()`, never the framework `draw()` / `mouse()`** — `CxBaseWidget` wraps those with error boundaries and delegates. Numeric widgets extend `CxNumericWidget`; toggle and seed extend `CxBaseWidget` directly.
+- **`widget.value` is the single source of truth** — serialized automatically to `widgets_values` and sent to Python. It must **NOT** be an array; arrays signal a node link in LiteGraph. (The slider bank stores an object `{s1..s8}` and round-trips it via `serializeValue`/`deserializeValue`.)
+- **`IS_CHANGED` returning `True` means UNCHANGED** (counterintuitive). Return `float("NaN")` to force re-execution. V3 renames it `fingerprint_inputs()`.
+- **Do not reintroduce v1 anti-patterns** (CI greps for them): hidden widgets + `computeSize () => [0,-4]`, `widget.type = "converted-widget"`, `getContentStartY()` slot math, drawing in `onDrawForeground`, three-way state sync, `getExtraMenuOptions` prototype patching.
+- **Context menus**: extension-level `getNodeMenuItems(node)` that returns `[]` for non-matching nodes — not `getExtraMenuOptions`.
+- **Chain framework handlers**: `onNodeCreated` / `onConfigure` overrides must call the prior handler (`?.apply(this, arguments)`).
+- **Layout constants**: `NODE_SLOT_HEIGHT=20`, `NODE_TITLE_HEIGHT=30`, `NODE_WIDGET_HEIGHT=20`; standard widget margin 15px per side.
+- **JS hook order**: `init → addCustomNodeDefs → getCustomWidgets → beforeRegisterNodeDef → registerCustomNodes → setup → beforeConfigureGraph → loadedGraphNode → afterConfigureGraph`.
 
-Both paths export `NODE_CLASS_MAPPINGS`, `NODE_DISPLAY_NAME_MAPPINGS`, and `comfy_entrypoint` (None for V1). The `__init__.py` merges mappings from all node modules and creates a combined `ComfyExtension` for V3.
+## Build / test / version
 
-### Frontend/Backend Split
+- **No automated UI tests** — the ComfyUI canvas needs manual verification. CI (`.github/workflows/ci.yml`) runs Python + JS syntax checks, version consistency, and banned-pattern grep. Manual checklist: `specs/custom-widget-rewrite/TESTING_CHECKLIST.md`.
+- **Manual test loop**: symlink/copy the repo into `ComfyUI/custom_nodes/` (e.g. `comfyui_cxslider`), restart ComfyUI, add nodes from `utils/cxSliders`. Debug logs: set `window.CX_SLIDERS_DEBUG = true` in the browser console (`[cx_sliders]` prefix).
+- **Version SSOT** is `pyproject.toml [project] version`. On every bump, manually sync `js/cx_utils.js CX_VERSION`, the `README.md` header, and `CHANGELOG.md` (`__init__.py` reads pyproject at import; CI enforces all four). Follow SemVer + Keep a Changelog.
 
-- **Python backend** (`*.py`): Minimal — just declares input/output types and passes values through. The backend widget is intentionally hidden; all visual interaction is handled by JavaScript.
-- **JavaScript frontend** (`js/*.js`): Where the real logic lives. Each JS file registers a ComfyUI extension via `app.registerExtension()` and uses `beforeRegisterNodeDef` to patch the node prototype with custom drawing, mouse handling, serialization, and property management.
+## See also
 
-### Key JS Patterns
-
-- **Three-way sync**: `sliderProps`/`seedProps` (internal state) <-> `node.properties` (Properties Panel) <-> `widget.value` (ComfyUI backend). All three must stay in sync.
-- **`cleanProperties(node)`**: Removes `aux_id` that LiteGraph injects into `node.properties`. Call this when syncing properties.
-- **Mouse capture**: Slider nodes use `captureInput(true/false)` for drag behavior. Ctrl+drag unlocks min/max bounds, Shift+drag inverts snap.
-- **`onConfigure`/`onSerialize`**: Custom serialization since state lives in `sliderProps`/`seedProps`, not native widgets.
-- **Canvas rendering**: All nodes draw via `onDrawForeground()` using Canvas 2D API. Requires `ctx.roundRect()`.
-
-### Adding a New Node
-
-1. Create `newnode.py` with the V1/V3 dual schema pattern (copy from `cxseed.py` as template).
-2. Create `js/newnode.js` with `app.registerExtension()` and `beforeRegisterNodeDef` hook.
-3. Import and merge the new module's mappings in `__init__.py`.
-4. Add the V3 node class to the `cxSliderExtensionCombined.get_node_list()` return list.
-
-## Node IDs and Categories
-
-All nodes register under category `utils/cxSliders`:
-- `cxSliderInt` -> "cxSlider - Int" (blue #4a90d9)
-- `cxSliderFloat` -> "cxSlider - Float" (orange #d99a4a)
-- `cxSeed` -> "cxSeed"
-
-## Versioning
-
-- `__version__` in `__init__.py` and version header in `README.md`
-- Current version: 1.0.0
-- Archives: `comfyui_cxslider-X.Y.Z.zip` in `archives/`
-
-## Compatibility
-
-- Requires ComfyUI v0.3.75+
-- Must work with both V1 (legacy) and V3 (modern) ComfyUI schemas
-- JavaScript uses `ctx.roundRect()` (modern Canvas API)
+[CODEBASE.MD](CODEBASE.MD) — canonical map & architecture · [README.md](README.md) — end users · [CONTRIBUTING.md](CONTRIBUTING.md) · [RELEASE_READINESS.md](RELEASE_READINESS.md) / [WORKLIST.md](WORKLIST.md) — release tracking

@@ -1,343 +1,262 @@
-// ComfyUI - cxToggle
+// cxtoggle.js — cxToggle custom widget using CxBaseWidget
 // Button-style toggle with configurable states and custom labels
-// Part of the cxSlider package
 
 import { app } from "../../scripts/app.js";
+import { clamp, MARGIN, COLORS, cxLog, openColorPicker } from "./cx_utils.js";
+import { CxBaseWidget } from "./cx_base_widget.js";
 
-// Utility function to clamp values
-function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-}
+export class CxToggleWidget extends CxBaseWidget {
+  static HEIGHT = 28;
 
-// Validate hex color string (#RGB or #RRGGBB)
-function isValidHexColor(str) {
-    return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(str);
-}
+  constructor(name, defaultValue) {
+    super(name, defaultValue);
+  }
 
-// Helper to remove internal LiteGraph properties from Properties Panel
-function cleanProperties(node) {
-    if (node.properties) {
-        delete node.properties.aux_id;
+  computeSize(width) {
+    return [width, CxToggleWidget.HEIGHT];
+  }
+
+  _draw(ctx, node, width, y, height) {
+    const m = MARGIN;
+    const barW = width - m * 2;
+    const min = this._getProp("min", 0);
+    const max = this._getProp("max", 1);
+    const isActive = this.value > min;
+    const fillColor = this._getProp("fillColor", COLORS.toggle.fill);
+    const borderColor = this._getProp("borderColor", COLORS.widget.border);
+
+    // Button background
+    this._drawBackground(ctx, m, y, barW, height, isActive ? fillColor : COLORS.widget.background);
+    this._drawBorder(ctx, m, y, barW, height, borderColor);
+
+    // Label text
+    if (!this._isLowQuality()) {
+      const textColor = this._resolveTextColor(fillColor);
+      ctx.fillStyle = textColor;
+      ctx.font = "bold 12px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(this._getCurrentLabel(), width / 2, y + height / 2);
     }
+
+    // Hit area: full widget
+    this._hitAreas.button = {
+      bounds: [m, barW],
+      onDown: (event, pos, node) => {
+        let next = this.value + 1;
+        if (next > max) next = min;
+        this.value = next;
+        node.setDirtyCanvas(true, true);
+        return true;
+      }
+    };
+  }
+
+  _onDblClick(event, pos, node) {
+    const current = String(this.value);
+    app.canvas.prompt("Value", current, (v) => {
+      const num = parseInt(v);
+      if (!isNaN(num)) {
+        this.value = clamp(num, this._getProp("min", 0), this._getProp("max", 1));
+        node.setDirtyCanvas(true, true);
+      }
+    }, event);
+    return true;
+  }
+
+  _getLabels() {
+    const min = this._getProp("min", 0);
+    const max = this._getProp("max", 1);
+    const labelStr = this._getProp("labels", "Off, On");
+    const stateCount = max - min + 1;
+    let labels = labelStr.split(",").map(s => s.trim());
+    while (labels.length < stateCount) labels.push(String(min + labels.length));
+    if (labels.length > stateCount) labels.length = stateCount;
+    return labels;
+  }
+
+  _getCurrentLabel() {
+    const labels = this._getLabels();
+    const min = this._getProp("min", 0);
+    const idx = clamp(this.value - min, 0, labels.length - 1);
+    return labels[idx] || String(this.value);
+  }
+}
+
+// Module-level migration function for v1.x workflows
+function migrateToggleProps(node, info) {
+  const p = info.properties || {};
+  const wasOldFormat = p.current !== undefined      // v1.2 format
+                     || p.toggleProps !== undefined;  // v1.0 format
+
+  if (!wasOldFormat) return;
+
+  cxLog("debug", "Migrating v1.x toggle properties");
+
+  // Extract old values
+  const oldCurrent = p.current ?? 0;
+  const oldMin = p.min ?? 0;
+  const oldMax = p.max ?? 1;
+
+  // Write config to node.properties (new format)
+  node.properties.min = oldMin;
+  node.properties.max = oldMax;
+  node.properties.labels = p.labels ?? "Off, On";
+
+  // Colors: reset to new defaults (config loss accepted per AC-9.3)
+  node.properties.fillColor = COLORS.toggle.fill;
+  node.properties.borderColor = COLORS.widget.border;
+  node.properties.textColor = "auto";
+
+  // Set widget value (numeric value preserved per AC-9.2)
+  const w = node.widgets?.find(w => w.name === "toggle");
+  if (w) {
+    w.value = clamp(oldCurrent, oldMin, oldMax);
+  } else {
+    cxLog("warn", "cxToggle migration: 'toggle' widget not found");
+  }
+
+  // Clean up old properties
+  delete node.properties.current;
+  delete node.properties.toggleProps;
+  delete node.properties.ver;
+  delete node.properties.aux_id;
 }
 
 app.registerExtension({
-    name: "cxToggle",
+  name: "cx.sliders.toggle",
+  async beforeRegisterNodeDef(nodeType, nodeData) {
+    if (nodeData.name !== "cxToggle") return;
 
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name !== "cxToggle") return;
+    const onNodeCreated = nodeType.prototype.onNodeCreated;
 
-        const onNodeCreated = nodeType.prototype.onNodeCreated;
+    nodeType.prototype.onNodeCreated = function() {
+      onNodeCreated?.apply(this, arguments);
+      try {
+        // Remove framework-created "toggle" widget, replace with custom at same index
+        const idx = this.widgets?.findIndex(w => w.name === "toggle") ?? -1;
+        if (idx >= 0) this.widgets.splice(idx, 1);
 
-        nodeType.prototype.onNodeCreated = function() {
-            if (onNodeCreated) {
-                onNodeCreated.apply(this, arguments);
-            }
+        // Set default properties (config-only state, NOT in widget.value)
+        this.properties = this.properties || {};
+        Object.assign(this.properties, {
+          min: 0,
+          max: 1,
+          labels: "Off, On",
+          fillColor: COLORS.toggle.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
 
-            // Initialize custom properties
-            this.toggleProps = {
-                current: 0,
-                min: 0,
-                max: 1,
-                labels: "Off,On",
-                fillColor: "#5a9a5a",
-                borderColor: "#666666",
-                textColor: "#ffffff"
-            };
+        const widget = new CxToggleWidget("toggle", 0);
 
-            // Sync with node.properties for Properties Panel
-            this.properties = this.properties || {};
-            this.properties.current = this.toggleProps.current;
-            this.properties.min = this.toggleProps.min;
-            this.properties.max = this.toggleProps.max;
-            this.properties.labels = this.toggleProps.labels;
-            this.properties.fillColor = this.toggleProps.fillColor;
-            this.properties.borderColor = this.toggleProps.borderColor;
-            this.properties.textColor = this.toggleProps.textColor;
+        // Insert at same index (preserves widgets_values serialization order)
+        if (idx >= 0) {
+          this.widgets.splice(idx, 0, widget);
+        } else {
+          this.addCustomWidget(widget);
+        }
 
-            // Remove internal LiteGraph properties
-            cleanProperties(this);
+        this.setSize(this.computeSize());
 
-            // Set initial node size
-            this.size = [160, 40];
+        // Lowercase output labels
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
 
-            // Find the widget
-            this._setupWidget();
-        };
+        cxLog("debug", "cxToggle widget created");
+      } catch (err) {
+        cxLog("error", "cxToggle onNodeCreated:", err);
+      }
+    };
 
-        // Setup widget reference and hide it
-        nodeType.prototype._setupWidget = function() {
-            if (!this.widgets) return;
-            this._valueWidget = this.widgets.find(w => w.name === "toggle");
-            if (this._valueWidget) {
-                this._valueWidget.value = this.toggleProps.current;
-                this._valueWidget.hidden = true;
-                if (this._valueWidget.options) {
-                    this._valueWidget.options.hidden = true;
-                }
-            }
-        };
+    // onPropertyChanged -- sync from Properties Panel
+    nodeType.prototype.onPropertyChanged = function(name, value) {
+      const w = this.widgets?.find(w => w.name === "toggle");
+      if (!w) { cxLog("warn", "cxToggle onPropertyChanged: 'toggle' widget not found"); return; }
+      if (name === "min" || name === "max") {
+        const num = Number(value);
+        if (!isFinite(num)) {
+          cxLog("warn", `cxToggle onPropertyChanged: invalid ${name} "${value}", reverting`);
+          this.properties[name] = name === "min" ? 0 : 1;
+        } else if (name === "min") {
+          this.properties.min = clamp(Math.round(num), 0, this.properties.max ?? 1);
+        } else {
+          this.properties.max = clamp(Math.round(num), this.properties.min ?? 0, 20);
+        }
+      }
+      if (name === "labels" && typeof value !== "string") {
+        cxLog("warn", `cxToggle onPropertyChanged: labels must be string, got ${typeof value}`);
+        this.properties.labels = String(value ?? "Off, On");
+      }
+      const cVal = Number(w.value);
+      w.value = isFinite(cVal) ? clamp(cVal, this.properties.min ?? 0, this.properties.max ?? 1) : (this.properties.min ?? 0);
+      this.setDirtyCanvas(true, true);
+    };
 
-        // Get the widget
-        nodeType.prototype._getWidget = function() {
-            if (!this._valueWidget && this.widgets) {
-                this._valueWidget = this.widgets.find(w => w.name === "toggle");
-            }
-            return this._valueWidget;
-        };
-
-        // Get labels array, padded or truncated to match state count
-        nodeType.prototype._getLabels = function() {
-            const stateCount = this.toggleProps.max - this.toggleProps.min + 1;
-            let labels = this.toggleProps.labels.split(",").map(s => s.trim());
-
-            // Pad with numeric values if fewer labels than states
-            while (labels.length < stateCount) {
-                labels.push(String(this.toggleProps.min + labels.length));
-            }
-            // Truncate if more labels than states
-            if (labels.length > stateCount) {
-                labels.length = stateCount;
-            }
-            return labels;
-        };
-
-        // Get current label for current state
-        nodeType.prototype._getCurrentLabel = function() {
-            const labels = this._getLabels();
-            const index = this.toggleProps.current - this.toggleProps.min;
-            return labels[clamp(index, 0, labels.length - 1)] || String(this.toggleProps.current);
-        };
-
-        // Get current value
-        nodeType.prototype._getValue = function() {
-            const widget = this._getWidget();
-            if (widget) {
-                this.toggleProps.current = widget.value;
-                this.properties.current = widget.value;
-                return widget.value;
-            }
-            return this.toggleProps.current;
-        };
-
-        // Set value
-        nodeType.prototype._setValue = function(value) {
-            value = Math.round(value);
-            value = clamp(value, this.toggleProps.min, this.toggleProps.max);
-            this.toggleProps.current = value;
-            this.properties.current = value;
-
-            const widget = this._getWidget();
-            if (widget) {
-                widget.value = value;
-            }
-        };
-
-        // Property change handler (for Properties Panel)
-        nodeType.prototype.onPropertyChanged = function(name, value) {
-            cleanProperties(this);
-
-            if (name === "current") {
-                value = Math.round(value);
-                value = clamp(value, this.toggleProps.min, this.toggleProps.max);
-                this._setValue(value);
-            } else if (name === "min") {
-                this.toggleProps.min = Math.round(value);
-                this.properties.min = this.toggleProps.min;
-                if (this.toggleProps.current < this.toggleProps.min) {
-                    this._setValue(this.toggleProps.min);
-                }
-            } else if (name === "max") {
-                this.toggleProps.max = Math.round(value);
-                this.properties.max = this.toggleProps.max;
-                if (this.toggleProps.current > this.toggleProps.max) {
-                    this._setValue(this.toggleProps.max);
-                }
-            } else if (name === "labels") {
-                if (typeof value === "string") {
-                    this.toggleProps.labels = value;
-                    this.properties.labels = value;
-                }
-            } else if (name === "fillColor") {
-                if (isValidHexColor(value)) {
-                    this.toggleProps.fillColor = value;
-                    this.properties.fillColor = value;
-                }
-            } else if (name === "borderColor") {
-                if (isValidHexColor(value)) {
-                    this.toggleProps.borderColor = value;
-                    this.properties.borderColor = value;
-                }
-            } else if (name === "textColor") {
-                if (isValidHexColor(value)) {
-                    this.toggleProps.textColor = value;
-                    this.properties.textColor = value;
-                }
-            }
-            this.setDirtyCanvas(true, true);
-        };
-
-        // Configure handler for loading saved values
-        nodeType.prototype.onConfigure = function(info) {
-            if (info.properties) {
-                this.toggleProps.current = info.properties.current ?? 0;
-                this.toggleProps.min = info.properties.min ?? 0;
-                this.toggleProps.max = info.properties.max ?? 1;
-                this.toggleProps.labels = info.properties.labels ?? "Off,On";
-                this.toggleProps.fillColor = isValidHexColor(info.properties.fillColor) ? info.properties.fillColor : "#5a9a5a";
-                this.toggleProps.borderColor = isValidHexColor(info.properties.borderColor) ? info.properties.borderColor : "#666666";
-                this.toggleProps.textColor = isValidHexColor(info.properties.textColor) ? info.properties.textColor : "#ffffff";
-
-                // Sync to properties
-                this.properties.current = this.toggleProps.current;
-                this.properties.min = this.toggleProps.min;
-                this.properties.max = this.toggleProps.max;
-                this.properties.labels = this.toggleProps.labels;
-                this.properties.fillColor = this.toggleProps.fillColor;
-                this.properties.borderColor = this.toggleProps.borderColor;
-                this.properties.textColor = this.toggleProps.textColor;
-
-                // Remove internal properties
-                cleanProperties(this);
-
-                // Sync widget and ensure it stays hidden
-                const widget = this._getWidget();
-                if (widget) {
-                    widget.value = this.toggleProps.current;
-                    widget.hidden = true;
-                    if (widget.options) {
-                        widget.options.hidden = true;
-                    }
-                }
-            }
-        };
-
-        // Draw the toggle button
-        nodeType.prototype.onDrawForeground = function(ctx) {
-            if (this.flags.collapsed) return;
-
-            const width = this.size[0];
-            const height = this.size[1];
-            const padding = 8;
-            const btnHeight = Math.min(28, height - 8);
-            const btnY = (height - btnHeight) / 2;
-
-            const current = this._getValue();
-            const isActive = current > this.toggleProps.min;
-
-            // Draw button background
-            ctx.fillStyle = isActive ? this.toggleProps.fillColor : "#444";
-            ctx.beginPath();
-            ctx.roundRect(padding, btnY, width - padding * 2, btnHeight, 6);
-            ctx.fill();
-
-            // Draw button border
-            ctx.strokeStyle = this.toggleProps.borderColor;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.roundRect(padding, btnY, width - padding * 2, btnHeight, 6);
-            ctx.stroke();
-
-            // Draw label text centered
-            ctx.fillStyle = this.toggleProps.textColor;
-            ctx.font = "bold 12px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(this._getCurrentLabel(), width / 2, btnY + btnHeight / 2);
-        };
-
-        // Mouse down handler - click cycles state
-        nodeType.prototype.onMouseDown = function(e, pos, canvas) {
-            if (this.flags.collapsed) return false;
-            if (e.canvasY - this.pos[1] < 0) return false;
-
-            const localX = pos[0];
-            const localY = pos[1];
-            const padding = 8;
-
-            // Check if click is within the button area
-            if (localX >= padding && localX <= this.size[0] - padding &&
-                localY >= 0 && localY <= this.size[1]) {
-                // Cycle forward, wrap to min
-                let next = this.toggleProps.current + 1;
-                if (next > this.toggleProps.max) {
-                    next = this.toggleProps.min;
-                }
-                this._setValue(next);
-                this.setDirtyCanvas(true, true);
-                return true;
-            }
-
-            return false;
-        };
-
-        // Double click handler for manual entry
-        nodeType.prototype.onDblClick = function(e, pos, canvas) {
-            const localX = pos[0];
-            const localY = pos[1];
-            const padding = 8;
-
-            if (localX >= padding && localX <= this.size[0] - padding &&
-                localY >= 0 && localY <= this.size[1]) {
-                canvas.prompt("Value", this.toggleProps.current, (v) => {
-                    if (!isNaN(Number(v))) {
-                        let value = Math.round(Number(v));
-                        value = clamp(value, this.toggleProps.min, this.toggleProps.max);
-                        this._setValue(value);
-                        this.setDirtyCanvas(true, true);
-                    }
-                }, e);
-                return true;
-            }
-            return false;
-        };
-
-        // Serialize properties
-        nodeType.prototype.onSerialize = function(info) {
-            info.properties = {
-                current: this.toggleProps.current,
-                min: this.toggleProps.min,
-                max: this.toggleProps.max,
-                labels: this.toggleProps.labels,
-                fillColor: this.toggleProps.fillColor,
-                borderColor: this.toggleProps.borderColor,
-                textColor: this.toggleProps.textColor
-            };
-        };
-
-        // Compute minimum size
-        nodeType.prototype.computeSize = function() {
-            return [100, 36];
-        };
-
-        // Get extra menu options
-        nodeType.prototype.getExtraMenuOptions = function(canvas, options) {
-            options.push(null);
-            options.push({
-                content: "Reset to Defaults",
-                callback: () => {
-                    this.toggleProps.current = 0;
-                    this.toggleProps.min = 0;
-                    this.toggleProps.max = 1;
-                    this.toggleProps.labels = "Off,On";
-                    this.toggleProps.fillColor = "#5a9a5a";
-                    this.toggleProps.borderColor = "#666666";
-                    this.toggleProps.textColor = "#ffffff";
-
-                    this.properties.current = 0;
-                    this.properties.min = 0;
-                    this.properties.max = 1;
-                    this.properties.labels = "Off,On";
-                    this.properties.fillColor = "#5a9a5a";
-                    this.properties.borderColor = "#666666";
-                    this.properties.textColor = "#ffffff";
-
-                    cleanProperties(this);
-
-                    this._setValue(0);
-                    this.setDirtyCanvas(true, true);
-                }
-            });
-        };
-    }
+    const onConfigure = nodeType.prototype.onConfigure;
+    nodeType.prototype.onConfigure = function(info) {
+      onConfigure?.apply(this, arguments);
+      try {
+        migrateToggleProps(this, info);
+        const w = this.widgets?.find(w => w.name === "toggle");
+        if (!w) { cxLog("warn", "cxToggle onConfigure: 'toggle' widget not found"); return; }
+        if (info.widgets_values) {
+          // Framework restores widget.value from widgets_values automatically
+          // Guard against NaN/undefined from corrupted workflows
+          const restored = Number(w.value);
+          if (!isFinite(restored)) {
+            cxLog("warn", `cxToggle onConfigure: invalid value "${w.value}", defaulting to min`);
+            w.value = this.properties.min ?? 0;
+          } else {
+            w.value = clamp(restored, this.properties.min ?? 0, this.properties.max ?? 1);
+          }
+        }
+        this.outputs?.forEach(o => { o.label = o.name.toLowerCase(); });
+      } catch (err) {
+        cxLog("error", "cxToggle onConfigure:", err);
+      }
+    };
+  },
+  getNodeMenuItems(node) {
+    if (node.comfyClass !== "cxToggle") return [];
+    const w = node.widgets?.find(w => w.name === "toggle");
+    if (!w) return [];
+    const items = [null];
+    items.push({
+      content: "🎨 Fill Color",
+      callback: () => openColorPicker(node.properties.fillColor || COLORS.toggle.fill, (c) => {
+        node.properties.fillColor = c;
+        node.setDirtyCanvas(true, true);
+      })
+    });
+    items.push({
+      content: "🎨 Border Color",
+      callback: () => openColorPicker(node.properties.borderColor || COLORS.widget.border, (c) => {
+        node.properties.borderColor = c;
+        node.setDirtyCanvas(true, true);
+      })
+    });
+    items.push({
+      content: "🎨 Text Color",
+      callback: () => openColorPicker(node.properties.textColor || "auto", (c) => {
+        node.properties.textColor = c;
+        node.setDirtyCanvas(true, true);
+      })
+    });
+    items.push({
+      content: "↺ Reset to Defaults",
+      callback: () => {
+        Object.assign(node.properties, {
+          min: 0, max: 1, labels: "Off, On",
+          fillColor: COLORS.toggle.fill,
+          borderColor: COLORS.widget.border,
+          textColor: "auto",
+        });
+        const tw = node.widgets?.find(w => w.name === "toggle");
+        if (tw) { tw.value = clamp(tw.value, 0, 1); }
+        else { cxLog("warn", "cxToggle reset: 'toggle' widget not found"); }
+        node.setDirtyCanvas(true, true);
+      }
+    });
+    return items;
+  }
 });
