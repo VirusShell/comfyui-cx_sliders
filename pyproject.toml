@@ -4,7 +4,8 @@ version = "1.0.0"
 description = "Visual slider, toggle, seed, and slider bank controls for ComfyUI"
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.8"
+requires-python = ">=3.10"
+dependencies = []
 classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
