@@ -5,7 +5,7 @@
 **Category**: `utils/cxSliders`  
 **ComfyUI**: ≥ 0.3.75 (V1 + V3 schema)
 
-This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [CLAUDE.md](CLAUDE.md) is only a short pointer here.
+This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [AGENTS.md](AGENTS.md) is only a short pointer here.
 
 ---
 
@@ -45,7 +45,7 @@ comfyui-cx_sliders/          # repo root = package root
 ├── README.md
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
-├── CLAUDE.md                # Short pointer to real docs (tooling may look for this name)
+├── AGENTS.md                # Short pointer to real docs (tooling may look for this name)
 ├── CODEBASE.MD              # This file
 ├── STANDARDS_AUDIT.md       # ComfyUI compliance review (2026-06-02)
 ├── RELEASE_READINESS.md     # Current release tracker (supersedes PROJECT_ISSUES.md)
@@ -243,7 +243,7 @@ Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.curren
 |----------|----------|
 | [README.md](README.md) | End users |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
-| [CLAUDE.md](CLAUDE.md) | Short pointer to the docs above |
+| [AGENTS.md](AGENTS.md) | Short pointer to the docs above |
 | [RELEASE_READINESS.md](RELEASE_READINESS.md) | Current release tracker / readiness assessment |
 | [WORKLIST.md](WORKLIST.md) | Ordered action queue |
 | [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI compliance review |
