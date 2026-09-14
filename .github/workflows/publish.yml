@@ -1,4 +1,6 @@
-# Publishes to the Comfy Registry when pyproject.toml changes on main.
+# Publishes to the Comfy Registry when [project].version changes on main
+# (or via manual workflow_dispatch). Metadata-only pyproject.toml edits
+# no longer republish the same version (avoids Registry 400 "already exists").
 # Requires: GitHub secret REGISTRY_ACCESS_TOKEN (Comfy Registry personal access token).
 # See: https://docs.comfy.org/registry/publishing
 
@@ -22,8 +24,44 @@ jobs:
     if: ${{ github.repository_owner == 'VirusShell' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Need prior commit to detect whether [project].version actually changed
+          fetch-depth: 2
+
+      - name: Detect version bump
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          NEW=$(grep -E '^version\s*=' pyproject.toml | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch — will publish version ${NEW}"
+            exit 0
+          fi
+          BEFORE="${{ github.event.before }}"
+          if [ -z "${BEFORE}" ] || [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "No usable before-SHA — will publish version ${NEW}"
+            exit 0
+          fi
+          # Prefer event.before; fall back to HEAD~1 if that object is present
+          OLD=""
+          if git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+            OLD=$(git show "${BEFORE}:pyproject.toml" 2>/dev/null | grep -E '^version\s*=' | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/' || true)
+          elif git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            OLD=$(git show "HEAD~1:pyproject.toml" 2>/dev/null | grep -E '^version\s*=' | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/' || true)
+          fi
+          if [ -n "${OLD}" ] && [ "${OLD}" = "${NEW}" ]; then
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            echo "Version unchanged (${NEW}) — skipping publish (metadata-only pyproject change)"
+          else
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed: ${OLD:-<none>} -> ${NEW} — will publish"
+          fi
 
       - name: Publish custom node
+        if: steps.version.outputs.should_publish == 'true'
         uses: Comfy-Org/publish-node-action@v1
         with:
           personal_access_token: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
