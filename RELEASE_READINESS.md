@@ -62,8 +62,8 @@ Independently re-verified against actual code (not the prior audit). All core cl
 | Anti-pattern scan (getExtraMenuOptions / hidden widget / `computeSize [0,-4]` / getContentStartY / converted-widget / cleanProperties / onDrawForeground paint) | **PASS** | Zero hits in `js/` except a self-documenting comment at `cx_utils.js:2`. |
 | Custom-widget pattern (override `_draw`/`_mouse`, not framework methods) | **PASS** | `CxBaseWidget` owns `draw`/`mouse` with try/catch; concrete widgets override `_draw`/`_mouse`/`_onDblClick`. |
 | `widget.value` never an array | **PASS** | Bank holds object `{s1..s8}`; `deserializeValue` rejects arrays (`cxsliderbank.js:31`). |
-| Menu API `getNodeMenuItems` + `[]` guard for non-matching nodes | **PASS** | All 5 extensions; guards at `cxslider.js:191`, `cxdial.js:238`, `cxsliderbank.js:350`, `cxtoggle.js:219`, `cxseed.js:193`. |
-| Extension names `cx.sliders.*` | **PASS** | slider/dial/toggle/seed/sliderbank all namespaced. |
+| Menu API `getNodeMenuItems` + `[]` guard for non-matching nodes | **PASS** | All 4 extensions; guards in `cxslider.js`, `cxsliderbank.js`, `cxtoggle.js`, `cxseed.js`. |
+| Extension names `cx.sliders.*` | **PASS** | slider/toggle/seed/sliderbank all namespaced. |
 | Python V1+V3 dual schema, all node files | **PASS** | `try: from comfy_api.latest import io, ComfyExtension` gate in all 5. |
 | `WEB_DIRECTORY`, merged `NODE_CLASS_MAPPINGS`/display names | **PASS** | `__init__.py:102`, `:35-48`, combined V3 extension `:79-89`. |
 | `SEARCH_ALIASES` (V1) + `search_aliases` (V3) | **PASS** | Every node class. |
@@ -89,7 +89,6 @@ Independently re-verified against actual code (not the prior audit). All core cl
 | Remove `CxBaseWidget` base class → standalone widgets | MEMORY Pending step 3; `standards-compliance-update/requirements.md:166` | Scoped to a **separate future spec**. Not a blocker. |
 | Automated browser/E2E tests | `STANDARDS_AUDIT.md`; tasks "Production TODOs" | Deferred — ComfyUI UI needs manual checklist; CI covers Python + grep. |
 | Keyboard nav, touch/mobile, global theme, undo/redo | `tasks.md:782` | Deferred enhancements. |
-| Dial Ctrl+drag out-of-range parity with slider | `STANDARDS_AUDIT.md` accepted trade-off | Optional if users request. |
 | `[tool.comfy] Icon` for listing polish | registry docs (optional) | Nice-to-have. |
 
 Standards spec **items 4 & 7** (repo URL fix; example workflows) were intentionally routed through `PROJECT_ISSUES.md` (ISSUE-003 / ISSUE-008) rather than the spec — both functionally addressed except the URL is still the Gitea-derived placeholder (B-1) and thumbnails are missing (R-3).

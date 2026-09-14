@@ -2,7 +2,7 @@
 
 **Version 1.0.0**
 
-Custom slider, toggle, seed, and slider bank nodes for ComfyUI with visual controls. (Dial nodes are temporarily disabled — see below.)
+Custom slider, toggle, seed, and slider bank nodes for ComfyUI with visual controls.
 
 Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75/ComfyUI-mxToolkit) by Max Smirnov.
 
@@ -14,6 +14,7 @@ Based on the slider design from [ComfyUI-mxToolkit](https://github.com/Smirnov75
 - **Double-click Editing**: Built-in value editing dialog on all numeric nodes
 - **Properties Panel Integration**: Edit all parameters through ComfyUI's Properties Panel
 - **Customizable Colors**: Right-click color pickers for fill, border, and text colors
+- **Dual-color value text**: When text color is `auto`, slider/bank value text uses fill vs background contrast so it stays readable across the fill boundary
 - **Low-quality Rendering**: Skips fine detail when zoomed out for performance
 - **v1.x Migration**: Automatically migrates old-format workflows
 
@@ -50,22 +51,6 @@ Slider nodes for controlling integer or floating-point values.
 **Output:**
 - `INT` or `FLOAT`
 
-### cxDial - Int / Float *(temporarily disabled)*
-
-> **Note:** The dial nodes are currently disabled and will not appear in ComfyUI. The code is retained; their future (improve interaction or remove) is undecided. Re-enable by uncommenting the dial entries in `__init__.py`.
-
-Rotary dial nodes for controlling integer or floating-point values.
-
-**Properties (via Properties Panel):**
-- `min` - Minimum allowed value
-- `max` - Maximum allowed value
-- `step` - Step increment when snap is enabled
-- `snap` - Enable/disable step snapping (default: true)
-- `padding` - Decimal places format (Float only)
-- `fillColor` / `borderColor` / `textColor` - Visual customization
-
-**Output:**
-- `INT` or `FLOAT`
 
 ### cxToggle
 
@@ -163,7 +148,6 @@ comfyui_cxslider/
 ├── __init__.py            # Package initialization (reads version from pyproject.toml)
 ├── pyproject.toml         # Canonical version source, ComfyUI registry metadata
 ├── cxsliders.py           # Slider node definitions (V1/V3 dual schema)
-├── cxdial.py              # Dial node definitions (V1/V3 dual schema)
 ├── cxtoggle.py            # Toggle node definition (V1/V3 dual schema)
 ├── cxseed.py              # Seed node definition (V1/V3 dual schema)
 ├── cxsliderbank.py        # Slider bank node definitions (V1/V3 dual schema)
@@ -171,7 +155,6 @@ comfyui_cxslider/
 │   ├── cx_utils.js        # Shared utilities and constants
 │   ├── cx_base_widget.js  # Base widget classes (CxBaseWidget, CxNumericWidget)
 │   ├── cxslider.js        # Slider UI (Int + Float)
-│   ├── cxdial.js          # Dial UI (Int + Float)
 │   ├── cxtoggle.js        # Toggle UI
 │   ├── cxseed.js          # Seed node UI
 │   ├── cxsliderbank.js    # Slider bank UI (Int + Float)

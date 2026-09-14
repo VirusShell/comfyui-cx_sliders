@@ -32,5 +32,4 @@ Legend: ☐ todo · ☑ done · ⊘ deferred (intentionally out of scope now)
 
 - ⊘ Remove `CxBaseWidget` base class → standalone widgets — scoped to a separate spec.
 - ⊘ Automated browser/E2E tests, keyboard nav, touch/mobile, global theme, undo/redo.
-- ⊘ Dial Ctrl+drag out-of-range parity with slider.
-- ⊘ **Decide the cxDial nodes' future** (deferred 2026-06-10): now **disabled** in `__init__.py` (code retained). Interaction + resize bugs are fixed, but dials duplicate slider output and the click-the-angle UX is fiddly. When revisited: improve (vertical drag-to-adjust knob) and re-enable, or remove `cxDialInt`/`cxDialFloat` entirely.
+- ✓ **cxDial removed entirely** (2026-09-14): Python, JS, help pages, and registry stubs deleted — no disabled-in-place leftover.

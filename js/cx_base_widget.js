@@ -92,6 +92,64 @@ export class CxBaseWidget {
     return (tc === "auto") ? getContrastColor(fill) : tc;
   }
 
+
+  /**
+   * Draw text with dual-color clipping: one color over the filled region,
+   * another over the unfilled background. Ensures readability regardless of
+   * fill ratio or fill color.
+   *
+   * When textColor is not "auto", draws single-color text (no clipping needed).
+   *
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {string} text - Formatted value string
+   * @param {number} textX - Text center X
+   * @param {number} textY - Text center Y
+   * @param {number} barX - Bar left edge X
+   * @param {number} barY - Bar top edge Y
+   * @param {number} barW - Total bar width
+   * @param {number} barH - Bar height
+   * @param {number} fillW - Filled portion width (from barX)
+   */
+  _drawDualColorText(ctx, text, textX, textY, barX, barY, barW, barH, fillW) {
+    const tc = this._getProp("textColor", "auto");
+    if (tc !== "auto") {
+      // User override — single color, no clipping
+      ctx.fillStyle = tc;
+      ctx.fillText(text, textX, textY);
+      return;
+    }
+
+    const fillColor = this._getProp("fillColor", COLORS.slider.fill);
+    const onFillColor = getContrastColor(fillColor);
+    const onBgColor = getContrastColor(COLORS.widget.background);
+
+    if (fillW <= 0) {
+      // No fill — just draw with background contrast
+      ctx.fillStyle = onBgColor;
+      ctx.fillText(text, textX, textY);
+      return;
+    }
+
+    if (fillW >= barW) {
+      // Full fill — just draw with fill contrast
+      ctx.fillStyle = onFillColor;
+      ctx.fillText(text, textX, textY);
+      return;
+    }
+
+    // Dual-color: draw text over background region, then clip and redraw over fill
+    ctx.fillStyle = onBgColor;
+    ctx.fillText(text, textX, textY);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(barX, barY, fillW, barH);
+    ctx.clip();
+    ctx.fillStyle = onFillColor;
+    ctx.fillText(text, textX, textY);
+    ctx.restore();
+  }
+
   // --- Helpers ---
 
   _isLowQuality() {
