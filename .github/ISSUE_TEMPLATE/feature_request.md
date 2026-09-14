@@ -11,7 +11,7 @@ assignees: ''
 What limitation or pain point does this address?
 
 **Proposed solution**
-What should change (which node: slider, dial, toggle, seed, bank)?
+What should change (which node: slider, toggle, seed, bank)?
 
 **Alternatives considered**
 Other approaches you thought about.
