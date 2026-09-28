@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pack Registry/Manager icon at media/icon.png, referenced by [tool.comfy] Icon (no version bump; listing icon appears on next intentional Registry publish).
 
 ### Changed
-- Docs hygiene so living docs match the 1.1.0 tree (six nodes, Icon shipped, cxDial gone). Unused `COLORS.dial` palette key removed; nothing referenced it.
+- Docs hygiene so living docs match the 1.1.0 tree (six nodes, Icon shipped, cxDial gone). Unused `COLORS.dial` palette key removed; nothing referenced it. `PROJECT_ISSUES.md` is now a stub pointing at `WORKLIST.md`.
 - Example workflows expanded to cover all six post-cxDial nodes (Int/Float slider, toggle, seed, Int/Float bank).
 
 ## [1.1.0] - 2026-09-14
