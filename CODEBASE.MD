@@ -5,7 +5,7 @@
 **Category**: `utils/cxSliders`  
 **ComfyUI**: ≥ 0.3.75 (V1 + V3 schema)
 
-This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [AGENTS.md](AGENTS.md) is only a short pointer here.
+This document is the canonical map of the repository for contributors and tooling. User-facing install/usage remains in [README.md](README.md). [AGENTS.md](AGENTS.md) is only a short pointer here. The live action queue is [WORKLIST.md](WORKLIST.md). [RELEASE_READINESS.md](RELEASE_READINESS.md), [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md), and [PROJECT_ISSUES.md](PROJECT_ISSUES.md) are historical provenance, not the live queue.
 
 ---
 
@@ -47,10 +47,10 @@ comfyui-cx_sliders/          # repo root = package root
 ├── CODE_OF_CONDUCT.md
 ├── AGENTS.md                # Short pointer to real docs (tooling may look for this name)
 ├── CODEBASE.MD              # This file
-├── STANDARDS_AUDIT.md       # ComfyUI compliance review (2026-06-02)
-├── RELEASE_READINESS.md     # Current release tracker (supersedes PROJECT_ISSUES.md)
-├── WORKLIST.md              # Ordered action queue
-└── PROJECT_ISSUES.md        # Historical gap tracker (superseded by RELEASE_READINESS.md)
+├── STANDARDS_AUDIT.md       # Historical compliance snapshot (2026-06-02); not the live queue
+├── RELEASE_READINESS.md     # Historical readiness assessment; not the live queue
+├── WORKLIST.md              # Live action queue
+└── PROJECT_ISSUES.md        # Historical gap tracker; not the live queue
 ```
 
 **Gitignored / local only:** `archives/*.zip`, `specs/.index/`, local progress files (`.ralph-state.json`, `.progress.md`), `.claude/`, Python/IDE caches.
@@ -223,7 +223,7 @@ Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.curren
 
 - **Registry**: `[tool.comfy]` in `pyproject.toml` (`PublisherId`, `DisplayName`, `requires-comfyui`)
 - **Archives**: Optional zips in `archives/` (gitignored)
-- **ComfyUI Manager**: Typically lists repo URL; ensure public Git URL before publishing (see [RELEASE_READINESS.md](RELEASE_READINESS.md) / [WORKLIST.md](WORKLIST.md))
+- **ComfyUI Manager**: Typically lists repo URL; ensure public Git URL before publishing (live queue: [WORKLIST.md](WORKLIST.md); [RELEASE_READINESS.md](RELEASE_READINESS.md) is historical provenance)
 
 ---
 
@@ -244,8 +244,8 @@ Transient files (gitignored): `.ralph-state.json`, `.tasks.lock`, `specs/.curren
 | [README.md](README.md) | End users |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [AGENTS.md](AGENTS.md) | Short pointer to the docs above |
-| [RELEASE_READINESS.md](RELEASE_READINESS.md) | Current release tracker / readiness assessment |
-| [WORKLIST.md](WORKLIST.md) | Ordered action queue |
-| [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI compliance review |
-| [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Historical gap tracker (superseded) |
+| [WORKLIST.md](WORKLIST.md) | Live action queue |
+| [RELEASE_READINESS.md](RELEASE_READINESS.md) | Historical readiness assessment (not the live queue) |
+| [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | Historical ComfyUI compliance snapshot (not the live queue) |
+| [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Historical gap tracker (not the live queue) |
 | [LICENSE](LICENSE) | MIT terms |

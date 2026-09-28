@@ -1,6 +1,8 @@
-# Manual Testing Checklist — cx Sliders (v3.0.0+)
+# Manual Testing Checklist — cx Sliders (1.1.0, six nodes)
 
 Canonical manual QA checklist (replaces deprecated `manual-testing-checklist.md`).
+
+Live nodes (6): cxSlider Int/Float, cxToggle, cxSeed, cxSliderBank Int/Float. cxDial Int/Float were removed in 1.1.0 — do not test them.
 
 All nodes are under **Add Node > utils > cxSliders**.
 
@@ -9,16 +11,14 @@ All nodes are under **Add Node > utils > cxSliders**.
 ## 0. Startup & Loading
 
 - [x] ComfyUI starts without console errors related to `[cx_sliders]`
-- [x] All 8 node types appear in the node menu:
+- [x] All 6 node types appear in the node menu:
   - [x] cxSlider - Int
   - [x] cxSlider - Float
-  - [x] cxDial - Int
-  - [x] cxDial - Float
   - [x] cxToggle
   - [x] cxSeed
   - [x] cxSliderBank - Int
   - [x] cxSliderBank - Float
-- [ ] No "missing node" errors for any of the 8 node types
+- [ ] No "missing node" errors for any of the 6 node types
 - [ ] Browser console shows `[cx_sliders]` debug messages when `window.CX_SLIDERS_DEBUG = true`
 - [ ] Debug messages are silent when `window.CX_SLIDERS_DEBUG = false` (or unset)
 
@@ -80,45 +80,13 @@ All nodes are under **Add Node > utils > cxSliders**.
 
 ## 3. cxDial - Int
 
-### 3.1 Visual Rendering
-- [ ] Widget renders as a 270-degree arc (gap at bottom)
-- [ ] Arc has: dark background, colored fill proportional to value, needle indicator, center dot
-- [ ] Value text displayed below the arc
-- [ ] No overlap with input/output slots
-- [ ] Rounded proportions resize responsively with node width
-- [ ] Low-quality mode hides detail at extreme zoom-out
-
-### 3.2 Interaction
-- [ ] Click on or near the arc sets value by angle
-- [ ] Drag rotates the value smoothly
-- [ ] 90-degree dead zone at the bottom snaps to nearest endpoint (min or max)
-- [ ] **Shift+drag** inverts snap behavior
-- [ ] **No Ctrl+drag** (dial is always bounded — verify Ctrl has no effect)
-- [ ] **Double-click** opens manual entry prompt
-- [ ] Hit area is generous (30% expanded circular bounds)
-
-### 3.3 Context Menu
-- [ ] Fill color picker, border color picker, text color picker
-- [ ] "Reset to Defaults" works
-
-### 3.4 Properties Panel
-- [ ] `min`, `max`, `step`, `snap`, `fillColor`, `borderColor`, `textColor` visible
-- [ ] Changing min/max clamps value
-
-### 3.5 Serialization
-- [ ] Output passes correct integer to Python backend
-- [ ] Save/reload preserves value
+> **Removed in 1.1.0 (2026-09-14).** cxDial Int is not in the pack. Do not test it. Section number kept so later sections stay stable.
 
 ---
 
 ## 4. cxDial - Float
 
-### 4.1 Rendering & Interaction
-- [ ] Same as Int dial but with float values and decimal display
-- [ ] All interactions work with float precision
-
-### 4.2 Serialization
-- [ ] Output is float, save/reload preserves precision
+> **Removed in 1.1.0 (2026-09-14).** cxDial Float is not in the pack. Do not test it.
 
 ---
 
@@ -255,7 +223,7 @@ All nodes are under **Add Node > utils > cxSliders**.
 If you have workflows saved with v1.x of this package:
 
 - [x] Load a v1.x workflow containing cxSlider nodes — values are preserved
-- [ ] Load a v1.x workflow containing cxDial nodes — values are preserved
+- ~~Load a v1.x workflow containing cxDial nodes — values are preserved~~ **Removed (1.1.0):** cxDial is gone. A v1 workflow that still contains it shows a missing node; values are not preserved.
 - [ ] Load a v1.x workflow containing cxToggle nodes — state is preserved
 - [x] Load a v1.x workflow containing cxSeed nodes — seed value is preserved
 - [ ] Load a v1.x workflow containing cxSliderBank nodes — slider values are preserved
@@ -279,7 +247,7 @@ If you have workflows saved with v1.x of this package:
 
 Build a workflow connecting multiple cx nodes together to verify end-to-end:
 
-1. Add cxSlider - Int, cxSlider - Float, cxDial - Int, cxToggle, cxSeed, cxSliderBank - Int
+1. Add the six live nodes: cxSlider - Int, cxSlider - Float, cxToggle, cxSeed, cxSliderBank - Int, cxSliderBank - Float
 2. Connect outputs to Debug/Print nodes or KSampler inputs
 3. Queue prompt — all values pass correctly
 4. Save workflow

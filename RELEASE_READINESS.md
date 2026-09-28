@@ -1,6 +1,8 @@
 # Release-Readiness Assessment — comfyui-cx_sliders
 
-> **Status update 2026-09-14:** Public GitHub (`VirusShell/comfyui-cx_sliders`) and Comfy Registry publisher `@amvir` are live. **`1.0.0`** (2026-06-10) and **`1.1.0`** (2026-09-14: dial removal, dual-color text, packaging hygiene, publish-version gate) both published green. R-3 thumbnails + optional Icon landed (placeholders). Remaining: optional Vir GUI smoke for dual-color + optional real UI screenshot swap for JPGs — not publish blockers. Historical tables below retained for provenance; prefer [WORKLIST.md](WORKLIST.md) for the live queue.
+> **Live queue is [WORKLIST.md](WORKLIST.md).** This file is historical provenance, not the action list. Struck lines below are not open work.
+>
+> **Status update 2026-09-14 (banner strengthened 2026-09-28):** Public GitHub (`VirusShell/comfyui-cx_sliders`) and Comfy Registry publisher `@amvir` are live. **`1.0.0`** (2026-06-10) and **`1.1.0`** (2026-09-14: dial removal, dual-color text, packaging hygiene, publish-version gate) both published green. R-3 thumbnails landed as diagram placeholders. `[tool.comfy] Icon` landed (`media/icon.png`, no extra version bump). Still open only on WORKLIST: Vir dual-color GUI smoke, and optionally replacing those JPG placeholders with live Comfy captures. Not publish blockers.
 
 ---
 
@@ -9,7 +11,7 @@
 **Branch:** `fix/node-rendering-slot-overlap` (name is historical; holds the entire v3.0.0 effort — 15 commits ahead of origin, far ahead of `main`)
 **Method:** Independent code-level verification (3 parallel audits) — did *not* rely on the prior optimistic `STANDARDS_AUDIT.md` / `PROJECT_ISSUES.md` (both dated 2026-06-02, largely auto-generated).
 
-> This file supersedes `PROJECT_ISSUES.md` and `STANDARDS_AUDIT.md` as the live release tracker. Those remain accurate for their date but predate this verification pass.
+> ~~This file supersedes `PROJECT_ISSUES.md` and `STANDARDS_AUDIT.md` as the live release tracker.~~ **Superseded 2026-09-28:** [WORKLIST.md](WORKLIST.md) is the live queue. This file, `PROJECT_ISSUES.md`, and `STANDARDS_AUDIT.md` are historical provenance for their dates.
 
 ---
 
@@ -39,7 +41,7 @@ ComfyUI standards adherence is genuinely strong: the v2.0.0 custom-widget rewrit
 |----|------|----------|--------|
 | R-1 | Commit the staged GitHub-readiness changes | working tree | RESOLVED — landed with public release |
 | R-2 | **cxSliderBank double-click skips rounding** *(real code bug)* | `js/cxsliderbank.js:145` | ✅ FIXED 2026-06-09 — `_onDblClick` now applies `_roundValue` to the typed entry, matching drag (`:128`). Logged under CHANGELOG `[Unreleased] / Fixed`. Syntax-checked. |
-| R-3 | **Add xample_workflows/ preview thumbnails** | xample_workflows/ | DONE 2026-09-14 — same-name .jpg next to both demos (diagram placeholders; replaceable with live captures). Demos cover all 6 post-cxDial nodes. Optional Icon at media/icon.png wired in pyproject (no version bump). |
+| R-3 | **Add example_workflows/ preview thumbnails** | example_workflows/ | DONE 2026-09-14 — same-name .jpg next to both demos (diagram placeholders; replaceable with live captures). Demos cover all 6 post-cxDial nodes. Optional Icon at media/icon.png wired in pyproject (no version bump). |
 | R-4 | **Remove stray empty lock file** | `specs/custom-widget-rewrite/.tasks.lock` (0 bytes) | ✅ DONE 2026-06-09 — deleted (was untracked/gitignored). |
 | R-5 | **CI validates Python syntax but not JS syntax** | `.github/workflows/ci.yml` | ✅ DONE 2026-06-09 — added `setup-node` + a `JS syntax check` step running `node --input-type=module --check` over `js/*.js`. |
 
@@ -93,9 +95,11 @@ Independently re-verified against actual code (not the prior audit). All core cl
 | Remove `CxBaseWidget` base class → standalone widgets | `.archive/specs/standards-compliance-update/requirements.md` | Scoped to a **separate future spec**. Not a blocker. |
 | Automated browser/E2E tests | `STANDARDS_AUDIT.md`; tasks "Production TODOs" | Deferred — ComfyUI UI needs manual checklist; CI covers Python + grep. |
 | Keyboard nav, touch/mobile, global theme, undo/redo | `tasks.md:782` | Deferred enhancements. |
-| `[tool.comfy] Icon` for listing polish | registry docs (optional) | Nice-to-have. |
+| ~~`[tool.comfy] Icon` for listing polish~~ | registry docs (optional) | **Done 2026-09-14** — `media/icon.png` wired in `pyproject.toml`. Not deferred. |
 
-Standards spec **items 4 & 7** (repo URL fix; example workflows) were intentionally routed through `PROJECT_ISSUES.md` (ISSUE-003 / ISSUE-008) rather than the spec — both functionally addressed except the URL is still the Gitea-derived placeholder (B-1) and thumbnails are missing (R-3).
+~~Standards spec **items 4 & 7** (repo URL fix; example workflows) were intentionally routed through `PROJECT_ISSUES.md` (ISSUE-003 / ISSUE-008) rather than the spec — both functionally addressed except the URL is still the Gitea-derived placeholder (B-1) and thumbnails are missing (R-3).~~
+
+**Footnote 2026-09-28:** That coda is stale. B-1 (GitHub owner/URLs) is resolved. R-3 thumbnails are done (diagram JPG placeholders). Icon is wired. Nothing in the struck sentence is still open.
 
 ---
 
@@ -104,7 +108,7 @@ Standards spec **items 4 & 7** (repo URL fix; example workflows) were intentiona
 1. **Decide the real GitHub owner/org** and update `pyproject.toml:17-19`, `README.md:29`, `publish.yml:21-22` (B-1).
 2. **Register registry publisher `@amvir`** at registry.comfy.org; add the API key as a Repository secret `REGISTRY_ACCESS_TOKEN` on the GitHub repo (B-3).
 3. **Quick code fix:** add `_roundValue` to cxSliderBank `_onDblClick` (R-2). ✅ done; folded into the `1.0.0` public release.
-4. **Tidy:** delete `.tasks.lock` (R-4); optionally fix stale doc states D-2/D-3/D-4; add thumbnails (R-3).
+4. **Tidy:** delete `.tasks.lock` (R-4); optionally fix stale doc states D-2/D-3/D-4; ~~add thumbnails (R-3)~~ **R-3 done 2026-09-14** (diagram JPG placeholders; Icon also wired).
 5. **Commit** the staged GitHub-readiness changes + untracked files (R-1) — single "GitHub/registry readiness" commit.
 6. **Create the GitHub repo**, push the branch, open a PR into `main` with a descriptive title (branch name is historical) (B-2).
 7. After repo is public + token set, **publish to ComfyUI Registry** (the `publish.yml` owner guard then passes and the action runs on the next pyproject change to main).
@@ -112,4 +116,4 @@ Standards spec **items 4 & 7** (repo URL fix; example workflows) were intentiona
 
 ---
 
-*Findings consolidated from three independent verification passes on 2026-06-09. Update this file as items close; re-open in the P0–P2 tables rather than starting a new tracker.*
+*Findings consolidated from three independent verification passes on 2026-06-09. ~~Update this file as items close; re-open in the P0–P2 tables rather than starting a new tracker.~~ **2026-09-28:** new work goes on [WORKLIST.md](WORKLIST.md). Do not reopen items here.*
