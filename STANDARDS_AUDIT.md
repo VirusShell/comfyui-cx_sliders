@@ -4,6 +4,8 @@
 **Scope**: Production `*.py`, `js/*.js` (excluding `specs/`)  
 **Reference**: CODEBASE, archived specs under `.archive/specs/`, ComfyUI custom-node conventions
 
+> **Footnote 2026-09-28:** Treat the body below as a historical snapshot (audit date 2026-06-02). Public **1.1.0** is **6 nodes**, **6** `js/docs/` help files, and **4 extensions** (`slider`, `toggle`, `seed`, `sliderbank`). cxDial was removed 2026-09-14. Rows that say five modules, five extension names, or eight help files describe the pre-removal tree. Live queue: [WORKLIST.md](WORKLIST.md).
+
 ---
 
 ## Verdict

@@ -38,12 +38,15 @@ Thanks for helping improve **comfyui-cx_sliders**.
 
 ## Architecture docs
 
+Contributors should start with these:
+
 | Doc | Purpose |
 |-----|---------|
+| [README.md](README.md) | Install and usage |
 | [CODEBASE.MD](CODEBASE.MD) | Repository map |
-| [AGENTS.md](AGENTS.md) | Short pointer to CODEBASE / README |
-| [STANDARDS_AUDIT.md](STANDARDS_AUDIT.md) | ComfyUI standards compliance review |
-| [PROJECT_ISSUES.md](PROJECT_ISSUES.md) | Known gaps tracker |
+| [WORKLIST.md](WORKLIST.md) | Live action queue |
+
+[AGENTS.md](AGENTS.md) is only a short pointer to README, CODEBASE, WORKLIST, and this file. `RELEASE_READINESS.md`, `STANDARDS_AUDIT.md`, and `PROJECT_ISSUES.md` are historical provenance, not the live queue.
 
 ## Releases
 
@@ -56,7 +59,7 @@ Repo is on GitHub under `VirusShell`; publisher id `amvir`. Publish workflow:
 1. Keep [Registry access token](https://docs.comfy.org/registry/publishing) as repo secret `REGISTRY_ACCESS_TOKEN` (Repository secret, not Environment).
 2. Bump `[project].version` in `pyproject.toml` on `main` **only when shipping a real Registry release** — also sync `js/cx_utils.js` (`CX_VERSION`), README header, and CHANGELOG. `.github/workflows/publish.yml` runs `Comfy-Org/publish-node-action` when the version string changes; metadata-only `pyproject.toml` edits skip publish (avoids Registry 400 "already exists").
 3. Manual `workflow_dispatch` still publishes the current version if needed.
-4. Optional: add `[tool.comfy] Icon = "https://..."` in `pyproject.toml` (raw GitHub URL to a square PNG).
+4. Pack listing icon is already wired: `[tool.comfy] Icon` points at raw `media/icon.png`. Change that URL only if you replace the PNG.
 
 ## Patterns from other packs
 

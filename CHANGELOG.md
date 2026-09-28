@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Example workflow template thumbnails: xample_workflows/cx_sliders_demo.jpg and cx_slider_bank_demo.jpg (same-basename convention for ComfyUI Browse Templates). Diagram placeholders pending live ComfyUI captures.
+- Example workflow template thumbnails: example_workflows/cx_sliders_demo.jpg and cx_slider_bank_demo.jpg (same-basename convention for ComfyUI Browse Templates). Diagram placeholders pending live ComfyUI captures.
 - Pack Registry/Manager icon at media/icon.png, referenced by [tool.comfy] Icon (no version bump; listing icon appears on next intentional Registry publish).
 
 ### Changed
+- Docs hygiene so living docs match the 1.1.0 tree (six nodes, Icon shipped, cxDial gone). Unused `COLORS.dial` palette key removed; nothing referenced it.
 - Example workflows expanded to cover all six post-cxDial nodes (Int/Float slider, toggle, seed, Int/Float bank).
 
 ## [1.1.0] - 2026-09-14

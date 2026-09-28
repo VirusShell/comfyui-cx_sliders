@@ -19,9 +19,6 @@ export const COLORS = {
   slider: {
     fill: "#4a90d9",
   },
-  dial: {
-    fill: "#4a90d9",
-  },
   toggle: {
     fill: "#5aaa5a",
     fillOff: "#2a2a2a",

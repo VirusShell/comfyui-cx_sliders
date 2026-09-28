@@ -9,7 +9,7 @@ troubleshooting_images/
 *.lnk
 
 # Internal authoring docs (not needed at install time)
-CLAUDE.md
+AGENTS.md
 CODEBASE.MD
 PROJECT_ISSUES.md
 STANDARDS_AUDIT.md
